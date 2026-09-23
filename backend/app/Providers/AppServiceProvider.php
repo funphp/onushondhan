@@ -7,7 +7,13 @@ namespace App\Providers;
 use App\Contracts\FileVault;
 use App\Contracts\MalwareScanner;
 use App\Contracts\SmsSender;
+use App\Models\CmsPage;
+use App\Models\InvestigationCategory;
+use App\Models\Role;
+use App\Models\SystemSetting;
+use App\Models\TermsVersion;
 use App\Models\User;
+use App\Observers\AdminChangeObserver;
 use App\Services\AuthService;
 use App\Services\Files\FilesystemFileVault;
 use App\Services\Scanning\ClamAvScanner;
@@ -57,6 +63,10 @@ class AppServiceProvider extends ServiceProvider
         ResetPassword::createUrlUsing(fn (User $user, string $token) => config('onushondhan.frontend_url').'/reset-password?'.http_build_query(['token' => $token, 'email' => $user->getEmailForPasswordReset()]));
 
         $this->configureRateLimiting();
+
+        foreach ([CmsPage::class, TermsVersion::class, InvestigationCategory::class, SystemSetting::class, Role::class] as $model) {
+            $model::observe(AdminChangeObserver::class);
+        }
     }
 
     private function configureRateLimiting(): void

@@ -23,6 +23,7 @@ use Illuminate\Support\Carbon;
  * @property bool $is_pinned
  * @property int $score
  * @property int $replies_count
+ * @property int|null $open_reports_count
  * @property Carbon|null $edited_at
  * @property Carbon $created_at
  * @property Carbon|null $deleted_at
