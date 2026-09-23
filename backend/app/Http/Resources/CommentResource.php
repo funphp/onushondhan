@@ -38,7 +38,7 @@ class CommentResource extends JsonResource
             'status' => $gone ? ($c->trashed() ? 'removed' : $c->status->value) : 'visible',
             'author' => $gone ? null : ($isOwner
                 ? ['name' => self::$ownerIdentity['public_name'] ?? 'Investigator', 'role' => 'investigator', 'slug' => self::$ownerIdentity['slug'] ?? null]
-                : ['name' => $c->user?->username ?? 'former-user', 'role' => 'member', 'slug' => null]),
+                : ['name' => $c->user->username ?? 'former-user', 'role' => 'member', 'slug' => null]),
             'is_pinned' => $c->is_pinned,
             'score' => $c->score,
             'replies_count' => $c->replies_count,

@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\CmsStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -20,8 +21,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $seo_title
  * @property string|null $seo_description
  * @property string|null $canonical_url
- * @property \Illuminate\Support\Carbon|null $published_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon|null $published_at
+ * @property Carbon $updated_at
  */
 class CmsPage extends Model
 {

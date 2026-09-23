@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -23,10 +24,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $description
  * @property ComplaintStatus $status
  * @property int|null $reviewed_by
- * @property \Illuminate\Support\Carbon|null $reviewed_at
+ * @property Carbon|null $reviewed_at
  * @property string|null $resolution
  * @property string|null $internal_notes
- * @property \Illuminate\Support\Carbon $created_at
+ * @property Carbon $created_at
  * @property-read Investigation|null $investigation
  * @property-read Comment|null $comment
  * @property-read Evidence|null $evidence

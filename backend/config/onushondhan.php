@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 return [
+    // Seed local demo accounts/content (never in production regardless of this flag).
+    'seed_demo_data' => (bool) env('SEED_DEMO_DATA', true),
+
     'frontend_url' => rtrim((string) env('FRONTEND_URL', 'http://localhost:3000'), '/'),
 
     'vault_disk' => env('VAULT_DISK', 'vault'),

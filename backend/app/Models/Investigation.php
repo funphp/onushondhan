@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\InvestigationStatus;
 use App\Enums\InvestigationVisibility;
+use Database\Factories\InvestigationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
@@ -35,8 +37,8 @@ use Illuminate\Support\Str;
  * @property string|null $location_country
  * @property string|null $location_lat
  * @property string|null $location_lng
- * @property \Illuminate\Support\Carbon|null $period_start
- * @property \Illuminate\Support\Carbon|null $period_end
+ * @property Carbon|null $period_start
+ * @property Carbon|null $period_end
  * @property int $draft_revision
  * @property bool $has_unpublished_changes
  * @property string|null $published_title
@@ -45,12 +47,12 @@ use Illuminate\Support\Str;
  * @property array<string, mixed>|null $identity_snapshot
  * @property InvestigationStatus $status
  * @property InvestigationVisibility $visibility
- * @property \Illuminate\Support\Carbon|null $published_at
- * @property \Illuminate\Support\Carbon|null $last_published_at
- * @property \Illuminate\Support\Carbon|null $withdrawn_at
- * @property \Illuminate\Support\Carbon|null $archived_at
- * @property \Illuminate\Support\Carbon|null $restricted_at
- * @property \Illuminate\Support\Carbon|null $removed_at
+ * @property Carbon|null $published_at
+ * @property Carbon|null $last_published_at
+ * @property Carbon|null $withdrawn_at
+ * @property Carbon|null $archived_at
+ * @property Carbon|null $restricted_at
+ * @property Carbon|null $removed_at
  * @property string|null $withdrawal_reason
  * @property string|null $public_status_note
  * @property int $current_version
@@ -62,8 +64,8 @@ use Illuminate\Support\Str;
  * @property int $reactions_count
  * @property int $tips_count
  * @property float $trending_score
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  * @property-read Investigator $investigator
  * @property-read InvestigationCategory|null $category
  * @property-read InvestigationCategory|null $subcategory
@@ -71,7 +73,7 @@ use Illuminate\Support\Str;
  */
 class Investigation extends Model
 {
-    /** @use HasFactory<\Database\Factories\InvestigationFactory> */
+    /** @use HasFactory<InvestigationFactory> */
     use HasFactory;
 
     use SoftDeletes;
@@ -238,7 +240,8 @@ class Investigation extends Model
     /** @return HasOne<InvestigationVersion, $this> */
     public function currentVersion(): HasOne
     {
-        return $this->hasOne(InvestigationVersion::class)->whereColumn('investigation_versions.version_no', 'investigations.current_version');
+        // The current published version is always the highest version number.
+        return $this->hasOne(InvestigationVersion::class)->latestOfMany('version_no');
     }
 
     /** @return HasMany<Evidence, $this> */

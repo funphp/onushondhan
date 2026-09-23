@@ -15,7 +15,7 @@ class SettingsSeeder extends Seeder
         foreach (Settings::DEFAULTS as $key => $value) {
             SystemSetting::query()->firstOrCreate(['key' => $key], [
                 'value_json' => $value,
-                'value_type' => is_bool($value) ? 'boolean' : (is_int($value) ? 'integer' : 'string'),
+                'value_type' => is_bool($value) ? 'boolean' : 'integer',
             ]);
         }
     }

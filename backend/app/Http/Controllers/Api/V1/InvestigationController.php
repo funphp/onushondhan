@@ -12,6 +12,7 @@ use App\Http\Resources\InvestigationCardResource;
 use App\Http\Resources\PublicInvestigationResource;
 use App\Models\Bookmark;
 use App\Models\Investigation;
+use App\Models\Investigator;
 use App\Models\InvestigatorFollower;
 use App\Models\InvestigatorSupport;
 use App\Models\Reaction;
@@ -51,7 +52,7 @@ class InvestigationController extends Controller
 
     public function byInvestigator(Request $request, string $slug, SearchService $search, AnalyticsService $analytics): AnonymousResourceCollection
     {
-        \App\Models\Investigator::query()->where('slug', $slug)->where('status', 'active')->firstOrFail();
+        Investigator::query()->where('slug', $slug)->where('status', 'active')->firstOrFail();
         $request->merge(['investigator' => $slug]);
 
         return $this->index($request, $search, $analytics);

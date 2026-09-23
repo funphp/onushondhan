@@ -26,7 +26,7 @@ class FileInspector
     ];
 
     /** Signatures of executables/scripts that must never be accepted in any container. */
-    private const FORBIDDEN_PREFIXES = ["MZ", "\x7fELF", "#!", "\xCA\xFE\xBA\xBE", "\xCF\xFA\xED\xFE", "\xFE\xED\xFA\xCE"];
+    private const FORBIDDEN_PREFIXES = ['MZ', "\x7fELF", '#!', "\xCA\xFE\xBA\xBE", "\xCF\xFA\xED\xFE", "\xFE\xED\xFA\xCE"];
 
     /** @param array<string, list<string>> $allowed detected mime => extensions */
     public function inspect(UploadedFile $file, array $allowed, int $maxBytes, string $field = 'file'): InspectedFile

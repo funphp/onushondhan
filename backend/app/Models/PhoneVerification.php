@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -12,8 +13,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $phone
  * @property string $code_hash
  * @property int $attempts
- * @property \Illuminate\Support\Carbon $expires_at
- * @property \Illuminate\Support\Carbon|null $verified_at
+ * @property Carbon $expires_at
+ * @property Carbon|null $verified_at
  */
 class PhoneVerification extends Model
 {

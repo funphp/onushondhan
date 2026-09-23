@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
             ContentSeeder::class,
         ]);
 
-        if (! app()->isProduction() && env('SEED_DEMO_DATA', true)) {
+        if (! app()->isProduction() && config('onushondhan.seed_demo_data')) {
             $this->call(DemoSeeder::class);
         }
     }

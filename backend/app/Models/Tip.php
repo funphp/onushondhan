@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -24,8 +25,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property ContactPreference $contact_preference
  * @property string|null $contact_value
  * @property TipStatus $status
- * @property \Illuminate\Support\Carbon|null $last_message_at
- * @property \Illuminate\Support\Carbon $created_at
+ * @property Carbon|null $last_message_at
+ * @property Carbon $created_at
  * @property-read Investigator $investigator
  * @property-read Investigation|null $investigation
  * @property-read User|null $sender

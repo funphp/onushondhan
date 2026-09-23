@@ -6,11 +6,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $investigation_id
  * @property int $sort_order
+ * @property Carbon|null $accessed_at
+ * @property string $title
+ * @property string $source_type
+ * @property string|null $publisher
+ * @property string|null $url
+ * @property string|null $citation_text
+ * @property bool $is_public
  */
 class Source extends Model
 {

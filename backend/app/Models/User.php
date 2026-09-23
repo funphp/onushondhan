@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use SensitiveParameter;
 
@@ -31,11 +32,14 @@ use SensitiveParameter;
  * @property string $username
  * @property string $email
  * @property UserStatus $status
- * @property \Illuminate\Support\Carbon|null $email_verified_at
- * @property \Illuminate\Support\Carbon|null $phone_verified_at
- * @property \Illuminate\Support\Carbon|null $suspended_until
- * @property \Illuminate\Support\Carbon|null $last_login_at
- * @property \Illuminate\Support\Carbon $created_at
+ * @property Carbon|null $email_verified_at
+ * @property Carbon|null $phone_verified_at
+ * @property Carbon|null $suspended_until
+ * @property Carbon|null $last_login_at
+ * @property Carbon $created_at
+ * @property string|null $app_authentication_secret
+ * @property array<string>|null $app_authentication_recovery_codes
+ * @property array<string, mixed>|null $notification_preferences
  * @property-read Investigator|null $investigator
  */
 class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasName, MustVerifyEmail

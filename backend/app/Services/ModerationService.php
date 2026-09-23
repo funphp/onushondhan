@@ -44,7 +44,6 @@ class ModerationService
     public function __construct(
         private readonly AuditLogger $audit,
         private readonly InvestigationService $investigations,
-        private readonly EngagementService $engagement,
     ) {}
 
     /** @param array<string, mixed> $details */
@@ -63,12 +62,13 @@ class ModerationService
 
         return DB::transaction(function () use ($actor, $targetType, $target, $action, $reason, $details, $complaint): ModerationAction {
             $before = $this->snapshot($target);
-            $notifyUser = match ($targetType) {
-                'investigation' => $this->onInvestigation($target, $action, $details, $actor, $reason),
-                'comment' => $this->onComment($target, $action),
-                'evidence' => $this->onEvidence($target, $action),
-                'user' => $this->onUser($target, $action, $details, $actor, $reason),
-                'investigator' => $this->onInvestigator($target, $action),
+            $notifyUser = match (true) {
+                $targetType === 'investigation' && $target instanceof Investigation => $this->onInvestigation($target, $action, $details, $actor, $reason),
+                $targetType === 'comment' && $target instanceof Comment => $this->onComment($target, $action),
+                $targetType === 'evidence' && $target instanceof Evidence => $this->onEvidence($target, $action),
+                $targetType === 'user' && $target instanceof User => $this->onUser($target, $action, $details, $actor, $reason),
+                $targetType === 'investigator' && $target instanceof Investigator => $this->onInvestigator($target, $action),
+                default => throw new ApiException('Target does not match its type.', 'invalid_target', 422),
             };
 
             $record = ModerationAction::query()->create([
@@ -101,7 +101,7 @@ class ModerationService
     }
 
     /** @param array<string, mixed> $details */
-    private function onInvestigation(Investigation $inv, A $action, array $details, User $actor, string $reason): ?User
+    private function onInvestigation(Investigation $inv, A $action, array $details, User $actor, string $reason): User
     {
         $publicNote = isset($details['public_note']) ? mb_substr((string) $details['public_note'], 0, 500) : null;
         match ($action) {
@@ -135,7 +135,7 @@ class ModerationService
         return in_array($action, [A::Hide, A::Remove], true) ? $comment->user : null;
     }
 
-    private function onEvidence(Evidence $evidence, A $action): ?User
+    private function onEvidence(Evidence $evidence, A $action): User
     {
         match ($action) {
             A::Hide => $evidence->forceFill(['moderation_status' => 'hidden'])->save(),
@@ -150,7 +150,7 @@ class ModerationService
     }
 
     /** @param array<string, mixed> $details */
-    private function onUser(User $user, A $action, array $details, User $actor, string $reason): ?User
+    private function onUser(User $user, A $action, array $details, User $actor, string $reason): User
     {
         if ($user->id === $actor->id) {
             throw ApiException::forbidden('You cannot moderate your own account.');
@@ -179,7 +179,7 @@ class ModerationService
         return $user;
     }
 
-    private function onInvestigator(Investigator $investigator, A $action): ?User
+    private function onInvestigator(Investigator $investigator, A $action): User
     {
         match ($action) {
             A::Restrict => $investigator->forceFill(['status' => InvestigatorStatus::Suspended])->save(),

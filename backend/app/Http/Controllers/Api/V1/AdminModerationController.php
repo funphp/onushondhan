@@ -89,7 +89,7 @@ class AdminModerationController extends Controller
             'comment' => Comment::withTrashed()->where('public_id', $data['target_id'])->firstOrFail(),
             'evidence' => Evidence::query()->where('public_id', $data['target_id'])->firstOrFail(),
             'user' => User::query()->where('public_id', $data['target_id'])->firstOrFail(),
-            'investigator' => Investigator::query()->where('public_id', $data['target_id'])->firstOrFail(),
+            default => Investigator::query()->where('public_id', $data['target_id'])->firstOrFail(),
         };
         $complaint = ! empty($data['complaint_id']) ? Complaint::query()->where('public_id', $data['complaint_id'])->firstOrFail() : null;
 

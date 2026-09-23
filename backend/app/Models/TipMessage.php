@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\TipSenderType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -14,8 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $sender_user_id
  * @property TipSenderType $sender_type
  * @property string $body
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon|null $read_at
+ * @property Carbon $created_at
+ * @property Carbon|null $read_at
  */
 class TipMessage extends Model
 {

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -22,9 +23,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $is_pinned
  * @property int $score
  * @property int $replies_count
- * @property \Illuminate\Support\Carbon|null $edited_at
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $edited_at
+ * @property Carbon $created_at
+ * @property Carbon|null $deleted_at
  * @property-read User $user
  * @property-read Investigation $investigation
  * @property-read Comment|null $parent

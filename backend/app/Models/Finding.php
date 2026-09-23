@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $investigation_id
  * @property int $sort_order
+ * @property string $title
+ * @property string|null $body
  */
 class Finding extends Model
 {

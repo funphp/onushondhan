@@ -11,6 +11,7 @@ use App\Http\Resources\EvidenceResource;
 use App\Models\Evidence;
 use App\Models\Investigation;
 use App\Models\User;
+use App\Policies\EvidencePolicy;
 use App\Services\EvidenceDelivery;
 use App\Services\EvidenceService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -110,7 +111,7 @@ class EvidenceController extends Controller
             throw new ModelNotFoundException;
         }
         $resource = new EvidenceResource($evidence);
-        if ($user !== null && app(\App\Policies\EvidencePolicy::class)->isOwnerOrStaff($user, $evidence)) {
+        if ($user !== null && app(EvidencePolicy::class)->isOwnerOrStaff($user, $evidence)) {
             $resource->owner();
         }
 

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -18,8 +19,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $title
  * @property string $content
  * @property TermsStatus $status
- * @property \Illuminate\Support\Carbon|null $effective_at
- * @property \Illuminate\Support\Carbon|null $published_at
+ * @property Carbon|null $effective_at
+ * @property Carbon|null $published_at
  */
 class TermsVersion extends Model
 {

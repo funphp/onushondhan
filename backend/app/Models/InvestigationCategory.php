@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\InvestigationCategoryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,10 +18,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $description
  * @property int $sort_order
  * @property string $status
+ * @property int|null $investigations_count
  */
 class InvestigationCategory extends Model
 {
-    /** @use HasFactory<\Database\Factories\InvestigationCategoryFactory> */
+    /** @use HasFactory<InvestigationCategoryFactory> */
     use HasFactory;
 
     protected $fillable = ['parent_id', 'name', 'slug', 'description', 'sort_order', 'status'];

@@ -12,7 +12,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 
 /**
  * Community leaderboards with deliberately neutral labels. Rankings measure community
@@ -79,7 +78,7 @@ class LeaderboardController extends Controller
             'rising' => DB::table('investigator_supports as s')->join('investigators', 'investigators.id', '=', 's.investigator_id')->tap($active)
                 ->where('s.status', 'active')->where('s.created_at', '>=', now()->subDays(30))
                 ->groupBy('investigators.id')->select('investigators.id as inv_id', DB::raw('COUNT(*) as score')),
-            'most_shared', 'most_discussed' => DB::table('investigations as i')->join('investigators', 'investigators.id', '=', 'i.investigator_id')->tap($active)
+            default => DB::table('investigations as i')->join('investigators', 'investigators.id', '=', 'i.investigator_id')->tap($active)
                 ->whereIn('i.status', [InvestigationStatus::Published->value, InvestigationStatus::Archived->value])->where('i.visibility', 'public')->whereNull('i.deleted_at')
                 ->groupBy('investigators.id')
                 ->select('investigators.id as inv_id', DB::raw('SUM('.($board === 'most_shared' ? 'i.shares_count' : 'i.comments_count').') as score'))

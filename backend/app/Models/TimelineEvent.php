@@ -6,11 +6,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $investigation_id
  * @property int $sort_order
+ * @property Carbon|null $event_date
+ * @property string $title
+ * @property string|null $description
  */
 class TimelineEvent extends Model
 {

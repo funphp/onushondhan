@@ -51,13 +51,16 @@ class AuditLogger
             ];
             $row['hash'] = self::computeHash($row);
 
-            $log = new AuditLog;
-            $log->forceFill($row);
-            $log->save();
+            // Insert via the query builder so the exact microsecond timestamp that was
+            // hashed is what gets stored (Eloquent's date format would truncate it).
+            $id = DB::table('audit_logs')->insertGetId(array_merge($row, [
+                'before_json' => $row['before_json'] === null ? null : json_encode($row['before_json'], JSON_UNESCAPED_UNICODE),
+                'after_json' => $row['after_json'] === null ? null : json_encode($row['after_json'], JSON_UNESCAPED_UNICODE),
+            ]));
 
-            DB::table('audit_chain')->where('id', 1)->update(['last_hash' => $row['hash'], 'last_id' => $log->id]);
+            DB::table('audit_chain')->where('id', 1)->update(['last_hash' => $row['hash'], 'last_id' => $id]);
 
-            return $log;
+            return AuditLog::query()->findOrFail($id);
         });
     }
 

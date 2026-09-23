@@ -50,7 +50,7 @@ class EvidenceDelivery
         return URL::temporarySignedRoute(
             $action === 'preview' ? 'evidence.preview' : 'evidence.download',
             now()->addMinutes($ttl),
-            ['evidence' => $evidence->public_id, 'uid' => $user?->public_id ?? 'guest'],
+            ['evidence' => $evidence->public_id, 'uid' => $user->public_id ?? 'guest'],
             absolute: false,
         );
     }

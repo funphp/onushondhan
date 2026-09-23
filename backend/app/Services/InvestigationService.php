@@ -50,7 +50,7 @@ class InvestigationService
 
             $this->audit->log('investigation.created', $investigation, null, ['public_id' => $investigation->public_id, 'title' => $investigation->title], $actor);
 
-            return $investigation;
+            return $investigation->refresh();
         });
     }
 

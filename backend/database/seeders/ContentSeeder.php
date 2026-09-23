@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Enums\AgreementType;
+use App\Enums\TermsStatus;
 use App\Models\CmsPage;
 use App\Models\TermsVersion;
 use Illuminate\Database\Seeder;
@@ -37,7 +38,7 @@ class ContentSeeder extends Seeder
             $version = TermsVersion::query()->firstOrNew(['agreement_type' => AgreementType::from($type), 'version' => '1.0']);
             if (! $version->exists) {
                 $version->fill(['title' => $title, 'content' => $content, 'effective_at' => now()->subDay()]);
-                $version->status = 'published';
+                $version->status = TermsStatus::Published;
                 $version->published_at = now()->subDay();
                 $version->save();
             }

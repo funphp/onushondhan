@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * storage_path / preview_path are internal and never serialised to clients.
@@ -36,8 +37,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $caption
  * @property int $sort_order
  * @property int $current_version
- * @property \Illuminate\Support\Carbon $uploaded_at
- * @property \Illuminate\Support\Carbon|null $scanned_at
+ * @property Carbon $uploaded_at
+ * @property Carbon|null $scanned_at
  * @property-read Investigation $investigation
  * @property-read Investigator $investigator
  */

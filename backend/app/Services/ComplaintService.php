@@ -32,7 +32,7 @@ class ComplaintService
         if ($reporter === null && empty($data['reporter_email'])) {
             throw new ApiException('Provide an email address so we can follow up.', 'validation_failed', 422, ['reporter_email' => ['An email address is required.']]);
         }
-        $investigation ??= $comment?->investigation ?? $evidence?->investigation;
+        $investigation ??= $comment->investigation ?? $evidence?->investigation;
 
         return DB::transaction(function () use ($data, $reporter, $investigation, $comment, $evidence): Complaint {
             $complaint = new Complaint([

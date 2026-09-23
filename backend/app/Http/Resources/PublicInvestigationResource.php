@@ -12,6 +12,7 @@ use App\Models\Investigation;
 use App\Models\InvestigationVersion;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Collection;
 
 /**
  * Public rendering of an investigation, built exclusively from its current published
@@ -44,18 +45,18 @@ class PublicInvestigationResource extends JsonResource
             && in_array($inv->status, [InvestigationStatus::Published, InvestigationStatus::Archived], true)
             && $inv->visibility === InvestigationVisibility::Public;
 
-        $meta = $version?->meta_json ?? [];
+        $meta = $version->meta_json ?? [];
 
         return [
             'id' => $inv->public_id,
-            'slug' => $inv->slug ?? Investigation::makeSlug($version?->title ?? $inv->title),
+            'slug' => $inv->slug ?? Investigation::makeSlug($version->title ?? $inv->title),
             'url' => '/investigation/'.$inv->public_id.'/'.($inv->slug ?? ''),
             'canonical_url' => $inv->publicUrl(),
             'status' => $inv->status->value,
             'visibility' => $inv->visibility->value,
             'is_preview' => $isPreview,
             'robots' => ['index' => $indexable, 'follow' => $indexable],
-            'title' => $version?->title ?? $inv->published_title ?? $inv->title,
+            'title' => $version->title ?? $inv->published_title ?? $inv->title,
             'summary' => $showContent ? $version->summary : null,
             'body' => $showContent ? $version->body : null,
             'findings' => $showContent ? ($version->findings_json ?? []) : [],
@@ -77,7 +78,7 @@ class PublicInvestigationResource extends JsonResource
             'investigator' => new InvestigatorSummaryResource($inv->investigator),
             'published_at' => $inv->published_at?->toIso8601String(),
             'updated_at' => $inv->last_published_at?->toIso8601String(),
-            'version' => $version?->version_no ?? 0,
+            'version' => $version->version_no ?? 0,
             'change_reason' => $version?->change_reason,
             'counts' => [
                 'views' => $inv->views_count,
@@ -94,8 +95,8 @@ class PublicInvestigationResource extends JsonResource
         ];
     }
 
-    /** @return \Illuminate\Support\Collection<int, Evidence> */
-    public static function publicEvidence(Investigation $inv): \Illuminate\Support\Collection
+    /** @return Collection<int, Evidence> */
+    public static function publicEvidence(Investigation $inv): Collection
     {
         return $inv->evidence()
             ->where('visibility', EvidenceVisibility::Public)

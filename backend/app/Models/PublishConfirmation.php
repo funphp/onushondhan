@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Record of the explicit responsibility confirmation made before each publication.
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $user_id
  * @property int $version_no
  * @property array<string, bool> $statements_json
- * @property \Illuminate\Support\Carbon $confirmed_at
+ * @property Carbon $confirmed_at
  */
 class PublishConfirmation extends Model
 {

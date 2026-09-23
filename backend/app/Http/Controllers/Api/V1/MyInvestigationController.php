@@ -11,9 +11,11 @@ use App\Http\Resources\InvestigationOwnerResource;
 use App\Http\Resources\PublicInvestigationResource;
 use App\Models\Investigation;
 use App\Models\InvestigationVersion;
+use App\Models\Investigator;
 use App\Models\User;
 use App\Services\InvestigationService;
 use App\Support\TextDiff;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -185,7 +187,7 @@ class MyInvestigationController extends Controller
         return response()->json(['data' => ['from' => $from->version_no, 'to' => $to->version_no, 'fields' => $fields]]);
     }
 
-    private function investigatorOf(User $user): \App\Models\Investigator
+    private function investigatorOf(User $user): Investigator
     {
         $investigator = $user->investigator;
         if ($investigator === null) {
@@ -202,7 +204,7 @@ class MyInvestigationController extends Controller
     private function authorizeOwner(User $user, Investigation $investigation, string $ability): void
     {
         if ($user->investigator === null || $investigation->investigator_id !== $user->investigator->id) {
-            throw new \Illuminate\Database\Eloquent\ModelNotFoundException;
+            throw new ModelNotFoundException;
         }
         $this->authorize($ability, $investigation);
     }

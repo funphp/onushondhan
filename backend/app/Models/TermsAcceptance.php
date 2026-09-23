@@ -6,13 +6,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $user_id
  * @property string $agreement_type
  * @property int $terms_version_id
- * @property \Illuminate\Support\Carbon $accepted_at
+ * @property Carbon $accepted_at
  */
 class TermsAcceptance extends Model
 {

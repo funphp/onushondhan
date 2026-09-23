@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\ModerationActionType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -17,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $reason
  * @property array<string, mixed>|null $details
  * @property int|null $complaint_id
- * @property \Illuminate\Support\Carbon $created_at
+ * @property Carbon $created_at
  */
 class ModerationAction extends Model
 {

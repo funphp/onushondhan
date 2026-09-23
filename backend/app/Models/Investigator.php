@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\IdentityMode;
 use App\Enums\InvestigatorStatus;
+use Database\Factories\InvestigatorFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
@@ -31,14 +33,14 @@ use Illuminate\Support\Str;
  * @property int $followers_count
  * @property int $published_investigations_count
  * @property int $total_views
- * @property \Illuminate\Support\Carbon|null $published_at
- * @property \Illuminate\Support\Carbon $created_at
+ * @property Carbon|null $published_at
+ * @property Carbon $created_at
  * @property-read User $user
  * @property-read InvestigatorPrivateIdentity|null $privateIdentity
  */
 class Investigator extends Model
 {
-    /** @use HasFactory<\Database\Factories\InvestigatorFactory> */
+    /** @use HasFactory<InvestigatorFactory> */
     use HasFactory;
 
     use HasUlids;

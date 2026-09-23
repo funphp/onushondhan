@@ -118,7 +118,7 @@ class MyInvestigatorController extends Controller
         $page = $investigator->followers()->orderByPivot('created_at', 'desc')->paginate(30, ['users.id', 'users.username']);
 
         return response()->json([
-            'data' => collect($page->items())->map(fn ($u) => ['username' => $u->username, 'since' => $u->pivot->created_at]),
+            'data' => collect($page->items())->map(fn ($u) => ['username' => $u->username, 'since' => data_get($u, 'pivot.created_at')]),
             'meta' => ['total' => $page->total(), 'current_page' => $page->currentPage(), 'last_page' => $page->lastPage()],
         ]);
     }
