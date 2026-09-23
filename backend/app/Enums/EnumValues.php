@@ -12,6 +12,12 @@ trait EnumValues
         return array_map(static fn (self $c): string => $c->value, self::cases());
     }
 
+    /** Human-readable label (used by the admin panel badges and selects). */
+    public function getLabel(): string
+    {
+        return ucfirst(str_replace('_', ' ', $this->value));
+    }
+
     /** @return array<string, string> value => human label */
     public static function options(): array
     {

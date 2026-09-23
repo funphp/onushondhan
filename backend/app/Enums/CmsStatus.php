@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum CmsStatus: string
+use Filament\Support\Contracts\HasLabel;
+
+enum CmsStatus: string implements HasLabel
 {
     use EnumValues;
 

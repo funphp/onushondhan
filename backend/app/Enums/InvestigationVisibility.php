@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum InvestigationVisibility: string
+use Filament\Support\Contracts\HasLabel;
+
+enum InvestigationVisibility: string implements HasLabel
 {
     use EnumValues;
 

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum AgreementType: string
+use Filament\Support\Contracts\HasLabel;
+
+enum AgreementType: string implements HasLabel
 {
     use EnumValues;
 

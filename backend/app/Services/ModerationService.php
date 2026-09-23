@@ -22,6 +22,7 @@ use App\Models\User;
 use App\Notifications\PlatformNotification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Applies moderation actions. Moderation enforces platform policy (spam, abuse,
@@ -173,7 +174,8 @@ class ModerationService
             default => null,
         };
         if (in_array($action, [A::SuspendUser, A::BanUser], true)) {
-            DB::table('sessions')->where('user_id', $user->id)->delete();
+            app(SessionRevoker::class)->revokeUser($user);
+            $user->forceFill(['remember_token' => Str::random(60)])->save();
         }
 
         return $user;

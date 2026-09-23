@@ -81,9 +81,7 @@ class AuthService
     /** Invalidate every other session for this user (after credential changes). */
     public function logoutOtherSessions(User $user, ?string $keepSessionId): void
     {
-        DB::table('sessions')->where('user_id', $user->id)
-            ->when($keepSessionId, fn ($q) => $q->where('id', '!=', $keepSessionId))
-            ->delete();
+        app(SessionRevoker::class)->revokeUser($user, $keepSessionId);
         $user->forceFill(['remember_token' => Str::random(60)])->save();
     }
 

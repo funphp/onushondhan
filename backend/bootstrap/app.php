@@ -5,6 +5,7 @@ use App\Http\Middleware\AssignRequestId;
 use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\EnsureAgreementsAccepted;
 use App\Http\Middleware\EnsureEmailVerified;
+use App\Http\Middleware\RejectRevokedSession;
 use App\Http\Middleware\RequirePermission;
 use App\Http\Middleware\SecurityHeaders;
 use App\Support\RequestId;
@@ -36,6 +37,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: explode(',', (string) env('TRUSTED_PROXIES', '127.0.0.1,::1')));
         $middleware->prepend(AssignRequestId::class);
         $middleware->append(SecurityHeaders::class);
+        $middleware->api(append: [RejectRevokedSession::class]);
+        $middleware->web(append: [RejectRevokedSession::class]);
         $middleware->alias([
             'active' => EnsureAccountIsActive::class,
             'verified.api' => EnsureEmailVerified::class,

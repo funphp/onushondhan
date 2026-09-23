@@ -70,20 +70,24 @@ class ComplaintService
             $complaint->save();
             $this->audit->log('complaint.status_changed', $complaint, $before, ['status' => $status->value, 'resolution' => $complaint->resolution], $actor);
 
-            $complaint->reporter?->notify(new PlatformNotification('complaint_status', 'Your complaint status changed', [
+            User::query()->find($complaint->reporter_user_id)?->notify(new PlatformNotification('complaint_status', 'Your complaint status changed', [
                 'complaint_id' => $complaint->public_id, 'status' => $status->value,
             ], '/account/complaints', emailCategory: 'moderation'));
 
-            if ($status === ComplaintStatus::ActionRequested && $complaint->investigation !== null) {
+            // Load independently of whatever (possibly partial) relation the caller loaded.
+            $investigation = $complaint->investigation_id !== null
+                ? Investigation::withTrashed()->with('investigator.user')->find($complaint->investigation_id)
+                : null;
+            if ($status === ComplaintStatus::ActionRequested && $investigation !== null) {
                 // The investigator sees the complaint category and text, never who filed it.
-                $complaint->investigation->investigator->user->notify(new PlatformNotification('complaint_action_requested', 'A complaint about your investigation needs your attention', [
-                    'investigation_id' => $complaint->investigation->public_id,
+                $investigation->investigator->user->notify(new PlatformNotification('complaint_action_requested', 'A complaint about your investigation needs your attention', [
+                    'investigation_id' => $investigation->public_id,
                     'complaint_type' => $complaint->complaint_type->value,
                     'summary' => mb_substr($complaint->description, 0, 1000),
                     'note' => $complaint->complaint_type === ComplaintType::FactualDispute
                         ? 'This is a factual dispute. Onushondhan does not adjudicate factual accuracy; please review your report and sources and respond or correct as you see fit.'
                         : null,
-                ], '/dashboard/investigations/'.$complaint->investigation->public_id, emailCategory: 'moderation'));
+                ], '/dashboard/investigations/'.$investigation->public_id, emailCategory: 'moderation'));
             }
 
             return $complaint;

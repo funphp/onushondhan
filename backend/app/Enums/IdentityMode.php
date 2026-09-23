@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum IdentityMode: string
+use Filament\Support\Contracts\HasLabel;
+
+enum IdentityMode: string implements HasLabel
 {
     use EnumValues;
 

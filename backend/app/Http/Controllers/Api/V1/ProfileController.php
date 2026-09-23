@@ -11,6 +11,7 @@ use App\Http\Resources\MeResource;
 use App\Models\User;
 use App\Services\AuditLogger;
 use App\Services\PhoneVerificationService;
+use App\Services\SessionRevoker;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -86,11 +87,12 @@ class ProfileController extends Controller
 
         DB::transaction(function () use ($user): void {
             $user->forceFill(['status' => UserStatus::Deactivated, 'status_reason' => 'self_deactivated'])->save();
-            DB::table('sessions')->where('user_id', $user->id)->delete();
+            app(SessionRevoker::class)->revokeUser($user);
             $this->audit->log('user.deactivated', $user, null, ['by' => 'self'], $user);
         });
         Auth::guard('web')->logout();
         $request->session()->invalidate();
+        Auth::forgetGuards();
 
         return response()->json(['message' => 'Your account has been deactivated.']);
     }

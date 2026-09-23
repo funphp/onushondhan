@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum SourceType: string
+use Filament\Support\Contracts\HasLabel;
+
+enum SourceType: string implements HasLabel
 {
     use EnumValues;
 

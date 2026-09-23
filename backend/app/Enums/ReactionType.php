@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum ReactionType: string
+use Filament\Support\Contracts\HasLabel;
+
+enum ReactionType: string implements HasLabel
 {
     use EnumValues;
 

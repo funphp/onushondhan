@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ComplaintStatus;
 use App\Enums\TermsStatus;
 use App\Filament\Resources\Complaints\Pages\ListComplaints;
 use App\Filament\Resources\Investigations\Pages\ListInvestigations;
@@ -14,6 +15,7 @@ use App\Models\Role;
 use App\Models\TermsVersion;
 use App\Models\Tip;
 use App\Models\User;
+use App\Services\ComplaintService;
 use Filament\Facades\Filament;
 use Livewire\Livewire;
 
@@ -121,4 +123,12 @@ it('prevents admins from granting super_admin and audits role changes', function
     Livewire::test(ListUsers::class)->callTableAction('roles', $target, ['roles' => [$userRole, $modRole]])->assertHasNoTableActionErrors();
     expect($target->fresh()->roleSlugs())->toContain('moderator');
     expect(AuditLog::query()->where('action', 'user.roles_changed')->exists())->toBeTrue();
+});
+
+it('updates complaint status even when the table eager-loaded partial relations', function () {
+    $pub = $this->publishedInvestigation();
+    $this->actingAs($this->member())->postJson('/api/v1/complaints', ['complaint_type' => 'privacy', 'description' => 'Address visible in the evidence captions.', 'investigation' => $pub->public_id, 'good_faith' => true]);
+    $complaint = Complaint::query()->with('investigation:id,public_id')->first();
+    app(ComplaintService::class)->updateStatus($complaint, ComplaintStatus::ActionRequested, $this->staff('moderator'), null, 'note');
+    expect($pub->investigator->user->notifications()->where('data->kind', 'complaint_action_requested')->exists())->toBeTrue();
 });

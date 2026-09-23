@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum TipStatus: string
+use Filament\Support\Contracts\HasLabel;
+
+enum TipStatus: string implements HasLabel
 {
     use EnumValues;
 

@@ -58,6 +58,14 @@ return [
             'ignore_exceptions' => false,
         ],
 
+        // Development/E2E mail sink: with MAIL_MAILER=log and MAIL_LOG_CHANNEL=mail,
+        // outgoing emails are written here instead of being sent.
+        'mail' => [
+            'driver' => 'single',
+            'path' => env('MAIL_LOG_PATH', storage_path('logs/mail.log')),
+            'level' => 'debug',
+        ],
+
         'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),

@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Services\AuditLogger;
 use App\Services\AuthService;
 use App\Services\SecurityLogger;
+use App\Services\SessionRevoker;
 use App\Services\Settings;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
@@ -51,11 +52,14 @@ class AuthController extends Controller
         return new MeResource($user);
     }
 
-    public function logout(Request $request): JsonResponse
+    public function logout(Request $request, SessionRevoker $revoker): JsonResponse
     {
+        $revoker->revoke($request->session()->getId());
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        // Drop any user cached on resolved guards (e.g. Sanctum's request guard) too.
+        Auth::forgetGuards();
 
         return response()->json(['message' => 'Logged out.']);
     }

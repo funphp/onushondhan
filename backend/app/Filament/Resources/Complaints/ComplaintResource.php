@@ -79,7 +79,7 @@ class ComplaintResource extends Resource
             ->visible(fn () => Auth::user()?->hasPermission('complaints.manage'))
             ->fillForm(fn (Complaint $record) => ['status' => $record->status->value, 'resolution' => $record->resolution])
             ->schema([
-                Select::make('status')->options(ComplaintStatus::options())->required(),
+                Select::make('status')->options(ComplaintStatus::options())->native()->required(),
                 Textarea::make('resolution')->label('Resolution (visible to the complainant)')->maxLength(5000),
                 Textarea::make('internal_notes')->label('Internal note (staff only, appended)')->maxLength(5000),
             ])

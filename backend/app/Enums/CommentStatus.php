@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum CommentStatus: string
+use Filament\Support\Contracts\HasLabel;
+
+enum CommentStatus: string implements HasLabel
 {
     use EnumValues;
 
