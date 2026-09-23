@@ -81,3 +81,57 @@ Review at minimum:
 - compromised admin account;
 - backup compromise;
 - server filesystem exposure.
+
+---
+
+# Implementation notes (current build)
+
+| Area | Implementation | Tests |
+|---|---|---|
+| Password hashing | Argon2id (`HASH_DRIVER`), 10+ chars mixed case + digit, breached-password check in production | `RegistrationTest` |
+| Session security | Sanctum SPA sessions, encrypted, HttpOnly, SameSite=Lax, Secure in prod; id regenerated on login; revocation list on logout/credential change/suspension | `LoginTest` |
+| Brute force | per email+IP and per IP login limits; limits on every abuse-prone route (see `docs/API.md`) | `LoginTest`, `CommentsTest` |
+| Account status | suspended/blocked/deactivated rejected at login *and* on every request | `LoginTest` |
+| Admin MFA | Filament TOTP + recovery codes, enforced by `ADMIN_MFA_REQUIRED` | `AdminPanelTest` |
+| RBAC | spec tables + `permission:` middleware + policies; role hierarchy in moderation; super admin only for identity/tip oversight | `AuthorizationBoundariesTest`, `ModerationActionsTest`, `AdminPanelTest` |
+| IDOR/BOLA | owner checks return 404; public ids only | `AuthorizationBoundariesTest`, `AccessTest`, `TipsTest`, E2E 04/05 |
+| Mass assignment | explicit `$fillable`; status/role/verification never fillable; `preventSilentlyDiscardingAttributes` outside production | `RegistrationTest` |
+| XSS | Markdown without raw HTML, comment tags stripped, http(s)-only links, JSON-LD escaped, CSP | `CommentsTest`, `Markdown.test.tsx` |
+| CSRF | Sanctum XSRF cookie/header for SPA; Filament CSRF | `api.test.ts` |
+| SQL injection | query builder bindings; full-text operators stripped; LIKE wildcards escaped | `AuthorizationBoundariesTest`, `SearchTest` |
+| Uploads | content-type detection, allowlist, extension match, executable/script/macro/double-extension rejection, size limits, random keys outside web root, SHA-256, async scan hook (ClamAV), quarantine, metadata-stripped public images, safe download headers, access logs, private by default | `UploadSecurityTest`, `AccessTest`, E2E 04 |
+| Open redirects | `safeNext()` for post-login redirects | `format.test.ts` |
+| SSRF | the server never fetches user-supplied URLs (source URLs are stored and rendered only) | — |
+| Path traversal | original filenames are sanitised and never used for storage paths | `UploadSecurityTest` |
+| Private identity | encrypted at rest, never in public resources, owner access, staff access requires `identity.view_private` + reason, audited + security event | `OnboardingTest`, `AuthorizationBoundariesTest` |
+| Data leakage | public payloads never contain email, account name, private identity, storage paths, user ids | `AuthorizationBoundariesTest`, E2E 01 |
+| Audit | hash-chained, append-only, secrets redacted, daily verification | `AuditChainTest` |
+| Headers | API: `CSP default-src 'none'; sandbox`, nosniff, DENY, no-store; site: CSP without third-party origins, frame-ancestors none | `AuthorizationBoundariesTest` |
+
+## Data retention
+
+| Data | Retention |
+|---|---|
+| Analytics events | 180 days (`ANALYTICS_RETENTION_DAYS`); visitor fingerprints nulled after 30 days; no raw IPs |
+| Login logs | 365 days |
+| Security events | 730 days |
+| Phone verification codes | 7 days (hashed) |
+| Sessions | `SESSION_LIFETIME` |
+| Tips & messages | kept while the recipient investigator account exists; closed tips are candidates for deletion after 730 days (manual, policy decision) |
+| Audit logs, moderation actions, complaints, agreement acceptances, investigation versions, evidence access logs | retained as the forensic record |
+
+## Threat-model review (summary)
+
+| Threat | Mitigations |
+|---|---|
+| Account takeover | strong hashing, rate limits, session regeneration/revocation, email verification, admin MFA, security events on failures/resets |
+| Privilege escalation | server-side permissions everywhere; role changes only by `roles.manage` (super admin) or console, audited; staff cannot act on equal/higher ranks |
+| Malicious uploads | see Uploads above; files never executed or served inline except sanitised images/media with `sandbox` CSP |
+| Anonymous tip abuse | per-IP/user limits, content-policy consent, attachments scanned, guest follow-up only via high-entropy code |
+| Harassment/spam | comment limits, reports with auto-hide threshold, moderation actions, account suspension |
+| Data leakage | resource-level allowlists, 404 on foreign objects, no personal data in SSR caches, analytics without raw IPs |
+| Unsafe public identifiers | ULIDs and random investigation ids; no sequential ids exposed |
+| Scraping/abuse | Nginx `limit_req` + application limits; public API returns only published content |
+| Compromised admin | MFA, least-privilege roles, identity/tip access gated and audited, tamper-evident audit log |
+| Backup compromise | age encryption with an offline private key; separate backup location; least-privilege DB backup user |
+| Filesystem exposure | Laravel web root is `backend/public` only; vault outside it; Nginx denies other `.php` and dotfiles; no `storage:link` needed |

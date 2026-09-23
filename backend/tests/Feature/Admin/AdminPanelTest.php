@@ -155,3 +155,13 @@ it('forces staff to set up TOTP two-factor authentication when required', functi
         putenv('ADMIN_MFA_REQUIRED=false');
     }
 });
+
+it('grants roles from the console only to verified existing users, audited', function () {
+    $user = $this->member(['email' => 'boss@example.org']);
+    $this->artisan('users:grant-role', ['email' => 'boss@example.org', 'role' => 'super_admin'])->assertSuccessful();
+    expect($user->fresh()->isSuperAdmin())->toBeTrue();
+    expect(AuditLog::query()->where('action', 'user.roles_changed')->exists())->toBeTrue();
+    $this->artisan('users:grant-role', ['email' => 'nobody@example.org', 'role' => 'admin'])->assertFailed();
+    $unverified = User::factory()->unverified()->create(['email' => 'new@example.org']);
+    $this->artisan('users:grant-role', ['email' => 'new@example.org', 'role' => 'admin'])->assertFailed();
+});

@@ -1,60 +1,69 @@
-# Onushondhan.com — Claude Desktop Build Package
+# Onushondhan.com
 
-This package is a complete product/engineering specification intended to be placed into a Claude Desktop/Claude project workspace and used as the project source of truth.
+Onushondhan is a digital publishing, hosting, discovery and community platform for **independent
+investigators**. Investigators publish reports with evidence, sources, findings and timelines under
+their real name or a protected public identity; readers discover, discuss, follow and support them and
+send tips securely. **Publication is not verification**: investigators are responsible for their own
+reports, and moderation enforces platform policy rather than fact-checking.
 
-## Recommended use
+```
+Browser ──► Nginx ──► Next.js 16 (SSR pages)          frontend/
+                 └──► PHP-FPM ► Laravel 12 REST API    backend/   /api/v1, /sanctum
+                                 └ Filament 4 admin     backend/   /admin
+                                 └ MySQL 8 · database queue · private local vault
+```
 
-1. Create/open a Claude Desktop project from the Onushondhan repository folder.
-2. Put this package in the repository root (or upload it into project knowledge).
-3. Ensure `CLAUDE.md` is at the repository root so Claude Code can automatically read it in that directory.
-4. Open `prompts/MASTER_BUILD_PROMPT.md` and send it as the first build task.
-5. Let Claude work through the implementation plan, using `docs/BUILD_STATUS.md` to maintain progress.
+No Redis, S3, OpenSearch or Docker in this release (see `docs/DECISIONS.md`).
 
-Claude Desktop currently supports local-file access and code execution for supported plans, and its current project workflow supports local folders, project instructions, files, and memory. See the official Claude Help Center for current availability. 
+## Repository
 
-## Important limitation
+| Path | Contents |
+|---|---|
+| `backend/` | Laravel API, Filament admin, jobs, policies, migrations, seeders, Pest tests |
+| `frontend/` | Next.js App Router (TypeScript, Tailwind), Vitest unit tests, Playwright E2E + axe |
+| `docs/` | Specification, ADRs (`DECISIONS.md`), API, environment, deployment, operations, security, status |
+| `deploy/` | Nginx, PHP-FPM, systemd (Next.js, queue, scheduler, backup), logrotate templates |
+| `scripts/` | `deploy.sh`, `rollback.sh`, `backup.sh`, `restore.sh`, `healthcheck.sh`, `verify-project.sh`, `e2e-backend.sh` |
 
-The package is designed to minimize intervention, but no documentation can safely invent production secrets, DNS control, SMTP credentials, payment credentials, server access, or legal approvals. Those are external configuration inputs. Claude should prepare everything around them and stop only where a credential or irreversible authorization is genuinely required.
+## Local development
 
-## Deferred infrastructure
+Requirements: PHP 8.2+ (8.3 in production) with `pdo_mysql, mbstring, intl, gd, exif, fileinfo, zip,
+sodium`; Composer 2; MySQL 8; Node 20.11+.
 
-The initial project deliberately does NOT use:
+```bash
+# Backend
+cd backend
+cp .env.example .env            # set DB_* for your local MySQL
+composer install
+php artisan key:generate
+php artisan migrate --seed      # roles, categories, legal templates + LOCAL demo data
+php artisan serve               # http://127.0.0.1:8000  (admin panel: /admin)
+php artisan queue:work          # optional; or QUEUE_CONNECTION=sync
 
-- Redis
-- Amazon S3 / Cloudflare R2
-- OpenSearch
-- Docker / Kubernetes
+# Frontend
+cd ../frontend
+cp .env.example .env.local      # API_INTERNAL_URL=http://127.0.0.1:8000
+npm install
+npm run dev                     # http://localhost:3000
+```
 
-Those can be introduced later without redesigning the domain model.
+Demo accounts (local only, password `Onushondhan#2026`): `reader@`, `reader2@`, `investigator@`,
+`investigator2@`, `moderator@`, `admin@`, `superadmin@onushondhan.test`. Emails are written to
+`backend/storage/logs/mail.log` when `MAIL_MAILER=log` and `MAIL_LOG_CHANNEL=mail`.
 
-## Primary architecture
+## Quality gates
 
-`Next.js -> Laravel REST API -> MySQL`
+```bash
+scripts/verify-project.sh               # backend: pint, phpstan, pest, composer audit; frontend: lint, types, vitest, build, npm audit
+RUN_E2E=1 scripts/verify-project.sh     # + Playwright journeys and accessibility (needs scripts/e2e-backend.sh running)
+```
 
-Local/private file storage is used initially, with a storage abstraction so future object storage can be added later.
+## Documentation
 
-## Package contents
+Start with `CLAUDE.md` (principles), `docs/PRODUCT_REQUIREMENTS.md`, `docs/ARCHITECTURE.md`,
+`docs/DECISIONS.md`, `docs/API.md`, `docs/SECURITY.md`, `docs/DEPLOYMENT.md`, `docs/OPERATIONS.md`,
+`docs/BUILD_STATUS.md` and `docs/RELEASE_CHECKLIST.md`. External prerequisites that require a human
+(domain, SMTP, TLS, legal review, first admin) are listed in `docs/MANUAL_EXTERNAL_INPUTS.md`.
 
-- `CLAUDE.md` — permanent agent instructions
-- `prompts/MASTER_BUILD_PROMPT.md` — first-run autonomous build prompt
-- `prompts/RESUME_BUILD_PROMPT.md` — resume/recover prompt
-- `docs/PRODUCT_REQUIREMENTS.md` — product requirements
-- `docs/ARCHITECTURE.md` — technical architecture
-- `docs/DATABASE.md` — database model and constraints
-- `docs/API.md` — REST API contract
-- `docs/ROLES_PERMISSIONS.md` — RBAC matrix
-- `docs/UI_UX.md` — screens and UX behavior
-- `docs/SECURITY.md` — application and evidence security
-- `docs/MODERATION_AND_POLICY.md` — moderation, complaints, responsibility policies
-- `docs/NOTIFICATIONS_ANALYTICS.md` — notifications and analytics
-- `docs/SEO.md` — SEO and sharing
-- `docs/TESTING.md` — test strategy and acceptance coverage
-- `docs/DEPLOYMENT.md` — production deployment without Docker
-- `docs/OPERATIONS.md` — backups, monitoring, maintenance, rollback
-- `docs/IMPLEMENTATION_PLAN.md` — module-by-module build sequence
-- `docs/DEFINITION_OF_DONE.md` — release gate
-- `docs/DECISIONS.md` — architectural decision log
-- `docs/BUILD_STATUS.md` — agent-maintained status file
-- `docs/ENVIRONMENT.md` — environment variables and secrets handling
-- `deploy/` — deployment templates Claude can adapt into the real project
-- `scripts/` — helper scripts Claude can use/extend
+Legal and policy texts in `backend/resources/content/legal/` are **templates that require review by
+qualified legal counsel** before production use.
