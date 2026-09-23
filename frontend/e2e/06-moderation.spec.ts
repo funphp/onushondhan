@@ -48,5 +48,13 @@ test("Journeys 9 & 10 — complaint reviewed by a moderator; admin acts on a use
   await ap.goto(ap.url().replace(/\/admin.*/, "/admin/audit-logs"));
   await expect(ap.getByText("moderation.suspend_user").first()).toBeVisible();
   await expect(ap.getByText("complaint.status_changed").first()).toBeVisible();
+
+  // Reinstate so other journeys can keep using this demo account.
+  await ap.goto(ap.url().replace(/\/admin.*/, "/admin/users"));
+  await user.getByRole("button").last().click();
+  await ap.getByRole("button", { name: "Reinstate" }).click();
+  await ap.locator("textarea:visible").first().fill("E2E: reinstated after review");
+  await ap.getByRole("button", { name: "Confirm" }).and(ap.locator(":visible")).click();
+  await expect(user).toContainText("Active");
   await adm.close();
 });

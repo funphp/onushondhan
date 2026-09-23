@@ -1,0 +1,9 @@
+[Unit]
+Description=Onushondhan Laravel scheduler tick
+
+[Service]
+Type=oneshot
+User=onushondhan
+Group=onushondhan
+WorkingDirectory=/var/www/onushondhan/current/backend
+ExecStart=/usr/bin/php artisan schedule:run --no-interaction

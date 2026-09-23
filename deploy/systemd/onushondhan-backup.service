@@ -1,0 +1,9 @@
+[Unit]
+Description=Onushondhan encrypted backup (database + private vault)
+
+[Service]
+Type=oneshot
+User=onushondhan
+Group=onushondhan
+EnvironmentFile=/etc/onushondhan/backup.env
+ExecStart=/var/www/onushondhan/current/scripts/backup.sh

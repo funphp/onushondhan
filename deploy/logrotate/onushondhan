@@ -1,0 +1,15 @@
+# /etc/logrotate.d/onushondhan — Laravel uses LOG_STACK=daily (rotates itself,
+# LOG_DAILY_DAYS=14); this covers PHP-FPM and Nginx site logs.
+/var/log/onushondhan/*.log /var/log/nginx/onushondhan.*.log {
+    daily
+    rotate 14
+    missingok
+    notifempty
+    compress
+    delaycompress
+    sharedscripts
+    postrotate
+        [ -s /run/nginx.pid ] && kill -USR1 "$(cat /run/nginx.pid)" || true
+        systemctl reload php8.3-fpm >/dev/null 2>&1 || true
+    endscript
+}

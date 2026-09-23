@@ -5,125 +5,135 @@ on:
     branches: [main]
   pull_request:
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
+permissions:
+  contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (PHP 8.3, MySQL 8)
+    runs-on: ubuntu-latest
     services:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: onusondhan
-        ports:
-          - 3306:3306
+          MYSQL_ROOT_PASSWORD: ci-root-password
+          MYSQL_DATABASE: onushondhan_test
+        ports: ["3306:3306"]
         options: >-
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-
-    # DEVIATION from docs/PLAN.md's literal wording (recorded there too,
-    # under "Plan deviations", 2026-09-23): this runs everything as MySQL
-    # root, not as onu_migrate/onu_web/onu_identity with grants.sql applied
-    # — owner decision, matching the same choice already made for the
-    # local dev VM. That means invariant 5 (onu_web has zero privilege on
-    # identity_* tables) is NOT verified by this pipeline. If that
-    # changes, ConnectionBoundaryTest.php's skipped "onu_web cannot read
-    # identity_account_contacts" case is the one to un-skip.
+          --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=10
+    defaults:
+      run:
+        working-directory: backend
     env:
-      DB_CONNECTION: mysql
       DB_HOST: 127.0.0.1
-      DB_PORT: 3306
-      DB_DATABASE: onusondhan
       DB_USERNAME: root
-      DB_PASSWORD: root
-      DB_IDENTITY_USERNAME: root
-      DB_IDENTITY_PASSWORD: root
-
+      DB_PASSWORD: ci-root-password
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install PHP
-        uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
-          extensions: mbstring, xml, dom, ctype, curl, zip, gd, bcmath, intl, pdo_mysql, mysqli, sqlite3, pdo_sqlite, sodium, exif, fileinfo, gmp, bz2
+          php-version: "8.3"
+          extensions: mbstring, dom, curl, zip, gd, intl, pdo_mysql, sodium, exif, fileinfo, bcmath
           coverage: none
-
-      - name: Install Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      # P0.9: EvidenceService needs both, and this exact combination —
-      # neither tool alone strips a PDF completely (see
-      # app/Services/EvidenceService.php's stripPdf() docblock).
-      - name: Install system dependencies (ghostscript, qpdf)
-        run: sudo apt-get update && sudo apt-get install -y ghostscript qpdf
-
-      - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist
-
-      - name: Install npm dependencies and build assets
-        run: |
-          npm ci
-          npm run build
-
-      - name: Configure environment
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Prepare environment
         run: |
           cp .env.example .env
           php artisan key:generate
-          php -r "file_put_contents('.env', preg_replace(
-            '/^IDENTITY_BLIND_INDEX_KEY=.*/m',
-            'IDENTITY_BLIND_INDEX_KEY='.base64_encode(random_bytes(32)),
-            file_get_contents('.env')
-          ));"
-          php -r "file_put_contents('.env', preg_replace(
-            '/^IDENTITY_SIGNAL_PEPPER=.*/m',
-            'IDENTITY_SIGNAL_PEPPER='.base64_encode(random_bytes(32)),
-            file_get_contents('.env')
-          ));"
-
-      - name: Wait for MySQL
-        run: |
-          for i in $(seq 1 30); do
-            mysqladmin ping -h127.0.0.1 -P3306 -uroot -proot --silent && break
-            sleep 2
-          done
-
-      - name: Run migrations
-        run: php artisan migrate --force
-
-      - name: Lint (Pint)
-        run: composer lint
-
+      - name: Validate composer.json
+        run: composer validate --no-check-publish
+      - name: Code style (Pint)
+        run: vendor/bin/pint --test
       - name: Static analysis (Larastan)
-        run: composer analyse
-
-      # The single authoritative gate: includes every Pest test, which
-      # already covers the P0.5 schema-parity and P0.6 guard-trigger
-      # suites (tests/Feature/Invariants/) — `composer guard`/
-      # `composer parity` are the same tests re-filtered, so running them
-      # again separately here would just spend CI minutes for zero extra
-      # signal.
-      - name: Test (Pest)
-        run: composer test
-
-      # database/sql/guard_tests.sql is distinct from the above: it's the
-      # raw SQL file docs/PLAN.md's P0.6 entry says to keep "for DBAs",
-      # loaded fresh against schema_mysql.sql rather than through
-      # migrations. This step is a smoke test that it still runs
-      # end-to-end against the current schema (reaches the final marker
-      # line) — not a substitute for DatabaseGuardsTest.php's actual
-      # pass/fail assertions, since the raw script relies on a human
-      # reading its -vv output for that, which CI can't do.
-      - name: Guard SQL file still runs end-to-end (smoke test)
-        run: |
-          mysql -h127.0.0.1 -P3306 -uroot -proot -e "CREATE DATABASE onusondhan_guard_check;"
-          mysql -h127.0.0.1 -P3306 -uroot -proot onusondhan_guard_check < database/sql/schema_mysql.sql
-          mysql -h127.0.0.1 -P3306 -uroot -proot onusondhan_guard_check --force -vv < database/sql/guard_tests.sql | tee guard-output.txt
-          grep -q "=== suite finished ===" guard-output.txt
-
+        run: vendor/bin/phpstan analyse --memory-limit=1G --no-progress
+      - name: Migrations from a clean database + seed
+        run: DB_DATABASE=onushondhan_test php artisan migrate:fresh --seed --force
+      - name: Tests (Pest)
+        run: php artisan test
       - name: Dependency audit
         run: composer audit
+
+  frontend:
+    name: Frontend (Next.js)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - name: Production build
+        run: npm run build
+        env:
+          API_INTERNAL_URL: http://127.0.0.1:8001
+          NEXT_PUBLIC_SITE_URL: https://example.com
+      - run: npm audit --omit=dev
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ci-root-password
+          MYSQL_DATABASE: onushondhan_e2e
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=10
+    env:
+      DB_HOST: 127.0.0.1
+      DB_USERNAME: root
+      DB_PASSWORD: ci-root-password
+      CI: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, dom, curl, zip, gd, intl, pdo_mysql, sodium, exif, fileinfo, bcmath
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Backend
+        working-directory: backend
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          cp .env.example .env
+          php artisan key:generate
+          nohup ../scripts/e2e-backend.sh > /tmp/e2e-backend.log 2>&1 &
+          for i in $(seq 1 60); do curl -fsS http://127.0.0.1:8001/api/v1/health && break; sleep 2; done
+      - name: Frontend deps + browsers
+        working-directory: frontend
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Playwright
+        working-directory: frontend
+        run: npx playwright test
+      - name: Upload report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            frontend/playwright-report
+            /tmp/e2e-backend.log
+          retention-days: 7

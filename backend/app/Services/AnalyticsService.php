@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\AnalyticsEvent;
 use App\Models\Investigation;
 use App\Models\Investigator;
+use App\Notifications\PlatformNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,9 @@ use Illuminate\Support\Facades\Request as RequestFacade;
  */
 class AnalyticsService
 {
+    /** Read counts that trigger a milestone notification to the investigator. */
+    public const VIEW_MILESTONES = [100, 1000, 10000, 100000, 1000000];
+
     public const EVENTS = [
         'page_view', 'investigation_view', 'investigation_share', 'investigation_bookmark', 'comment_created',
         'comment_voted', 'support_created', 'support_revoked', 'investigator_followed', 'tip_submitted',
@@ -57,6 +61,15 @@ class AnalyticsService
 
         DB::transaction(function () use ($investigation, $request): void {
             Investigation::query()->whereKey($investigation->id)->increment('views_count');
+            $views = (int) Investigation::query()->whereKey($investigation->id)->value('views_count');
+            if (in_array($views, self::VIEW_MILESTONES, true)) {
+                $investigation->loadMissing('investigator.user');
+                $investigation->investigator->user->notify(new PlatformNotification('investigation_milestone', "Your investigation reached {$views} reads", [
+                    'investigation_id' => $investigation->public_id,
+                    'investigation_title' => $investigation->published_title,
+                    'views' => $views,
+                ], '/dashboard/investigations/'.$investigation->public_id, emailCategory: null));
+            }
             Investigator::query()->whereKey($investigation->investigator_id)->increment('total_views');
             $this->record('investigation_view', [
                 'user_id' => $request->user()?->id,

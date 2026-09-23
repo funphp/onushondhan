@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\AgreementType;
 use App\Enums\TermsStatus;
+use App\Jobs\NotifyAgreementUpdate;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,6 +37,16 @@ class TermsVersion extends Model
             'effective_at' => 'datetime',
             'published_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // Publishing a version (from any path) notifies users who must re-accept it.
+        static::saved(function (TermsVersion $version): void {
+            if ($version->wasChanged('status') && $version->status === TermsStatus::Published) {
+                NotifyAgreementUpdate::dispatch($version->id)->afterCommit();
+            }
+        });
     }
 
     /** @param Builder<TermsVersion> $query */

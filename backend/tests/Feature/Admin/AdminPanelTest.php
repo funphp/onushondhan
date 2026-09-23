@@ -17,6 +17,7 @@ use App\Models\Tip;
 use App\Models\User;
 use App\Services\ComplaintService;
 use Filament\Facades\Filament;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -131,4 +132,26 @@ it('updates complaint status even when the table eager-loaded partial relations'
     $complaint = Complaint::query()->with('investigation:id,public_id')->first();
     app(ComplaintService::class)->updateStatus($complaint, ComplaintStatus::ActionRequested, $this->staff('moderator'), null, 'note');
     expect($pub->investigator->user->notifications()->where('data->kind', 'complaint_action_requested')->exists())->toBeTrue();
+});
+
+it('forces staff to set up TOTP two-factor authentication when required', function () {
+    // The panel registers its MFA middleware at boot, so boot a fresh app with MFA required.
+    foreach ([&$_ENV, &$_SERVER] as &$bag) {
+        $bag['ADMIN_MFA_REQUIRED'] = 'true';
+    }
+    putenv('ADMIN_MFA_REQUIRED=true');
+    $this->refreshApplication();
+    DB::beginTransaction();
+    try {
+        $admin = User::factory()->withRole('admin')->create();
+        $res = $this->actingAs($admin)->get('/admin');
+        $res->assertRedirect();
+        expect($res->headers->get('Location'))->toContain('multi-factor-authentication');
+    } finally {
+        DB::rollBack();
+        foreach ([&$_ENV, &$_SERVER] as &$bag) {
+            $bag['ADMIN_MFA_REQUIRED'] = 'false';
+        }
+        putenv('ADMIN_MFA_REQUIRED=false');
+    }
 });
