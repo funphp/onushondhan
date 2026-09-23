@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Adapt paths and service names to the real server. Do not put secrets here.
+APP_ROOT="/var/www/onushondhan"
+BACKEND="$APP_ROOT/backend"
+FRONTEND="$APP_ROOT/frontend"
+
+cd "$APP_ROOT"
+
+echo "Deploying current release..."
+
+git fetch --all --tags
+git checkout main
+git pull --ff-only
+
+cd "$BACKEND"
+composer install --no-dev --optimize-autoloader --no-interaction
+php artisan storage:link || true
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+cd "$FRONTEND"
+npm ci --omit=dev
+npm run build
+
+systemctl restart onushondhan-nextjs.service
+systemctl restart onushondhan-queue.service
+systemctl reload php8.3-fpm
+systemctl reload nginx
+
+curl -fsS https://example.com/api/health >/dev/null
+
+echo "Deployment verification passed."

@@ -1,0 +1,49 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+auth.json
+
+# OS / editors
+.DS_Store
+Thumbs.db
+/.idea
+/.vscode
+/.zed
+/.cursor
+/.codex
+*.log
+
+# Backend (Laravel)
+/backend/vendor
+/backend/node_modules
+/backend/public/build
+/backend/public/hot
+/backend/public/storage
+/backend/storage/*.key
+/backend/storage/pail
+/backend/.phpunit.cache
+/backend/.phpunit.result.cache
+/backend/_ide_helper.php
+/backend/.phpactor.json
+
+# Frontend (Next.js)
+/frontend/node_modules
+/frontend/.next
+/frontend/out
+/frontend/coverage
+/frontend/test-results
+/frontend/playwright-report
+/frontend/blob-report
+/frontend/playwright/.cache
+/frontend/*.tsbuildinfo
+/frontend/next-env.d.ts
+
+# Local tooling
+/backups
+
+# Local agent settings
+.claude/settings.local.json
