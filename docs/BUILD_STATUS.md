@@ -27,9 +27,14 @@ frontend: npm run lint · npm run typecheck · npm test → 10 passed · npm run
 e2e:      scripts/e2e-backend.sh (fresh onushondhan_e2e) + npx playwright test → 28 passed (10 journeys + 15 axe scans + setup)
 ```
 
+## Local deployment
+
+`http://onusondhan.local` (Vagrant VM, Apache + PHP 8.3-FPM + Next.js under systemd) — see `docs/LOCAL_VM.md`.
+The Playwright suite was also run against it: 28/28 passed after fixing an empty-sitemap-at-build issue.
+
 ## Known limitations
 
-- **PHP version:** developed and tested locally on PHP 8.2.21 (the VM cannot install 8.3); CI and production target 8.3 (ADR-008).
+- **PHP version:** developed on PHP 8.2.21; the full suite and Larastan also pass on PHP 8.3.34 (`/opt/php8.3` in the VM), which serves the local site. CI and production target 8.3 (ADR-008).
 - **Media metadata:** only images are re-encoded without metadata; video/audio/PDF/office files are served as uploaded (investigators are warned in the UI).
 - **Malware scanning:** ClamAV integration is implemented and tested through a fake scanner; no scanner runs in local dev (`MALWARE_SCANNER=none` → `not_scanned`). Enable on the server.
 - **SMS:** phone verification uses a log driver; a production SMS provider must be bound to `App\Contracts\SmsSender`.

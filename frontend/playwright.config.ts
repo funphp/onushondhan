@@ -8,6 +8,9 @@ import { defineConfig, devices } from "@playwright/test";
  */
 const API = process.env.E2E_API_URL ?? "http://127.0.0.1:8001";
 const PORT = Number(process.env.E2E_PORT ?? 3100);
+// Set E2E_BASE_URL to run against an already-deployed site (e.g. http://onusondhan.local);
+// then no local server is started. E2E_HOST_RULES can map hostnames (Chromium --host-resolver-rules).
+const EXTERNAL = process.env.E2E_BASE_URL;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -18,7 +21,8 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
-    baseURL: `http://localhost:${PORT}`,
+    baseURL: EXTERNAL ?? `http://localhost:${PORT}`,
+    launchOptions: process.env.E2E_HOST_RULES ? { args: [`--host-resolver-rules=${process.env.E2E_HOST_RULES}`] } : undefined,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
@@ -26,7 +30,7 @@ export default defineConfig({
     { name: "setup", testMatch: /auth\.setup\.ts/ },
     { name: "chromium", use: { ...devices["Desktop Chrome"] }, dependencies: ["setup"] },
   ],
-  webServer: {
+  webServer: EXTERNAL ? undefined : {
     // The E2E DB is re-seeded per run, so never reuse cached API responses from a previous run.
     command: `rm -rf .next/cache/fetch-cache && npm run build && npx next start -p ${PORT}`,
     url: `http://localhost:${PORT}`,

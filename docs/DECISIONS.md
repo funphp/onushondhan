@@ -44,6 +44,9 @@ Pest 3 all support PHP ^8.2, so `composer.json` declares `"php": "^8.2"` and the
 8.3-only syntax. **Production and CI target PHP 8.3** (see `deploy/`, `.github/workflows/ci.yml`).
 Revisit (raise to `^8.3`) once every environment runs 8.3.
 
+_Update 2026-09-24:_ the VM also has a source-built PHP 8.3.34 at `/opt/php8.3` (with FPM). The full
+Pest suite (145 tests) and Larastan pass on it, and the local site `onusondhan.local` runs on it.
+
 ## ADR-009 — Authentication: Sanctum SPA cookie sessions on a single origin
 Status: Accepted.
 

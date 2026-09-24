@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { field, latestMailLink, unique } from "./helpers";
+import { BASE_URL, field, latestMailLink, unique } from "./helpers";
 
 test("Journey 2 — registration, email verification, logout and login", async ({ page }) => {
   const username = unique("e2e").replace(/-/g, "_");
@@ -19,8 +19,9 @@ test("Journey 2 — registration, email verification, logout and login", async (
   await expect(page.getByText(/We sent a verification link/)).toBeVisible();
 
   let link: string | null = null;
-  await expect.poll(() => (link = latestMailLink(new RegExp(`http://localhost:3100/verify-email\\?[^\\s"'<>)]+`))), { timeout: 15_000 }).not.toBeNull();
-  await page.goto(link!.replace("http://localhost:3100", ""));
+  const escaped = BASE_URL.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
+  await expect.poll(() => (link = latestMailLink(new RegExp(`${escaped}/verify-email\\?[^\\s"'<>)]+`))), { timeout: 15_000 }).not.toBeNull();
+  await page.goto(link!.replace(BASE_URL, ""));
   await expect(page.getByText("Email verified")).toBeVisible();
 
   await page.getByRole("button", { name: new RegExp(username) }).click();

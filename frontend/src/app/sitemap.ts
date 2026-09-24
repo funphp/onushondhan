@@ -2,7 +2,9 @@ import type { MetadataRoute } from "next";
 import { serverGetOrNull } from "@/lib/server-api";
 import { absoluteUrl } from "@/lib/site";
 
-export const revalidate = 3600;
+// Rendered per request (API data itself is cached for an hour) so a build made while the
+// API is unreachable can never bake in an empty sitemap.
+export const dynamic = "force-dynamic";
 
 type Entry = { path: string; lastmod: string | null };
 

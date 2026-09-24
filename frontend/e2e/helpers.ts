@@ -13,8 +13,10 @@ export const USERS = {
   admin: "admin@onushondhan.test",
 } as const;
 
+export const BASE_URL = process.env.E2E_BASE_URL ?? "http://localhost:3100";
 export const API_URL = process.env.E2E_API_URL ?? "http://127.0.0.1:8001";
-export const ADMIN_URL = API_URL.replace("127.0.0.1", "localhost") + "/admin";
+/** Deployed sites serve the admin panel on the same origin; local E2E uses the API port. */
+export const ADMIN_URL = process.env.E2E_BASE_URL ? `${BASE_URL}/admin` : API_URL.replace("127.0.0.1", "localhost") + "/admin";
 
 /** Form control by its exact label, tolerating the visual "required" asterisk. */
 export function field(page: Page, label: string) {
@@ -49,7 +51,7 @@ export function unique(prefix: string): string {
 
 /** API GET as the SPA would send it (Origin makes Sanctum treat it as a session request). */
 export async function apiGet(request: APIRequestContext, path: string) {
-  return request.get(path, { headers: { Origin: "http://localhost:3100", Referer: "http://localhost:3100/", Accept: "application/json" } });
+  return request.get(path, { headers: { Origin: BASE_URL, Referer: `${BASE_URL}/`, Accept: "application/json" } });
 }
 
 export async function adminLogin(page: Page, email: string): Promise<void> {
