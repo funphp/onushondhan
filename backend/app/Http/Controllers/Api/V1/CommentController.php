@@ -80,7 +80,7 @@ class CommentController extends Controller
         $this->authorize('delete', $comment);
         $this->service->deleteOwn($comment);
 
-        return response()->json(['message' => 'Comment deleted.']);
+        return response()->json(['message' => __('Comment deleted.')]);
     }
 
     public function vote(Request $request, Comment $comment): JsonResponse
@@ -109,7 +109,7 @@ class CommentController extends Controller
         ]);
         $this->service->report($comment, $request->user(), CommentReportReason::from($data['reason']), $data['details'] ?? null);
 
-        return response()->json(['message' => 'Thank you. Our moderators will review this comment.'], 201);
+        return response()->json(['message' => __('Thank you. Our moderators will review this comment.')], 201);
     }
 
     private function assertPubliclyVisible(Comment $comment): void

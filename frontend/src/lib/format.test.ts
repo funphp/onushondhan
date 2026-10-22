@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatBytes, humanize, investigationPath, safeHref } from "./format";
+import { decodeParam, investigationPath, safeHref } from "./format";
 import { safeNext } from "./nav";
 
 describe("safeHref", () => {
@@ -23,12 +23,11 @@ describe("safeNext (open-redirect protection)", () => {
   });
 });
 
-describe("formatting", () => {
-  it("formats bytes, labels and paths", () => {
-    expect(formatBytes(512)).toBe("512 B");
-    expect(formatBytes(2048)).toBe("2.0 KB");
-    expect(formatBytes(5 * 1024 * 1024)).toBe("5.0 MB");
-    expect(humanize("action_requested")).toBe("Action requested");
+describe("paths", () => {
+  it("builds investigation paths and decodes Bangla slug params", () => {
     expect(investigationPath("INV-2026-AAAA1111", "slug")).toBe("/investigation/INV-2026-AAAA1111/slug");
+    expect(decodeParam(encodeURIComponent("নদী-দূষণ"))).toBe("নদী-দূষণ");
+    expect(decodeParam("নদী-দূষণ")).toBe("নদী-দূষণ");
+    expect(decodeParam("%E0%A6")).toBe("%E0%A6");
   });
 });

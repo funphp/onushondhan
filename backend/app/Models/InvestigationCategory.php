@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property int|null $parent_id
  * @property string $name
+ * @property string|null $name_bn
  * @property string $slug
  * @property string|null $description
  * @property int $sort_order
@@ -25,7 +26,13 @@ class InvestigationCategory extends Model
     /** @use HasFactory<InvestigationCategoryFactory> */
     use HasFactory;
 
-    protected $fillable = ['parent_id', 'name', 'slug', 'description', 'sort_order', 'status'];
+    protected $fillable = ['parent_id', 'name', 'name_bn', 'slug', 'description', 'sort_order', 'status'];
+
+    /** Name in the current request locale (Bangla falls back to English). */
+    public function displayName(): string
+    {
+        return app()->getLocale() === 'bn' && filled($this->name_bn) ? (string) $this->name_bn : $this->name;
+    }
 
     public function getRouteKeyName(): string
     {

@@ -59,9 +59,9 @@ class LeaderboardController extends Controller
 
         return response()->json([
             'board' => $board,
-            'label' => self::BOARDS[$board],
-            'note' => self::NOTE,
-            'boards' => collect(self::BOARDS)->map(fn ($label, $key) => ['key' => $key, 'label' => $label])->values(),
+            'label' => __(self::BOARDS[$board]),
+            'note' => __(self::NOTE),
+            'boards' => collect(self::BOARDS)->map(fn ($label, $key) => ['key' => $key, 'label' => __($label)])->values(),
             'data' => $data,
         ]);
     }

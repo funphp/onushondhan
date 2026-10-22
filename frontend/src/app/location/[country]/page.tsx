@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ResultsList } from "@/components/investigation/ResultsList";
-import { countryName } from "@/lib/format";
+import { getI18n } from "@/i18n/server";
 import { pickFilters, searchInvestigations } from "@/lib/search";
 import { serverGetOrNull } from "@/lib/server-api";
 
@@ -10,11 +10,13 @@ type Loc = { countries: { country: string; investigations_count: number }[]; dis
 
 export async function generateMetadata(props: PageProps<"/location/[country]">): Promise<Metadata> {
   const { country } = await props.params;
-  return { title: `Investigations in ${countryName(country)}`, alternates: { canonical: `/location/${country.toUpperCase()}` } };
+  const { t, f } = await getI18n();
+  return { title: t.search.investigationsIn(f.country(country)), alternates: { canonical: `/location/${country.toUpperCase()}` } };
 }
 
 export default async function LocationPage(props: PageProps<"/location/[country]">) {
   const { country: raw } = await props.params;
+  const { t, f } = await getI18n();
   if (!/^[A-Za-z]{2}$/.test(raw)) notFound();
   const country = raw.toUpperCase();
   const sp = pickFilters(await props.searchParams);
@@ -24,14 +26,14 @@ export default async function LocationPage(props: PageProps<"/location/[country]
 
   return (
     <div className="space-y-6">
-      <nav aria-label="Breadcrumb" className="text-sm text-muted"><Link href="/">Home</Link> / <Link href="/search">Discover</Link> / <span aria-current="page">{countryName(country)}</span></nav>
-      <h1 className="font-serif text-3xl font-bold">{countryName(country)}{sp.location ? ` — ${sp.location}` : ""}</h1>
+      <nav aria-label={t.common.breadcrumb} className="text-sm text-muted"><Link href="/">{t.common.home}</Link> / <Link href="/search">{t.nav.discover}</Link> / <span aria-current="page">{f.country(country)}</span></nav>
+      <h1 className="font-serif text-3xl font-bold">{f.country(country)}{sp.location ? ` — ${sp.location}` : ""}</h1>
       {districts.length > 0 && (
-        <ul className="flex flex-wrap gap-2" aria-label="Districts">
+        <ul className="flex flex-wrap gap-2" aria-label={t.search.districts}>
           {districts.map((d) => (
             <li key={d.district}>
               <Link href={`/location/${country}?location=${encodeURIComponent(d.district)}`} aria-current={sp.location === d.district ? "page" : undefined} className="rounded-full border border-line px-3 py-1 text-sm hover:bg-accent-soft">
-                {d.district} ({d.investigations_count})
+                {d.district} ({f.number(d.investigations_count)})
               </Link>
             </li>
           ))}

@@ -35,10 +35,10 @@ class NotifyAgreementUpdate implements ShouldQueue
             ->when($investigatorOnly, fn ($q) => $q->whereHas('investigator'))
             ->chunkById(500, function ($users) use ($version) {
                 foreach ($users as $user) {
-                    $user->notify(new PlatformNotification('agreement_updated', "Updated {$version->title} — please review and accept", [
+                    $user->notify(new PlatformNotification('agreement_updated', 'Updated :title — please review and accept', [
                         'agreement_type' => $version->agreement_type->value,
                         'version' => $version->version,
-                    ], '/agreements', emailCategory: null));
+                    ], '/agreements', emailCategory: null, titleParams: ['title' => $version->title]));
                 }
             });
     }

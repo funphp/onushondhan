@@ -5,11 +5,13 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { TextArea } from "@/components/ui/Field";
 import { errorMessage } from "@/lib/api";
-import { formatBytes, formatDateTime, humanize } from "@/lib/format";
+import { useI18n } from "@/i18n/client";
+import { labelFor } from "@/i18n";
 import type { Tip } from "@/lib/types";
 
 /** Conversation view shared by the investigator inbox and the tipster side. */
 export function TipThread({ tip, perspective, onReply }: { tip: Tip; perspective: "investigator" | "tipster"; onReply?: (body: string) => Promise<void> }) {
+  const { t, f } = useI18n();
   const [body, setBody] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,15 +24,15 @@ export function TipThread({ tip, perspective, onReply }: { tip: Tip; perspective
         <h2 className="text-xl font-semibold">{tip.subject}</h2>
         <p className="text-sm text-muted">
           {perspective === "investigator" ? (
-            tip.sender?.anonymous ? <>From an anonymous {tip.sender.type === "guest" ? "guest (no account)" : "member"}</> : <>From <strong>{tip.sender?.username}</strong></>
+            tip.sender?.anonymous ? <>{t.tips.fromAnonymous(tip.sender.type === "guest")}</> : <>{t.tips.from} <strong>{tip.sender?.username}</strong></>
           ) : (
-            <>To {tip.investigator.public_name}</>
+            <>{t.tips.to(tip.investigator.public_name)}</>
           )}
-          {tip.investigation && <> · about “{tip.investigation.title}”</>} · {formatDateTime(tip.created_at)}
+          {tip.investigation && <> · {t.tips.about(tip.investigation.title)}</>} · {f.dateTime(tip.created_at)}
         </p>
-        <Badge tone={closed ? "neutral" : "accent"}>{humanize(tip.status)}</Badge>
+        <Badge tone={closed ? "neutral" : "accent"}>{labelFor(t.statuses, tip.status)}</Badge>
         {perspective === "investigator" && tip.contact_value && (
-          <p className="text-sm">Contact shared by tipster ({tip.contact_preference}): <strong>{tip.contact_value}</strong></p>
+          <p className="text-sm">{t.tips.contactShared(labelFor(t.contactPrefs, tip.contact_preference))} <strong>{tip.contact_value}</strong></p>
         )}
       </header>
 
@@ -41,16 +43,16 @@ export function TipThread({ tip, perspective, onReply }: { tip: Tip; perspective
           {tip.attachments.map((a) => (
             <li key={a.id}>
               {a.download_url && a.scan_status !== "infected" ? <a href={a.download_url} className="text-accent underline">{a.name}</a> : <span>{a.name}</span>}
-              <span className="text-muted"> · {formatBytes(a.size_bytes)} · scan: {humanize(a.scan_status)}</span>
+              <span className="text-muted"> · {f.bytes(a.size_bytes)} · {t.tips.scan(labelFor(t.statuses, a.scan_status))}</span>
             </li>
           ))}
         </ul>
       )}
 
-      <ol className="space-y-3" aria-label="Messages">
+      <ol className="space-y-3" aria-label={t.tips.messages}>
         {(tip.messages ?? []).map((m, i) => (
           <li key={i} className={`max-w-[85%] rounded-lg p-3 text-sm ${m.from === mine ? "ml-auto bg-accent-soft" : "border border-line bg-surface"}`}>
-            <p className="mb-1 text-xs text-muted">{m.from === "investigator" ? "Investigator" : "Tipster"} · {formatDateTime(m.created_at)}</p>
+            <p className="mb-1 text-xs text-muted">{m.from === "investigator" ? t.tips.investigator : t.tips.tipster} · {f.dateTime(m.created_at)}</p>
             <p className="whitespace-pre-line">{m.body}</p>
           </li>
         ))}
@@ -70,11 +72,11 @@ export function TipThread({ tip, perspective, onReply }: { tip: Tip; perspective
             setBusy(false);
           }
         }}>
-          <TextArea label="Reply" value={body} onChange={(e) => setBody(e.target.value)} required maxLength={10000} error={error ?? undefined} />
-          <Button type="submit" size="sm" loading={busy}>Send reply</Button>
+          <TextArea label={t.tips.replyLabel} value={body} onChange={(e) => setBody(e.target.value)} required maxLength={10000} error={error ?? undefined} />
+          <Button type="submit" size="sm" loading={busy}>{t.tips.sendReply}</Button>
         </form>
       )}
-      {closed && <p className="text-sm text-muted">This conversation has been closed.</p>}
+      {closed && <p className="text-sm text-muted">{t.tips.closed}</p>}
     </div>
   );
 }

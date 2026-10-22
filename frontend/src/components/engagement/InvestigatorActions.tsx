@@ -5,11 +5,12 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Button, buttonClass } from "@/components/ui/Button";
 import { api, errorMessage } from "@/lib/api";
-import { formatNumber } from "@/lib/format";
+import { useI18n } from "@/i18n/client";
 import type { InvestigatorProfile } from "@/lib/types";
 
 export function InvestigatorActions({ profile }: { profile: InvestigatorProfile }) {
   const { user } = useAuth();
+  const { t, f } = useI18n();
   const [viewer, setViewer] = useState<InvestigatorProfile["viewer"]>(null);
   const [counts, setCounts] = useState({ followers: profile.followers_count, supporters: profile.supporters_count });
   const [busy, setBusy] = useState<string | null>(null);
@@ -40,15 +41,15 @@ export function InvestigatorActions({ profile }: { profile: InvestigatorProfile 
         {user && !viewer?.is_self && (
           <>
             <Button size="sm" variant={viewer?.following ? "primary" : "secondary"} aria-pressed={!!viewer?.following} loading={busy === "follow"} onClick={() => toggle("follow", !!viewer?.following)}>
-              {viewer?.following ? "Following" : "Follow"} · {formatNumber(counts.followers)}
+              {viewer?.following ? t.engagement.following : t.engagement.followShort} · {f.number(counts.followers)}
             </Button>
             <Button size="sm" variant={viewer?.supporting ? "primary" : "secondary"} aria-pressed={!!viewer?.supporting} loading={busy === "support"} onClick={() => toggle("support", !!viewer?.supporting)}>
-              {viewer?.supporting ? "Supporting" : "Support"} · {formatNumber(counts.supporters)}
+              {viewer?.supporting ? t.engagement.supporting : t.engagement.supportShort} · {f.number(counts.supporters)}
             </Button>
           </>
         )}
-        {!user && <Link href={`/login?next=/investigators/${profile.slug}`} className={buttonClass("secondary", "sm")}>Sign in to follow or support</Link>}
-        {!viewer?.is_self && <Link href={`/tips/new?investigator=${profile.slug}`} className={buttonClass("primary", "sm")}>Send a tip</Link>}
+        {!user && <Link href={`/login?next=/investigators/${profile.slug}`} className={buttonClass("secondary", "sm")}>{t.engagement.signInToFollow}</Link>}
+        {!viewer?.is_self && <Link href={`/tips/new?investigator=${profile.slug}`} className={buttonClass("primary", "sm")}>{t.investigation.sendTip}</Link>}
       </div>
       {error && <p role="alert" className="text-sm text-danger">{error}</p>}
     </div>

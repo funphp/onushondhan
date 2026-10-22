@@ -5,10 +5,12 @@ import { TipThread } from "@/components/engagement/TipThread";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { TextInput } from "@/components/ui/Field";
+import { useI18n } from "@/i18n/client";
 import { api, errorMessage } from "@/lib/api";
 import type { Tip } from "@/lib/types";
 
 export function GuestTipThread() {
+  const { t } = useI18n();
   const [code, setCode] = useState("");
   const [tip, setTip] = useState<Tip | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +23,7 @@ export function GuestTipThread() {
           const res = await api<{ data: Tip }>("/tips/access/messages", { method: "POST", body: { access_code: code, body } });
           setTip(res.data);
         }} />
-        <Button variant="ghost" onClick={() => { setTip(null); setCode(""); }}>Close conversation</Button>
+        <Button variant="ghost" onClick={() => { setTip(null); setCode(""); }}>{t.tips.closeConversation}</Button>
       </div>
     );
   }
@@ -39,9 +41,9 @@ export function GuestTipThread() {
         setBusy(false);
       }
     }}>
-      <TextInput label="Access code" value={code} onChange={(e) => setCode(e.target.value)} placeholder="TIP-XXXXX-XXXXX-XXXXX-XXXXX" autoComplete="off" spellCheck={false} required maxLength={40} />
+      <TextInput label={t.tips.accessCodeLabel} value={code} onChange={(e) => setCode(e.target.value)} placeholder="TIP-XXXXX-XXXXX-XXXXX-XXXXX" autoComplete="off" spellCheck={false} required maxLength={40} />
       {error && <Alert tone="danger">{error}</Alert>}
-      <Button type="submit" loading={busy}>Open</Button>
+      <Button type="submit" loading={busy}>{t.tips.open}</Button>
     </form>
   );
 }

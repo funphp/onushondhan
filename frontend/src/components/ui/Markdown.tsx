@@ -19,7 +19,7 @@ export function Markdown({ children, className = "prose-report" }: { children: s
             const safe = safeHref(href);
             return safe ? <a href={safe} rel="noopener noreferrer ugc nofollow" target="_blank">{c}</a> : <span>{c}</span>;
           },
-          img: ({ alt }) => <span className="text-muted">[image: {alt ?? "external image not displayed"}]</span>,
+          img: ({ alt }) => <span className="text-muted">[🖼 {alt ?? ""}]</span>,
           h1: ({ children: c }) => <h2>{c}</h2>,
         }}
       >

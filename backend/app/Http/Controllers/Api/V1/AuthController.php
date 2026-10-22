@@ -61,7 +61,7 @@ class AuthController extends Controller
         // Drop any user cached on resolved guards (e.g. Sanctum's request guard) too.
         Auth::forgetGuards();
 
-        return response()->json(['message' => 'Logged out.']);
+        return response()->json(['message' => __('Logged out.')]);
     }
 
     public function me(Request $request): MeResource
@@ -77,7 +77,7 @@ class AuthController extends Controller
             $user->sendEmailVerificationNotification();
         }
 
-        return response()->json(['message' => 'If your email is unverified, a new verification link has been sent.']);
+        return response()->json(['message' => __('If your email is unverified, a new verification link has been sent.')]);
     }
 
     public function verifyEmail(Request $request): JsonResponse
@@ -90,7 +90,7 @@ class AuthController extends Controller
         ]);
         $this->auth->verifyEmail($data['id'], $data['hash'], (int) $data['expires'], $data['signature']);
 
-        return response()->json(['message' => 'Email verified.', 'verified' => true]);
+        return response()->json(['message' => __('Email verified.'), 'verified' => true]);
     }
 
     public function forgotPassword(Request $request): JsonResponse
@@ -102,7 +102,7 @@ class AuthController extends Controller
         }
 
         // Identical response whether or not the account exists (no user enumeration).
-        return response()->json(['message' => 'If an account exists for that address, a reset link has been sent.']);
+        return response()->json(['message' => __('If an account exists for that address, a reset link has been sent.')]);
     }
 
     public function resetPassword(Request $request): JsonResponse
@@ -128,7 +128,7 @@ class AuthController extends Controller
             throw new ApiException('This password reset link is invalid or has expired.', 'reset_invalid', 422);
         }
 
-        return response()->json(['message' => 'Your password has been reset. Please sign in.']);
+        return response()->json(['message' => __('Your password has been reset. Please sign in.')]);
     }
 
     public function changePassword(Request $request): JsonResponse
@@ -148,6 +148,6 @@ class AuthController extends Controller
         $this->audit->log('user.password_changed', $user, null, null, $user);
         $this->security->event('password.changed', $user, 'warning');
 
-        return response()->json(['message' => 'Password updated. Other sessions were signed out.']);
+        return response()->json(['message' => __('Password updated. Other sessions were signed out.')]);
     }
 }

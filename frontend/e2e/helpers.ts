@@ -16,7 +16,7 @@ export const USERS = {
 export const BASE_URL = process.env.E2E_BASE_URL ?? "http://localhost:3100";
 export const API_URL = process.env.E2E_API_URL ?? "http://127.0.0.1:8001";
 /** Deployed sites serve the admin panel on the same origin; local E2E uses the API port. */
-export const ADMIN_URL = process.env.E2E_BASE_URL ? `${BASE_URL}/admin` : API_URL.replace("127.0.0.1", "localhost") + "/admin";
+export const ADMIN_URL = process.env.E2E_ADMIN_URL ?? (process.env.E2E_BASE_URL ? `${BASE_URL}/admin` : API_URL.replace("127.0.0.1", "localhost") + "/admin");
 
 /** Form control by its exact label, tolerating the visual "required" asterisk. */
 export function field(page: Page, label: string) {

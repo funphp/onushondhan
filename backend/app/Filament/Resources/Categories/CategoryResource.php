@@ -34,7 +34,8 @@ class CategoryResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->columns(2)->components([
-            TextInput::make('name')->required()->maxLength(120),
+            TextInput::make('name')->label('Name (English)')->required()->maxLength(120),
+            TextInput::make('name_bn')->label('Name (Bangla)')->maxLength(120),
             TextInput::make('slug')->required()->maxLength(140)->alphaDash()->unique(ignoreRecord: true),
             Select::make('parent_id')->label('Parent')->relationship('parent', 'name', fn ($query) => $query->whereNull('parent_id'))->nullable(),
             Select::make('status')->options(['active' => 'Active', 'hidden' => 'Hidden'])->required()->default('active'),
@@ -50,6 +51,7 @@ class CategoryResource extends Resource
             ->defaultSort('sort_order')
             ->columns([
                 TextColumn::make('name')->searchable(),
+                TextColumn::make('name_bn')->label('Bangla')->searchable(),
                 TextColumn::make('slug'),
                 TextColumn::make('parent.name')->label('Parent')->placeholder('—'),
                 TextColumn::make('status')->badge(),

@@ -31,11 +31,11 @@ class NotifyFollowersOfPublication implements ShouldQueue
         $inv->investigator->followers()->where('users.status', 'active')->select('users.*')->chunkById(500, function ($users) use ($inv) {
             /** @var User $user */
             foreach ($users as $user) {
-                $user->notify(new PlatformNotification('new_investigation_from_followed', 'New investigation from '.$inv->investigator->public_name, [
+                $user->notify(new PlatformNotification('new_investigation_from_followed', 'New investigation from :name', [
                     'investigation_id' => $inv->public_id,
                     'investigation_title' => $inv->published_title,
                     'investigator' => $inv->investigator->public_name,
-                ], '/investigation/'.$inv->public_id.'/'.$inv->slug, emailCategory: 'followed_investigators'));
+                ], '/investigation/'.$inv->public_id.'/'.$inv->slug, emailCategory: 'followed_investigators', titleParams: ['name' => $inv->investigator->public_name]));
             }
         }, 'users.id', 'id');
     }

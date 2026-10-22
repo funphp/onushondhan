@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ResultsList } from "@/components/investigation/ResultsList";
+import { getI18n } from "@/i18n/server";
 import { pickFilters, searchInvestigations } from "@/lib/search";
 import { serverGetOrNull } from "@/lib/server-api";
 import type { Category } from "@/lib/types";
@@ -12,13 +13,15 @@ async function getCategory(slug: string) {
 
 export async function generateMetadata(props: PageProps<"/category/[slug]">): Promise<Metadata> {
   const { slug } = await props.params;
+  const { t } = await getI18n();
   const c = await getCategory(slug);
-  if (!c) return { title: "Category not found" };
-  return { title: `${c.name} investigations`, description: c.description ?? `Independent investigations about ${c.name}.`, alternates: { canonical: `/category/${c.slug}` } };
+  if (!c) return { title: t.meta.categoryNotFound };
+  return { title: t.meta.categoryInvestigations(c.name), description: c.description ?? t.search.categoryMetaDescription(c.name), alternates: { canonical: `/category/${c.slug}` } };
 }
 
 export default async function CategoryPage(props: PageProps<"/category/[slug]">) {
   const { slug } = await props.params;
+  const { t } = await getI18n();
   const category = await getCategory(slug);
   if (!category) notFound();
   const filters = { ...pickFilters(await props.searchParams), category: category.slug };
@@ -26,8 +29,8 @@ export default async function CategoryPage(props: PageProps<"/category/[slug]">)
 
   return (
     <div className="space-y-6">
-      <nav aria-label="Breadcrumb" className="text-sm text-muted">
-        <Link href="/">Home</Link> / <Link href="/search">Discover</Link>
+      <nav aria-label={t.common.breadcrumb} className="text-sm text-muted">
+        <Link href="/">{t.common.home}</Link> / <Link href="/search">{t.nav.discover}</Link>
         {category.parent && <> / <Link href={`/category/${category.parent}`}>{category.parent}</Link></>} / <span aria-current="page">{category.name}</span>
       </nav>
       <h1 className="font-serif text-3xl font-bold">{category.name}</h1>

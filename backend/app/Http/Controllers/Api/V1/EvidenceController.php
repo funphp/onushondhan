@@ -99,7 +99,7 @@ class EvidenceController extends Controller
         $this->authorize('delete', $evidence);
         $this->service->delete($evidence, $request->user());
 
-        return response()->json(['message' => 'Evidence deleted.']);
+        return response()->json(['message' => __('Evidence deleted.')]);
     }
 
     // --- Access (public + authorised) ----------------------------------------

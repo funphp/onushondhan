@@ -45,7 +45,7 @@ class FileInspector
             $this->fail($field, 'The file is empty.');
         }
         if ($size > $maxBytes) {
-            $this->fail($field, 'The file exceeds the maximum allowed size of '.intdiv($maxBytes, 1024 * 1024).' MB.');
+            $this->fail($field, 'The file exceeds the maximum allowed size of :mb MB.', ['mb' => intdiv($maxBytes, 1024 * 1024)]);
         }
 
         $safeName = $this->safeName($file->getClientOriginalName());
@@ -217,8 +217,9 @@ class FileInspector
         ];
     }
 
-    private function fail(string $field, string $message): never
+    /** @param array<string, mixed> $replace */
+    private function fail(string $field, string $message, array $replace = []): never
     {
-        throw ValidationException::withMessages([$field => [$message]]);
+        throw ValidationException::withMessages([$field => [__($message, $replace)]]);
     }
 }

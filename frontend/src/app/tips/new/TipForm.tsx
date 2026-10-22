@@ -6,10 +6,12 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Checkbox, SelectInput, TextArea, TextInput } from "@/components/ui/Field";
+import { useI18n } from "@/i18n/client";
 import { api, ApiError, errorMessage } from "@/lib/api";
 
 export function TipForm({ investigator, investigation }: { investigator?: string; investigation?: string }) {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [anonymous, setAnonymous] = useState(true);
@@ -22,21 +24,21 @@ export function TipForm({ investigator, investigation }: { investigator?: string
   const [done, setDone] = useState<{ id: string; access_code: string | null; message: string } | null>(null);
 
   if (!investigator && !investigation) {
-    return <Alert tone="warning">Open this page from an investigation or investigator profile to choose who receives your tip.</Alert>;
+    return <Alert tone="warning">{t.tips.pickTarget}</Alert>;
   }
 
   if (done) {
     return (
       <div className="space-y-4">
-        <Alert tone="success" title="Tip sent" live>{done.message}</Alert>
+        <Alert tone="success" title={t.tips.sent} live>{done.message}</Alert>
         {done.access_code && (
           <div className="rounded-lg border-2 border-warning bg-warning-soft p-5">
-            <p className="text-sm font-semibold">Your one-time access code</p>
-            <p className="my-3 select-all break-all font-mono text-2xl tracking-wider" aria-label="Access code">{done.access_code}</p>
-            <p className="text-sm">Write it down or store it somewhere safe <strong>now</strong>. Onushondhan only keeps a scrambled version, so it cannot be shown again or recovered. Use it on the <Link href="/tips/access" className="underline">tip replies page</Link> to read and answer the investigator.</p>
+            <p className="text-sm font-semibold">{t.tips.accessCodeTitle}</p>
+            <p className="my-3 select-all break-all font-mono text-2xl tracking-wider" aria-label={t.tips.accessCodeLabel}>{done.access_code}</p>
+            <p className="text-sm">{t.tips.accessCodeHelp} <Link href="/tips/access" className="underline">{t.tips.repliesPage}</Link></p>
           </div>
         )}
-        {user && <p className="text-sm">Follow the conversation from <Link href="/account/tips" className="underline">your tips</Link>.</p>}
+        {user && <p className="text-sm">{t.tips.followFromAccount} <Link href="/account/tips" className="underline">{t.tips.yourTips}</Link>.</p>}
       </div>
     );
   }
@@ -70,42 +72,42 @@ export function TipForm({ investigator, investigation }: { investigator?: string
         }
       }}
     >
-      <Alert title={user ? "About your anonymity" : "Sending as a guest"}>
+      <Alert title={user ? t.tips.anonymityTitleMember : t.tips.anonymityTitleGuest}>
         {user ? (
-          <p>You are signed in as <strong>{user.username}</strong>. You can hide your identity from the investigator; Onushondhan still knows which account sent the tip.</p>
+          <p>{t.tips.anonymityMember(user.username)}</p>
         ) : (
-          <p>You are not signed in, so the tip is anonymous to the platform: no account, IP address or browser details are attached to it. You will receive an access code to read replies. Onushondhan cannot promise absolute anonymity — avoid details that identify you if that matters.</p>
+          <p>{t.tips.anonymityGuest}</p>
         )}
       </Alert>
 
-      <TextInput label="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} required minLength={3} maxLength={200} error={fe("subject")} />
-      <TextArea label="Your tip" value={message} onChange={(e) => setMessage(e.target.value)} required minLength={10} maxLength={20000} rows={8} error={fe("message")}
-        hint="Describe what you know. Do not include information you are not comfortable sharing with the investigator." />
+      <TextInput label={t.tips.subject} value={subject} onChange={(e) => setSubject(e.target.value)} required minLength={3} maxLength={200} error={fe("subject")} />
+      <TextArea label={t.tips.yourTip} value={message} onChange={(e) => setMessage(e.target.value)} required minLength={10} maxLength={20000} rows={8} error={fe("message")}
+        hint={t.tips.yourTipHint} />
 
-      {user && <Checkbox label="Hide my identity from the investigator (recommended)" checked={anonymous} onChange={(e) => setAnonymous(e.target.checked)} />}
+      {user && <Checkbox label={t.tips.hideIdentity} checked={anonymous} onChange={(e) => setAnonymous(e.target.checked)} />}
 
-      <SelectInput label="How may the investigator follow up?" value={contactPref} onChange={(e) => setContactPref(e.target.value)} options={[
-        { value: "platform_messaging", label: user ? "Through Onushondhan messages" : "Through Onushondhan messages (using my access code)" },
-        { value: "email", label: "By email (shared with the investigator)" },
-        { value: "phone", label: "By phone (shared with the investigator)" },
-        { value: "none", label: "No follow-up" },
+      <SelectInput label={t.tips.followUp} value={contactPref} onChange={(e) => setContactPref(e.target.value)} options={[
+        { value: "platform_messaging", label: user ? t.tips.viaPlatformMember : t.tips.viaPlatformGuest },
+        { value: "email", label: t.tips.viaEmail },
+        { value: "phone", label: t.tips.viaPhone },
+        { value: "none", label: t.tips.noFollowUp },
       ]} />
       {(contactPref === "email" || contactPref === "phone") && (
-        <TextInput label={contactPref === "email" ? "Email to share" : "Phone to share"} type={contactPref === "email" ? "email" : "tel"} value={contactValue} onChange={(e) => setContactValue(e.target.value)} required error={fe("contact_value")}
-          hint="This will be visible to the investigator and reveals who you are to them." />
+        <TextInput label={contactPref === "email" ? t.tips.emailToShare : t.tips.phoneToShare} type={contactPref === "email" ? "email" : "tel"} value={contactValue} onChange={(e) => setContactValue(e.target.value)} required error={fe("contact_value")}
+          hint={t.tips.contactHint} />
       )}
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="tip-files" className="text-sm font-medium">Attachments (optional, up to 5)</label>
+        <label htmlFor="tip-files" className="text-sm font-medium">{t.tips.attachments}</label>
         <input id="tip-files" type="file" multiple onChange={(e) => setFiles(e.target.files)} className="text-sm" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.mov,.mp3,.m4a,.wav,.ogg,.txt,.csv,.doc,.docx,.xls,.xlsx,.odt,.ods" aria-describedby="tip-files-hint" />
-        <p id="tip-files-hint" className="text-xs text-muted">Files can contain hidden metadata (such as location). Remove it before uploading if it could identify you.</p>
+        <p id="tip-files-hint" className="text-xs text-muted">{t.tips.attachmentsHint}</p>
         {fe("attachments") && <p role="alert" className="text-sm text-danger">{fe("attachments")}</p>}
       </div>
 
-      <Checkbox label={<>I have read the <Link href="/pages/content-policy" className="underline" target="_blank">Content Policy</Link> and am sending this tip in good faith.</>} checked={agree} onChange={(e) => setAgree(e.target.checked)} required error={fe("agree_to_content_policy")} />
+      <Checkbox label={<>{t.tips.agreePrefix} <Link href="/pages/content-policy" className="underline" target="_blank">{t.footer.contentPolicy}</Link> {t.tips.agreeSuffix}</>} checked={agree} onChange={(e) => setAgree(e.target.checked)} required error={fe("agree_to_content_policy")} />
 
       {error && <Alert tone="danger">{typeof error === "string" ? error : error.message}</Alert>}
-      <Button type="submit" loading={busy}>Send tip</Button>
+      <Button type="submit" loading={busy}>{t.tips.send}</Button>
     </form>
   );
 }

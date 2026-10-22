@@ -8,11 +8,13 @@ import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Field";
 import { Markdown } from "@/components/ui/Markdown";
+import { useI18n } from "@/i18n/client";
 import { api, errorMessage } from "@/lib/api";
 import type { Agreement, Me } from "@/lib/types";
 
 function AgreementsInner() {
   const { user, setUser } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [docs, setDocs] = useState<Agreement[]>([]);
   const [checked, setChecked] = useState<Record<number, boolean>>({});
@@ -25,18 +27,18 @@ function AgreementsInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- load once per pending set
   }, [pending.map((p) => p.id).join(",")]);
 
-  if (pending.length === 0) return <Alert tone="success">You have accepted all current agreements.</Alert>;
+  if (pending.length === 0) return <Alert tone="success">{t.agreements.allAccepted}</Alert>;
 
   return (
     <div className="space-y-6">
-      <p>The following agreements have been updated. Please read and accept them to continue posting, supporting and publishing.</p>
+      <p>{t.agreements.intro}</p>
       {docs.map((d) => (
         <section key={d.id} className="space-y-3 rounded-lg border border-line bg-surface p-5">
-          <h2 className="text-xl font-semibold">{d.title} <span className="text-sm font-normal text-muted">version {d.version}</span></h2>
-          <div className="max-h-80 overflow-y-auto rounded border border-line p-4" tabIndex={0} aria-label={`${d.title} text`}>
+          <h2 className="text-xl font-semibold">{d.title} <span className="text-sm font-normal text-muted">{t.agreements.version(d.version)}</span></h2>
+          <div className="max-h-80 overflow-y-auto rounded border border-line p-4" tabIndex={0} aria-label={t.agreements.textLabel(d.title)}>
             <Markdown className="prose-report text-base">{d.content}</Markdown>
           </div>
-          <Checkbox label={`I have read and accept the ${d.title} (version ${d.version}).`} checked={!!checked[d.id]} onChange={(e) => setChecked({ ...checked, [d.id]: e.target.checked })} />
+          <Checkbox label={t.agreements.accept(d.title, d.version)} checked={!!checked[d.id]} onChange={(e) => setChecked({ ...checked, [d.id]: e.target.checked })} />
         </section>
       ))}
       {error && <Alert tone="danger">{error}</Alert>}
@@ -51,15 +53,16 @@ function AgreementsInner() {
         } finally {
           setBusy(false);
         }
-      }}>Accept and continue</Button>
+      }}>{t.agreements.acceptContinue}</Button>
     </div>
   );
 }
 
 export default function AgreementsPage() {
+  const { t } = useI18n();
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <h1 className="font-serif text-3xl font-bold">Updated agreements</h1>
+      <h1 className="font-serif text-3xl font-bold">{t.agreements.title}</h1>
       <RequireAuth><AgreementsInner /></RequireAuth>
     </div>
   );

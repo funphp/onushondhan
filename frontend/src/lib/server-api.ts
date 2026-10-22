@@ -1,4 +1,5 @@
 import "server-only";
+import { getLocale } from "@/i18n/server";
 import type { ApiErrorBody } from "./types";
 
 /**
@@ -18,8 +19,9 @@ export async function serverGet<T>(path: string, options: { revalidate?: number 
   for (const [k, v] of Object.entries(options.params ?? {})) {
     if (v !== undefined && v !== null && v !== "") url.searchParams.set(k, String(v));
   }
+  // The locale header is part of the fetch cache key, so each language is cached separately.
   const res = await fetch(url, {
-    headers: { Accept: "application/json" },
+    headers: { Accept: "application/json", "X-Locale": await getLocale() },
     next: options.revalidate === false ? undefined : { revalidate: options.revalidate ?? 60 },
     cache: options.revalidate === false ? "no-store" : undefined,
   });

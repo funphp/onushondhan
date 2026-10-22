@@ -6,10 +6,12 @@ import { useEffect, useState } from "react";
 import { InvestigationArticle } from "@/components/investigation/InvestigationArticle";
 import { Alert } from "@/components/ui/Alert";
 import { Spinner } from "@/components/ui/Card";
+import { useI18n } from "@/i18n/client";
 import { api, errorMessage } from "@/lib/api";
 import type { PublicInvestigation } from "@/lib/types";
 
 export default function PreviewPage() {
+  const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const [inv, setInv] = useState<PublicInvestigation | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -18,9 +20,9 @@ export default function PreviewPage() {
   }, [id]);
   return (
     <div className="space-y-6">
-      <Alert tone="warning" title="Preview — not published">
-        This is how readers will see your investigation after you publish. Only evidence marked public (and passing scanning) is shown.{" "}
-        <Link href={`/dashboard/investigations/${id}`} className="underline">Back to the editor</Link>
+      <Alert tone="warning" title={t.investigation.preview}>
+        {t.editor.previewBanner}{" "}
+        <Link href={`/dashboard/investigations/${id}`} className="underline">{t.editor.backToEditor}</Link>
       </Alert>
       {error && <Alert tone="danger">{error}</Alert>}
       {!inv ? !error && <Spinner /> : <div className="mx-auto max-w-3xl"><InvestigationArticle inv={inv} /></div>}

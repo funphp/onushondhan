@@ -31,7 +31,8 @@ abstract class TestCase extends BaseTestCase
         Cache::flush();
         RequestId::reset();
         // Requests come from the SPA origin, so Sanctum treats them as stateful (session + CSRF).
-        $this->withHeaders(['Origin' => 'http://localhost:3000', 'Accept' => 'application/json']);
+        // Existing assertions use the English source texts; LocalizationTest covers Bangla.
+        $this->withHeaders(['Origin' => 'http://localhost:3000', 'Accept' => 'application/json', 'X-Locale' => 'en']);
     }
 
     protected function member(array $attributes = []): User

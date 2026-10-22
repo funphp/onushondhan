@@ -214,6 +214,7 @@ export interface Me {
   is_staff: boolean;
   investigator: { id: string; public_name: string; slug: string; identity_mode: string; status: string } | null;
   pending_agreements: { id: number; agreement_type: string; version: string; title: string }[];
+  locale?: string | null;
   notification_preferences: { email?: Record<string, boolean> };
   unread_notifications: number;
   created_at: string;

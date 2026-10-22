@@ -182,3 +182,32 @@ super admin). Resources are gated by policies; moderation actions in the panel c
 `ModerationService` as the API. TOTP 2FA with recovery codes is enforced when `ADMIN_MFA_REQUIRED=true`
 (production default). Configuration changes (CMS, agreements, categories, settings, roles) are audited
 by `AdminChangeObserver`; published agreement versions are immutable.
+
+## ADR-024 — Bilingual interface (Bangla default, English option)
+Status: Accepted (2026-10-22).
+
+- **Scope.** Only interface text (menus, labels, buttons, notices, API messages, emails) is
+  bilingual. Investigators write in Bangla or English as they choose and their content is shown
+  exactly as written — nothing is machine-translated. The Filament admin panel stays English.
+- **Frontend.** Typed dictionaries in `frontend/src/i18n/messages/` (`en.ts` defines the shape,
+  `bn.ts: Messages` must match it — enforced by TypeScript and `i18n.test.ts`). The language lives
+  in a `locale` cookie (default `bn`), read by server components via `getI18n()` and provided to
+  client components by `I18nProvider`/`useI18n()`. No URL prefixes: URLs stay stable and shareable,
+  and canonical URLs are language-neutral. `LanguageSwitcher` in the header (and account settings)
+  writes the cookie, refreshes the page and, for signed-in users, saves `users.locale`.
+  `makeFormat(locale)` formats dates (Asia/Dhaka), numbers (Bengali digits for Bangla), sizes and
+  country names. Bangla text uses Noto Sans/Serif Bengali via `next/font`.
+- **API.** `SetApiLocale` picks the language from an explicit `X-Locale: bn|en` header (default
+  `API_LOCALE=bn`); `Accept-Language` is ignored because many Bangla readers browse with English
+  browser settings. Messages use English source strings as keys with translations in
+  `lang/bn.json`, `lang/bn/validation.php` and `lang/bn/passwords.php`; `TranslationCoverageTest`
+  fails when a translatable literal in `app/` has no Bangla entry. Notifications store their source
+  title (`title_key` + params) and are re-rendered in the reader's current language; emails use the
+  user's saved locale (`HasLocalePreference`). Categories have `name_bn`.
+- **Slugs.** `App\Support\Slug` keeps Unicode letters, so Bangla titles and tags produce Bangla
+  slugs (`/investigation/INV-…/ধলেশ্বরী-নদীতে-…`); the frontend decodes percent-encoded params
+  before comparing/redirecting. MySQL full-text search was verified to match Bangla words.
+- **Trade-offs.** Reading the cookie makes public pages dynamically rendered instead of ISR; API
+  responses are still cached per request (`revalidate`). The generated per-investigation OG image
+  was removed because the OG renderer cannot shape Bengali script; pages fall back to the site OG
+  image.

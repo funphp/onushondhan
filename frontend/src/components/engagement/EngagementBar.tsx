@@ -6,15 +6,10 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Button } from "@/components/ui/Button";
 import { api, errorMessage } from "@/lib/api";
-import { formatNumber } from "@/lib/format";
-import { SUPPORT_NOTE } from "@/lib/site";
+import { useI18n } from "@/i18n/client";
 import type { PublicInvestigation } from "@/lib/types";
 
-const REACTIONS = [
-  { key: "useful", label: "Useful" },
-  { key: "important", label: "Important" },
-  { key: "interesting", label: "Interesting" },
-];
+const REACTIONS = ["useful", "important", "interesting"] as const;
 
 type Viewer = NonNullable<PublicInvestigation["viewer"]>;
 
@@ -24,6 +19,7 @@ type Viewer = NonNullable<PublicInvestigation["viewer"]>;
  */
 export function EngagementBar({ investigation }: { investigation: Pick<PublicInvestigation, "id" | "investigator" | "counts" | "status"> }) {
   const { user } = useAuth();
+  const { t, f } = useI18n();
   const pathname = usePathname();
   const [viewer, setViewer] = useState<Viewer | null>(null);
   const [counts, setCounts] = useState({ bookmarks: investigation.counts.bookmarks, reactions: investigation.counts.reactions, supporters: investigation.investigator.supporters_count, followers: investigation.investigator.followers_count });
@@ -42,8 +38,8 @@ export function EngagementBar({ investigation }: { investigation: Pick<PublicInv
   if (!user) {
     return (
       <div className="rounded-lg border border-line bg-surface p-4 text-sm">
-        <p><Link href={`/login?next=${encodeURIComponent(pathname)}`} className="font-semibold text-accent underline">Sign in</Link> to bookmark, react, follow or support this investigator.</p>
-        <p className="mt-2 text-xs text-muted">{SUPPORT_NOTE}</p>
+        <p><Link href={`/login?next=${encodeURIComponent(pathname)}`} className="font-semibold text-accent underline">{t.engagement.signIn}</Link> {t.engagement.signInPrompt}</p>
+        <p className="mt-2 text-xs text-muted">{t.brand.supportNote}</p>
       </div>
     );
   }
@@ -69,16 +65,16 @@ export function EngagementBar({ investigation }: { investigation: Pick<PublicInv
       <div className="flex flex-wrap gap-2">
         <Button size="sm" variant={viewer?.bookmarked ? "primary" : "secondary"} loading={busy === "bookmark"} aria-pressed={!!viewer?.bookmarked}
           onClick={() => run("bookmark", () => api(`/investigations/${investigation.id}/bookmark`, { method: viewer?.bookmarked ? "DELETE" : "PUT" }))}>
-          {viewer?.bookmarked ? "Bookmarked" : "Bookmark"} · {formatNumber(counts.bookmarks)}
+          {viewer?.bookmarked ? t.engagement.bookmarked : t.engagement.bookmark} · {f.number(counts.bookmarks)}
         </Button>
       </div>
       <fieldset>
-        <legend className="mb-2 text-sm font-semibold">Your reaction</legend>
+        <legend className="mb-2 text-sm font-semibold">{t.engagement.yourReaction}</legend>
         <div className="flex flex-wrap gap-2">
-          {REACTIONS.map((r) => (
-            <Button key={r.key} size="sm" variant={viewer?.reaction === r.key ? "primary" : "secondary"} aria-pressed={viewer?.reaction === r.key} loading={busy === r.key}
-              onClick={() => run(r.key, () => (viewer?.reaction === r.key ? api(`/investigations/${investigation.id}/reaction`, { method: "DELETE" }) : api(`/investigations/${investigation.id}/reaction`, { method: "PUT", body: { type: r.key } })))}>
-              {r.label}
+          {REACTIONS.map((key) => (
+            <Button key={key} size="sm" variant={viewer?.reaction === key ? "primary" : "secondary"} aria-pressed={viewer?.reaction === key} loading={busy === key}
+              onClick={() => run(key, () => (viewer?.reaction === key ? api(`/investigations/${investigation.id}/reaction`, { method: "DELETE" }) : api(`/investigations/${investigation.id}/reaction`, { method: "PUT", body: { type: key } })))}>
+              {t.reactions[key]}
             </Button>
           ))}
         </div>
@@ -87,15 +83,15 @@ export function EngagementBar({ investigation }: { investigation: Pick<PublicInv
         <div className="flex flex-wrap gap-2 border-t border-line pt-4">
           <Button size="sm" variant={viewer?.following ? "primary" : "secondary"} aria-pressed={!!viewer?.following} loading={busy === "follow"}
             onClick={() => run("follow", () => api(`/investigators/${slug}/follow`, { method: viewer?.following ? "DELETE" : "PUT" }))}>
-            {viewer?.following ? "Following" : "Follow investigator"} · {formatNumber(counts.followers)}
+            {viewer?.following ? t.engagement.following : t.engagement.follow} · {f.number(counts.followers)}
           </Button>
           <Button size="sm" variant={viewer?.supporting ? "primary" : "secondary"} aria-pressed={!!viewer?.supporting} loading={busy === "support"}
             onClick={() => run("support", () => api(`/investigators/${slug}/support`, { method: viewer?.supporting ? "DELETE" : "PUT" }))}>
-            {viewer?.supporting ? "Supporting" : "Support investigator"} · {formatNumber(counts.supporters)}
+            {viewer?.supporting ? t.engagement.supporting : t.engagement.support} · {f.number(counts.supporters)}
           </Button>
         </div>
       )}
-      <p className="text-xs text-muted">{SUPPORT_NOTE}</p>
+      <p className="text-xs text-muted">{t.brand.supportNote}</p>
       {error && <p role="alert" className="text-sm text-danger">{error}</p>}
     </div>
   );

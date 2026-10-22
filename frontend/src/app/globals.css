@@ -54,12 +54,18 @@
   --color-warning-soft: var(--warning-soft);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Bengali", "Helvetica Neue", Arial, sans-serif;
-  --font-serif: "Iowan Old Style", "Palatino Linotype", Georgia, "Noto Serif", "Noto Serif Bengali", serif;
+  /* Latin glyphs come from the system UI font; Bangla falls through to Noto Sans/Serif Bengali. */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, var(--font-bn-sans), "Noto Sans Bengali", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Georgia, var(--font-bn-serif), "Noto Serif Bengali", serif;
 }
 
 html {
   -webkit-text-size-adjust: 100%;
+}
+
+/* Bangla needs more vertical room for vowel signs above and below the line. */
+:lang(bn) body {
+  line-height: 1.65;
 }
 
 body {
@@ -93,7 +99,7 @@ body {
 .prose-report {
   font-family: var(--font-serif);
   font-size: 1.125rem;
-  line-height: 1.75;
+  line-height: 1.8;
   overflow-wrap: anywhere;
 }
 .prose-report h2 { font-family: var(--font-sans); font-size: 1.35rem; font-weight: 700; margin: 2rem 0 0.75rem; }

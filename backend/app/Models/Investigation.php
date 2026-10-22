@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\InvestigationStatus;
 use App\Enums\InvestigationVisibility;
+use App\Support\Slug;
 use Database\Factories\InvestigationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 
 /**
  * Columns title..period_end are the owner's working copy. Public pages render the
@@ -138,7 +138,7 @@ class Investigation extends Model
 
     public static function makeSlug(string $title): string
     {
-        return Str::limit(Str::slug($title) ?: 'investigation', 200, '');
+        return Slug::make($title, 120, 'investigation');
     }
 
     public function getRouteKeyName(): string

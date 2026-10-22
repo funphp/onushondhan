@@ -34,11 +34,11 @@ class CommentResource extends JsonResource
         return [
             'id' => $c->public_id,
             'body' => $gone ? null : $c->body,
-            'placeholder' => $gone ? ($c->trashed() || $c->status === CommentStatus::Removed ? 'This comment was deleted.' : 'This comment is hidden.') : null,
+            'placeholder' => $gone ? ($c->trashed() || $c->status === CommentStatus::Removed ? __('This comment was deleted.') : __('This comment is hidden.')) : null,
             'status' => $gone ? ($c->trashed() ? 'removed' : $c->status->value) : 'visible',
             'author' => $gone ? null : ($isOwner
-                ? ['name' => self::$ownerIdentity['public_name'] ?? 'Investigator', 'role' => 'investigator', 'slug' => self::$ownerIdentity['slug'] ?? null]
-                : ['name' => $c->user->username ?? 'former-user', 'role' => 'member', 'slug' => null]),
+                ? ['name' => self::$ownerIdentity['public_name'] ?? __('Investigator'), 'role' => 'investigator', 'slug' => self::$ownerIdentity['slug'] ?? null]
+                : ['name' => $c->user->username ?? __('former-user'), 'role' => 'member', 'slug' => null]),
             'is_pinned' => $c->is_pinned,
             'score' => $c->score,
             'replies_count' => $c->replies_count,

@@ -1,4 +1,7 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { useI18n } from "@/i18n/client";
 import { cn } from "./cn";
 
 export function Card({ children, className, as: Tag = "div" }: { children: ReactNode; className?: string; as?: "div" | "section" | "article" | "aside" }) {
@@ -14,11 +17,12 @@ export function EmptyState({ title, children }: { title: string; children?: Reac
   );
 }
 
-export function Spinner({ label = "Loading" }: { label?: string }) {
+export function Spinner({ label }: { label?: string }) {
+  const { t } = useI18n();
   return (
     <div role="status" className="flex items-center gap-2 text-sm text-muted">
       <span aria-hidden className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-      {label}…
+      {label ?? t.common.loading}…
     </div>
   );
 }

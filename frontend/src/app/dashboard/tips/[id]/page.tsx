@@ -6,10 +6,12 @@ import { useEffect, useState } from "react";
 import { TipThread } from "@/components/engagement/TipThread";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Card";
+import { useI18n } from "@/i18n/client";
 import { api, errorMessage } from "@/lib/api";
 import type { Tip } from "@/lib/types";
 
 export default function TipDetailPage() {
+  const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const [tip, setTip] = useState<Tip | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -28,15 +30,15 @@ export default function TipDetailPage() {
 
   return (
     <div className="space-y-4">
-      <Link href="/dashboard/tips" className="text-sm underline">← Tip inbox</Link>
+      <Link href="/dashboard/tips" className="text-sm underline">{t.inbox.back}</Link>
       {error && <p role="alert" className="text-danger">{error}</p>}
       {!tip ? !error && <Spinner /> : (
         <>
           <div className="flex flex-wrap gap-2">
-            {tip.status !== "important" && <Button size="sm" variant="secondary" onClick={() => setStatus("important")}>Mark important</Button>}
-            {tip.status !== "archived" && <Button size="sm" variant="secondary" onClick={() => setStatus("archived")}>Archive</Button>}
-            {tip.status !== "closed" ? <Button size="sm" variant="secondary" onClick={() => setStatus("closed")}>Close conversation</Button>
-              : <Button size="sm" variant="secondary" onClick={() => setStatus("read")}>Re-open</Button>}
+            {tip.status !== "important" && <Button size="sm" variant="secondary" onClick={() => setStatus("important")}>{t.inbox.markImportant}</Button>}
+            {tip.status !== "archived" && <Button size="sm" variant="secondary" onClick={() => setStatus("archived")}>{t.inbox.archive}</Button>}
+            {tip.status !== "closed" ? <Button size="sm" variant="secondary" onClick={() => setStatus("closed")}>{t.inbox.closeConversation}</Button>
+              : <Button size="sm" variant="secondary" onClick={() => setStatus("read")}>{t.inbox.reopen}</Button>}
           </div>
           <TipThread tip={tip} perspective="investigator" onReply={async (body) => setTip((await api<{ data: Tip }>(`/me/inbox/tips/${id}/messages`, { method: "POST", body: { body } })).data)} />
         </>

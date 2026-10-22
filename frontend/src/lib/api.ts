@@ -1,5 +1,7 @@
 "use client";
 
+import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale, type Locale } from "@/i18n/config";
+import { getMessages } from "@/i18n/index";
 import type { ApiErrorBody } from "./types";
 
 /**
@@ -13,7 +15,7 @@ export class ApiError extends Error {
   requestId?: string;
 
   constructor(status: number, body: Partial<ApiErrorBody>) {
-    super(body.message ?? "Something went wrong. Please try again.");
+    super(body.message ?? getMessages(currentLocale()).common.genericError);
     this.status = status;
     this.code = body.code ?? "http_error";
     this.errors = body.errors ?? {};
@@ -33,6 +35,12 @@ function readCookie(name: string): string | null {
   return match ? decodeURIComponent(match.slice(name.length + 1)) : null;
 }
 
+/** Interface language chosen by the visitor (cookie), sent as X-Locale so API messages match. */
+export function currentLocale(): Locale {
+  const value = readCookie(LOCALE_COOKIE);
+  return isLocale(value) ? value : DEFAULT_LOCALE;
+}
+
 export async function ensureCsrf(force = false): Promise<void> {
   if (force || !readCookie("XSRF-TOKEN")) csrfReady = null;
   if (!csrfReady) {
@@ -48,7 +56,7 @@ export async function api<T = unknown>(path: string, options: { method?: Method;
   const isForm = typeof FormData !== "undefined" && options.body instanceof FormData;
   if (method !== "GET") await ensureCsrf();
 
-  const headers: Record<string, string> = { Accept: "application/json", "X-Requested-With": "XMLHttpRequest" };
+  const headers: Record<string, string> = { Accept: "application/json", "X-Requested-With": "XMLHttpRequest", "X-Locale": currentLocale() };
   if (!isForm && options.body !== undefined) headers["Content-Type"] = "application/json";
   const xsrf = readCookie("XSRF-TOKEN");
   if (xsrf) headers["X-XSRF-TOKEN"] = xsrf;
@@ -70,7 +78,8 @@ export async function api<T = unknown>(path: string, options: { method?: Method;
     try {
       body = await res.json();
     } catch {
-      body = { message: res.status >= 500 ? "The server had a problem. Please try again shortly." : "Request failed." };
+      const t = getMessages(currentLocale()).common;
+      body = { message: res.status >= 500 ? t.serverError : t.requestFailed };
     }
     throw new ApiError(res.status, body);
   }
@@ -84,5 +93,5 @@ export function errorMessage(e: unknown): string {
     const first = Object.values(e.errors)[0]?.[0];
     return e.code === "validation_failed" && first ? first : e.message;
   }
-  return "Something went wrong. Please check your connection and try again.";
+  return getMessages(currentLocale()).common.genericError;
 }

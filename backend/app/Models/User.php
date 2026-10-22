@@ -13,6 +13,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -40,9 +41,10 @@ use SensitiveParameter;
  * @property string|null $app_authentication_secret
  * @property array<string>|null $app_authentication_recovery_codes
  * @property array<string, mixed>|null $notification_preferences
+ * @property string|null $locale
  * @property-read Investigator|null $investigator
  */
-class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasName, MustVerifyEmail
+class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasLocalePreference, HasName, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory;
@@ -60,6 +62,7 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
         'password',
         'phone',
         'notification_preferences',
+        'locale',
     ];
 
     protected $hidden = [
@@ -160,6 +163,14 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
         $prefs = $this->notification_preferences ?? [];
 
         return (bool) ($prefs['email'][$category] ?? true);
+    }
+
+    /** Notifications and emails go out in the user's chosen interface language (default Bangla). */
+    public function preferredLocale(): string
+    {
+        $locale = $this->getAttribute('locale');
+
+        return in_array($locale, config('onushondhan.supported_locales'), true) ? $locale : (string) config('onushondhan.user_locale', 'bn');
     }
 
     // --- Filament ---------------------------------------------------------

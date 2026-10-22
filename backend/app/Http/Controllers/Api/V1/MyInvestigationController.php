@@ -108,7 +108,7 @@ class MyInvestigationController extends Controller
     /** Confirmation statements the client must present before publishing. */
     public function confirmationStatements(): JsonResponse
     {
-        return response()->json(['data' => collect(InvestigationService::CONFIRMATION_STATEMENTS)->map(fn ($text, $key) => ['key' => $key, 'text' => $text])->values()]);
+        return response()->json(['data' => collect(InvestigationService::CONFIRMATION_STATEMENTS)->map(fn ($text, $key) => ['key' => $key, 'text' => __($text)])->values()]);
     }
 
     public function publish(Request $request, Investigation $investigation): InvestigationOwnerResource
@@ -144,7 +144,7 @@ class MyInvestigationController extends Controller
         $this->authorizeOwner($request->user(), $investigation, 'delete');
         $this->service->deleteDraft($investigation, $request->user());
 
-        return response()->json(['message' => 'Draft deleted.']);
+        return response()->json(['message' => __('Draft deleted.')]);
     }
 
     public function versions(Request $request, Investigation $investigation): JsonResponse

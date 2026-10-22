@@ -60,7 +60,7 @@ class InvestigatorAnalyticsService
                 ->whereNotNull('published_at')->orderByDesc('views_count')->limit(5)
                 ->get(['public_id', 'published_title', 'views_count', 'shares_count', 'comments_count'])
                 ->map(fn ($i) => ['id' => $i->public_id, 'title' => $i->published_title, 'views' => $i->views_count, 'shares' => $i->shares_count, 'comments' => $i->comments_count]),
-            'note' => 'Support and follower counts are engagement signals, not measures of accuracy.',
+            'note' => __('Support and follower counts are engagement signals, not measures of accuracy.'),
         ];
     }
 }

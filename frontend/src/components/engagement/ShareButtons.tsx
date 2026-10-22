@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "@/i18n/client";
 
-const PLATFORMS = (url: string, title: string) => {
+const PLATFORMS = (url: string, title: string, emailLabel: string) => {
   const u = encodeURIComponent(url);
   const t = encodeURIComponent(title);
   return [
@@ -12,7 +13,7 @@ const PLATFORMS = (url: string, title: string) => {
     { key: "whatsapp", label: "WhatsApp", href: `https://wa.me/?text=${t}%20${u}` },
     { key: "telegram", label: "Telegram", href: `https://t.me/share/url?url=${u}&text=${t}` },
     { key: "messenger", label: "Messenger", href: `fb-messenger://share/?link=${u}` },
-    { key: "email", label: "Email", href: `mailto:?subject=${t}&body=${u}` },
+    { key: "email", label: emailLabel, href: `mailto:?subject=${t}&body=${u}` },
   ];
 };
 
@@ -26,12 +27,13 @@ function track(id: string, platform: string) {
 }
 
 export function ShareButtons({ id, url, title }: { id: string; url: string; title: string }) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   return (
     <div>
-      <h2 className="mb-2 text-sm font-semibold">Share</h2>
+      <h2 className="mb-2 text-sm font-semibold">{t.share.title}</h2>
       <ul className="flex flex-wrap gap-2">
-        {PLATFORMS(url, title).map((p) => (
+        {PLATFORMS(url, title, t.share.email).map((p) => (
           <li key={p.key}>
             <a href={p.href} target="_blank" rel="noopener noreferrer" onClick={() => track(id, p.key)} className="inline-block rounded-md border border-line px-2.5 py-1 text-xs hover:bg-accent-soft">
               {p.label}
@@ -53,9 +55,9 @@ export function ShareButtons({ id, url, title }: { id: string; url: string; titl
               }
             }}
           >
-            {copied ? "Link copied" : "Copy link"}
+            {copied ? t.share.copied : t.share.copy}
           </button>
-          <span className="sr-only" aria-live="polite">{copied ? "Link copied to clipboard" : ""}</span>
+          <span className="sr-only" aria-live="polite">{copied ? t.share.copiedAnnounce : ""}</span>
         </li>
       </ul>
     </div>

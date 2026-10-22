@@ -64,8 +64,8 @@ class PublicInvestigationResource extends JsonResource
             'timeline' => $showContent ? ($version->timeline_json ?? []) : [],
             'sources' => $showContent ? ($version->sources_json ?? []) : [],
             'entities' => $showContent ? ($version->entities_json ?? []) : [],
-            'category' => $inv->category ? ['name' => $inv->category->name, 'slug' => $inv->category->slug] : null,
-            'subcategory' => $inv->subcategory ? ['name' => $inv->subcategory->name, 'slug' => $inv->subcategory->slug] : null,
+            'category' => $inv->category ? ['name' => $inv->category->displayName(), 'slug' => $inv->category->slug] : null,
+            'subcategory' => $inv->subcategory ? ['name' => $inv->subcategory->displayName(), 'slug' => $inv->subcategory->slug] : null,
             'tags' => $inv->tags->map(fn ($t) => ['name' => $t->name, 'slug' => $t->slug])->values(),
             'locations' => $showContent ? $inv->locations->map(fn ($l) => [
                 'country' => $l->country, 'region' => $l->region, 'district' => $l->district, 'city' => $l->city, 'area' => $l->area,
@@ -90,7 +90,7 @@ class PublicInvestigationResource extends JsonResource
             'comments_locked' => $inv->comments_locked || $inv->status !== InvestigationStatus::Published,
             'evidence' => $showContent ? EvidenceResource::collection($this->previewEvidence ?? self::publicEvidence($inv)) : [],
             'notice' => $notice,
-            'disclaimer' => self::DISCLAIMER,
+            'disclaimer' => __(self::DISCLAIMER),
             'viewer' => $this->viewer,
         ];
     }
@@ -112,25 +112,25 @@ class PublicInvestigationResource extends JsonResource
         return match ($inv->status) {
             InvestigationStatus::Withdrawn => [
                 'type' => 'withdrawn',
-                'message' => 'This investigation was withdrawn by its investigator.',
+                'message' => __('This investigation was withdrawn by its investigator.'),
                 'detail' => $inv->withdrawal_reason,
                 'date' => $inv->withdrawn_at?->toIso8601String(),
             ],
             InvestigationStatus::Archived => [
                 'type' => 'archived',
-                'message' => 'This investigation has been archived by its investigator and is no longer being updated.',
+                'message' => __('This investigation has been archived by its investigator and is no longer being updated.'),
                 'detail' => null,
                 'date' => $inv->archived_at?->toIso8601String(),
             ],
             InvestigationStatus::Restricted => [
                 'type' => 'restricted',
-                'message' => 'This investigation is temporarily unavailable while it is reviewed under the platform\'s content policy. This is not a finding about the accuracy of the report.',
+                'message' => __('This investigation is temporarily unavailable while it is reviewed under the platform\'s content policy. This is not a finding about the accuracy of the report.'),
                 'detail' => $inv->public_status_note,
                 'date' => $inv->restricted_at?->toIso8601String(),
             ],
             InvestigationStatus::Removed => [
                 'type' => 'removed',
-                'message' => 'This investigation has been removed under the platform\'s content policy.',
+                'message' => __('This investigation has been removed under the platform\'s content policy.'),
                 'detail' => $inv->public_status_note,
                 'date' => $inv->removed_at?->toIso8601String(),
             ],

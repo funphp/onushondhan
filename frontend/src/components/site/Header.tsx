@@ -1,25 +1,32 @@
 import Link from "next/link";
+import { getI18n } from "@/i18n/server";
 import { AccountNav } from "./AccountNav";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
-export function Header() {
+export async function Header() {
+  const { t, locale } = await getI18n();
   return (
     <header className="border-b border-line bg-surface">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3">
-        <Link href="/" className="flex items-baseline gap-2" aria-label="Onushondhan home">
-          <span className="font-serif text-2xl font-bold tracking-tight">Onushondhan</span>
-          <span className="hidden text-xs text-muted sm:inline">অনুসন্ধান</span>
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 lg:gap-x-6">
+        <Link href="/" className="flex items-baseline gap-2" aria-label={t.brand.homeLabel}>
+          <span className="font-serif text-2xl font-bold tracking-tight">{t.brand.name}</span>
+          {/* The name in the other script, so both readerships recognise it. */}
+          <span className="hidden text-xs text-muted sm:inline" lang={locale === "bn" ? "en" : "bn"}>{locale === "bn" ? "Onushondhan" : "অনুসন্ধান"}</span>
         </Link>
-        <nav aria-label="Main" className="order-3 flex w-full gap-4 overflow-x-auto text-sm sm:order-none sm:w-auto">
-          <Link href="/search" className="hover:text-accent">Discover</Link>
-          <Link href="/investigators" className="hover:text-accent">Investigators</Link>
-          <Link href="/leaderboards" className="hover:text-accent">Community</Link>
-          <Link href="/pages/how-it-works" className="hover:text-accent">How it works</Link>
+        <nav aria-label={t.nav.main} className="order-3 flex w-full gap-4 overflow-x-auto whitespace-nowrap text-sm sm:order-none sm:w-auto">
+          <Link href="/search" className="hover:text-accent">{t.nav.discover}</Link>
+          <Link href="/investigators" className="hover:text-accent">{t.nav.investigators}</Link>
+          <Link href="/leaderboards" className="hover:text-accent">{t.nav.community}</Link>
+          <Link href="/pages/how-it-works" className="hover:text-accent">{t.nav.howItWorks}</Link>
         </nav>
         <form action="/search" role="search" className="ml-auto hidden md:block">
-          <label htmlFor="site-search" className="sr-only">Search investigations</label>
-          <input id="site-search" name="q" type="search" placeholder="Search investigations" className="w-56 rounded-md border border-line bg-paper px-3 py-1.5 text-sm" />
+          <label htmlFor="site-search" className="sr-only">{t.nav.searchLabel}</label>
+          <input id="site-search" name="q" type="search" placeholder={t.nav.searchPlaceholder} className="w-44 rounded-md lg:w-52 border border-line bg-paper px-3 py-1.5 text-sm" />
         </form>
-        <AccountNav />
+        <div className="ml-auto flex items-center gap-2 md:ml-0">
+          <LanguageSwitcher />
+          <AccountNav />
+        </div>
       </div>
     </header>
   );

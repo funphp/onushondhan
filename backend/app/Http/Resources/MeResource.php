@@ -45,6 +45,7 @@ class MeResource extends JsonResource
                 'title' => $t->title,
             ], $pending),
             'notification_preferences' => $user->notification_preferences ?? (object) [],
+            'locale' => $user->preferredLocale(),
             'unread_notifications' => $user->unreadNotifications()->count(),
             'created_at' => $user->created_at->toIso8601String(),
         ];

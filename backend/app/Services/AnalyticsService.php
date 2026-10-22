@@ -64,11 +64,11 @@ class AnalyticsService
             $views = (int) Investigation::query()->whereKey($investigation->id)->value('views_count');
             if (in_array($views, self::VIEW_MILESTONES, true)) {
                 $investigation->loadMissing('investigator.user');
-                $investigation->investigator->user->notify(new PlatformNotification('investigation_milestone', "Your investigation reached {$views} reads", [
+                $investigation->investigator->user->notify(new PlatformNotification('investigation_milestone', 'Your investigation reached :views reads', [
                     'investigation_id' => $investigation->public_id,
                     'investigation_title' => $investigation->published_title,
                     'views' => $views,
-                ], '/dashboard/investigations/'.$investigation->public_id, emailCategory: null));
+                ], '/dashboard/investigations/'.$investigation->public_id, emailCategory: null, titleParams: ['views' => $views]));
             }
             Investigator::query()->whereKey($investigation->investigator_id)->increment('total_views');
             $this->record('investigation_view', [

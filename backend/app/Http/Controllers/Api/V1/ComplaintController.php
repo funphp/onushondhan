@@ -30,8 +30,8 @@ class ComplaintController extends Controller
         $complaint = $service->submit($data, $user?->isActive() ? $user : null);
 
         $note = $complaint->complaint_type === ComplaintType::FactualDispute
-            ? 'Onushondhan is a publishing platform and does not independently verify or adjudicate the facts in reports. We will record your dispute, may ask the investigator to review it, and will act where our content policy is breached.'
-            : 'Our moderation team will review your complaint against the content policy.';
+            ? __('Onushondhan is a publishing platform and does not independently verify or adjudicate the facts in reports. We will record your dispute, may ask the investigator to review it, and will act where our content policy is breached.')
+            : __('Our moderation team will review your complaint against the content policy.');
 
         return response()->json(['data' => ['id' => $complaint->public_id, 'status' => $complaint->status->value, 'message' => $note]], 201);
     }

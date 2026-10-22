@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\IdentityMode;
 use App\Enums\InvestigatorStatus;
+use App\Support\Slug;
 use Database\Factories\InvestigatorFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 
 /**
  * @property int $id
@@ -75,8 +75,7 @@ class Investigator extends Model
 
     public static function uniqueSlug(string $name, ?int $ignoreId = null): string
     {
-        $base = Str::slug($name) ?: 'investigator';
-        $base = Str::limit($base, 120, '');
+        $base = Slug::make($name, 100, 'investigator');
         $slug = $base;
         $i = 2;
         while (self::withTrashed()->where('slug', $slug)->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))->exists()) {

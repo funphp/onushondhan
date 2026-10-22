@@ -31,4 +31,4 @@ php artisan config:clear >/dev/null
 php artisan migrate:fresh --seed --force
 export PHP_CLI_SERVER_WORKERS=4
 cd public
-exec php -S 0.0.0.0:8001 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php
+exec php -d opcache.enable_cli=1 -S 0.0.0.0:8001 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php

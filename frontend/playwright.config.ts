@@ -11,6 +11,16 @@ const PORT = Number(process.env.E2E_PORT ?? 3100);
 // Set E2E_BASE_URL to run against an already-deployed site (e.g. http://onusondhan.local);
 // then no local server is started. E2E_HOST_RULES can map hostnames (Chromium --host-resolver-rules).
 const EXTERNAL = process.env.E2E_BASE_URL;
+const BASE = EXTERNAL ?? `http://localhost:${PORT}`;
+
+/**
+ * The interface defaults to Bangla. The functional journeys assert on English labels, so every
+ * context starts with the `locale=en` cookie; `08-bangla.spec.ts` clears it to cover the default.
+ */
+const ENGLISH = {
+  cookies: [{ name: "locale", value: "en", domain: new URL(BASE).hostname, path: "/", expires: -1, httpOnly: false, secure: false, sameSite: "Lax" as const }],
+  origins: [],
+};
 
 export default defineConfig({
   testDir: "./e2e",
@@ -21,7 +31,8 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
-    baseURL: EXTERNAL ?? `http://localhost:${PORT}`,
+    baseURL: BASE,
+    storageState: ENGLISH,
     launchOptions: process.env.E2E_HOST_RULES ? { args: [`--host-resolver-rules=${process.env.E2E_HOST_RULES}`] } : undefined,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",

@@ -23,12 +23,29 @@ class NotificationController extends Controller
             'data' => collect($page->items())->map(fn (DatabaseNotification $n) => [
                 'id' => $n->id,
                 'type' => $n->data['kind'] ?? class_basename($n->type),
-                'data' => $n->data,
+                'data' => $this->localized($n->data),
                 'read_at' => $n->read_at?->toIso8601String(),
                 'created_at' => $n->created_at?->toIso8601String(),
             ]),
             'meta' => ['current_page' => $page->currentPage(), 'last_page' => $page->lastPage(), 'total' => $page->total(), 'unread' => $request->user()->unreadNotifications()->count()],
         ]);
+    }
+
+    /**
+     * Re-render the stored title in the request's interface language.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function localized(array $data): array
+    {
+        if (isset($data['title_key']) && is_string($data['title_key'])) {
+            $params = is_array($data['params'] ?? null) ? $data['params'] : [];
+            $data['title'] = __($data['title_key'], array_map(fn ($v) => is_scalar($v) ? (string) $v : '', $params));
+        }
+        unset($data['title_key']);
+
+        return $data;
     }
 
     public function markRead(Request $request, string $id): JsonResponse
@@ -37,13 +54,13 @@ class NotificationController extends Controller
         $notification = $request->user()->notifications()->where('id', $id)->firstOrFail();
         $notification->markAsRead();
 
-        return response()->json(['message' => 'Marked as read.']);
+        return response()->json(['message' => __('Marked as read.')]);
     }
 
     public function markAllRead(Request $request): JsonResponse
     {
         $request->user()->unreadNotifications()->update(['read_at' => now()]);
 
-        return response()->json(['message' => 'All notifications marked as read.']);
+        return response()->json(['message' => __('All notifications marked as read.')]);
     }
 }

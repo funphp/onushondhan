@@ -34,6 +34,7 @@ class ProfileController extends Controller
             'notification_preferences' => ['sometimes', 'array'],
             'notification_preferences.email' => ['sometimes', 'array'],
             'notification_preferences.email.*' => ['boolean'],
+            'locale' => ['sometimes', Rule::in(config('onushondhan.supported_locales'))],
         ]);
 
         $before = $user->only(['name', 'username', 'email']);
@@ -62,7 +63,7 @@ class ProfileController extends Controller
         $data = $request->validate(['phone' => ['required', 'string', 'max:32']]);
         $service->start($request->user(), $data['phone']);
 
-        return response()->json(['message' => 'A verification code has been sent.']);
+        return response()->json(['message' => __('A verification code has been sent.')]);
     }
 
     public function confirmPhone(Request $request, PhoneVerificationService $service): MeResource
@@ -94,6 +95,6 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         Auth::forgetGuards();
 
-        return response()->json(['message' => 'Your account has been deactivated.']);
+        return response()->json(['message' => __('Your account has been deactivated.')]);
     }
 }

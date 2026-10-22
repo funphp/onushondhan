@@ -132,7 +132,7 @@ class InvestigationController extends Controller
             $analytics->record('investigation_share', ['user_id' => $request->user()?->id, 'investigation_id' => $inv->id, 'investigator_id' => $inv->investigator_id], ['platform' => $data['platform']]);
         });
 
-        return response()->json(['message' => 'Share recorded.']);
+        return response()->json(['message' => __('Share recorded.')]);
     }
 
     /**

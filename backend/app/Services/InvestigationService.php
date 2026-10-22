@@ -43,7 +43,7 @@ class InvestigationService
         return DB::transaction(function () use ($investigator, $data, $actor): Investigation {
             $investigation = new Investigation;
             $investigation->investigator_id = $investigator->id;
-            $investigation->title = (string) ($data['title'] ?? 'Untitled investigation');
+            $investigation->title = (string) ($data['title'] ?? __('Untitled investigation'));
             $this->applyWorkingCopy($investigation, $data);
             $investigation->save();
             $this->syncChildren($investigation, $data);
@@ -144,7 +144,7 @@ class InvestigationService
                 ],
                 'identity_snapshot' => $identity,
                 'changed_by' => $actor->id,
-                'change_reason' => $isFirst ? ($changeReason ?: 'Initial publication') : $changeReason,
+                'change_reason' => $isFirst ? ($changeReason ?: __('Initial publication')) : $changeReason,
                 'created_at' => now(),
             ]);
 
@@ -258,7 +258,7 @@ class InvestigationService
     private function assertPublishable(Investigation $investigation): void
     {
         $errors = [];
-        if (mb_strlen(trim($investigation->title)) < 5 || $investigation->title === 'Untitled investigation') {
+        if (mb_strlen(trim($investigation->title)) < 5 || in_array($investigation->title, ['Untitled investigation', __('Untitled investigation')], true)) {
             $errors['title'] = ['Add a descriptive title (at least 5 characters).'];
         }
         if (mb_strlen(trim((string) $investigation->summary)) < 20) {

@@ -4,15 +4,17 @@ import { useState } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { TextInput } from "@/components/ui/Field";
+import { useI18n } from "@/i18n/client";
 import { api, errorMessage } from "@/lib/api";
 
 export default function ForgotPasswordPage() {
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState<{ tone: "success" | "danger"; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   return (
     <div className="mx-auto max-w-md space-y-6">
-      <h1 className="font-serif text-3xl font-bold">Reset your password</h1>
+      <h1 className="font-serif text-3xl font-bold">{t.auth.forgotTitle}</h1>
       <form className="space-y-4" onSubmit={async (e) => {
         e.preventDefault();
         setBusy(true);
@@ -25,9 +27,9 @@ export default function ForgotPasswordPage() {
           setBusy(false);
         }
       }}>
-        <TextInput label="Email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <TextInput label={t.auth.email} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         {msg && <Alert tone={msg.tone} live>{msg.text}</Alert>}
-        <Button type="submit" loading={busy}>Send reset link</Button>
+        <Button type="submit" loading={busy}>{t.auth.sendReset}</Button>
       </form>
     </div>
   );

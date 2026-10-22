@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Support\Slug;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
@@ -20,7 +21,7 @@ class InvestigationTag extends Model
     public static function findOrCreateByName(string $name): self
     {
         $name = trim(preg_replace('/\s+/', ' ', strip_tags($name)) ?? '');
-        $slug = Str::limit(Str::slug($name), 90, '');
+        $slug = Slug::make($name, 80, 'tag');
 
         return self::query()->firstOrCreate(['slug' => $slug], ['name' => Str::limit($name, 80, '')]);
     }

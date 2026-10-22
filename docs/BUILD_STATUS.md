@@ -1,6 +1,6 @@
 # Build Status
 
-_Last verified: 2026-09-24 (UTC), against the repository and the automated suites listed below._
+_Last verified: 2026-10-23 (UTC), against the repository and the automated suites listed below._
 
 | Phase | Status | Key implementation | Tests |
 |---|---|---|---|
@@ -15,6 +15,7 @@ _Last verified: 2026-09-24 (UTC), against the repository and the automated suite
 | 9 Moderation | COMPLETE | complaints (guest/member, factual-dispute wording), status workflow + notifications, moderation actions on investigation/comment/evidence/user/investigator with role hierarchy, append-only records, hash-chained audit log + `audit:verify` | `ComplaintsTest`, `ModerationActionsTest`, `AuditChainTest`, E2E 06 |
 | 10 Admin/CMS | COMPLETE | Filament panel: KPIs, moderation queue, engagement chart; resources for users, investigators, investigations, evidence, comments, tips, supporters, followers, complaints, moderation actions, CMS pages, agreement versions (publish → immutable), categories, roles/permissions, settings, audit/login/security logs; audited config changes | `AdminPanelTest`, E2E 06 |
 | 11 Hardening | COMPLETE | IDOR/BOLA, privacy-leak, header, mass-assignment, XSS, SQLi, upload, rate-limit, session tests; axe WCAG scans; fixes from E2E (session resurrection, sticky evidence visibility, partial relation) | `Feature/Security/*`, E2E 07 |
+| 13 Bangla interface | COMPLETE | Bangla default + English UI with switcher (cookie, saved per account), localized API messages/validation/emails/notifications, Bangla category names, Unicode slugs, Bengali fonts and numerals; user content never translated (ADR-024) | `LocalizationTest`, `TranslationCoverageTest`, `SlugTest`, `BanglaSearchTest`, `i18n.test.ts`, E2E 08 |
 | 12 Release | COMPLETE (code/config) | Nginx, PHP-FPM, systemd (Next, queue, scheduler, backup), logrotate, deploy/rollback/backup/restore/health scripts, CI | see `docs/RELEASE_CHECKLIST.md` |
 
 ## Commands executed for this status
@@ -22,9 +23,10 @@ _Last verified: 2026-09-24 (UTC), against the repository and the automated suite
 ```
 backend:  composer validate · vendor/bin/pint --test · vendor/bin/phpstan analyse (level 5) · composer audit
           php artisan migrate:fresh --seed (clean DB) · APP_ENV=production migrate:fresh --seed (no demo data)
-          php artisan test → 145 passed (666 assertions)
-frontend: npm run lint · npm run typecheck · npm test → 10 passed · npm run build · npm audit --omit=dev → 0 vulnerabilities
-e2e:      scripts/e2e-backend.sh (fresh onushondhan_e2e) + npx playwright test → 28 passed (10 journeys + 15 axe scans + setup)
+          php artisan test → 157 passed (714 assertions)
+frontend: npm run lint · npm run typecheck · npm test → 16 passed · npm run build · npm audit --omit=dev → 0 vulnerabilities
+e2e:      scripts/e2e-backend.sh (fresh onushondhan_e2e) + npx playwright test → 32 tests (4 setup + 28): full run 30 passed; the 2 new Bangla
+          tests that failed (test bugs) were fixed and 08-bangla.spec.ts then passed 8/8 (incl. setup)
 ```
 
 ## Local deployment
@@ -38,7 +40,8 @@ The Playwright suite was also run against it: 28/28 passed after fixing an empty
 - **Media metadata:** only images are re-encoded without metadata; video/audio/PDF/office files are served as uploaded (investigators are warned in the UI).
 - **Malware scanning:** ClamAV integration is implemented and tested through a fake scanner; no scanner runs in local dev (`MALWARE_SCANNER=none` → `not_scanned`). Enable on the server.
 - **SMS:** phone verification uses a log driver; a production SMS provider must be bound to `App\Contracts\SmsSender`.
-- **OG images** use the default Latin font; Bengali titles would need an embedded Bengali font.
+- **OG images:** only the Latin site-wide image is generated; per-investigation OG images were removed because the renderer cannot shape Bengali script (ADR-024).
+- **CMS/legal pages** are shown in the language the admin wrote them in (currently English templates); add Bangla versions as separate pages or translate the templates after legal review.
 - **Admin panel CSP** allows inline scripts/styles (Livewire/Alpine requirement); the public site and API have strict CSPs.
 - Investigators moderate discussion on their reports by reporting comments; there is no investigator-side comment-hiding tool (staff moderate).
 - Backups/restores are scripted but must be rehearsed on the target infrastructure.

@@ -24,6 +24,6 @@ describe("Markdown (user-authored content)", () => {
   it("does not embed remote images", () => {
     const { container } = render(<Markdown>{"![tracker](https://evil.example/pixel.png)"}</Markdown>);
     expect(container.querySelector("img")).toBeNull();
-    expect(container.textContent).toContain("[image: tracker]");
+    expect(container.textContent).toContain("[🖼 tracker]");
   });
 });

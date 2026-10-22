@@ -8,6 +8,7 @@ use App\Http\Middleware\EnsureEmailVerified;
 use App\Http\Middleware\RejectRevokedSession;
 use App\Http\Middleware\RequirePermission;
 use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\SetApiLocale;
 use App\Support\RequestId;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -37,7 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: explode(',', (string) env('TRUSTED_PROXIES', '127.0.0.1,::1')));
         $middleware->prepend(AssignRequestId::class);
         $middleware->append(SecurityHeaders::class);
-        $middleware->api(append: [RejectRevokedSession::class]);
+        $middleware->api(prepend: [SetApiLocale::class], append: [RejectRevokedSession::class]);
         $middleware->web(append: [RejectRevokedSession::class]);
         $middleware->alias([
             'active' => EnsureAccountIsActive::class,
@@ -54,18 +55,23 @@ return Application::configure(basePath: dirname(__DIR__))
             if (! $request->is('api/*') && ! $request->expectsJson()) {
                 return null;
             }
+            if ($request->is('api/*')) {
+                // Errors raised before route middleware (e.g. unknown routes) still use the API locale.
+                $requested = strtolower((string) $request->headers->get('X-Locale', ''));
+                app()->setLocale(in_array($requested, config('onushondhan.supported_locales'), true) ? $requested : (string) config('onushondhan.api_locale'));
+            }
 
             [$status, $code, $message, $errors] = match (true) {
                 $e instanceof ApiException => [$e->status, $e->errorCode, $e->getMessage(), $e->errors],
-                $e instanceof ValidationException => [422, 'validation_failed', 'The submitted data is invalid.', $e->errors()],
-                $e instanceof AuthenticationException => [401, 'unauthenticated', 'Authentication is required.', []],
-                $e instanceof AuthorizationException, $e instanceof AccessDeniedHttpException => [403, 'forbidden', 'You are not allowed to perform this action.', []],
-                $e instanceof ModelNotFoundException, $e instanceof NotFoundHttpException => [404, 'not_found', 'The requested resource was not found.', []],
-                $e instanceof ThrottleRequestsException => [429, 'rate_limited', 'Too many requests. Please slow down and try again later.', []],
-                $e instanceof TokenMismatchException => [419, 'csrf_mismatch', 'Your session expired. Please reload the page and try again.', []],
-                $e instanceof PostTooLargeException => [413, 'payload_too_large', 'The uploaded content is too large.', []],
-                $e instanceof HttpExceptionInterface => [$e->getStatusCode(), 'http_error', $e->getStatusCode() >= 500 ? 'Server error.' : ($e->getMessage() ?: 'Request failed.'), []],
-                default => [500, 'server_error', 'An unexpected error occurred.', []],
+                $e instanceof ValidationException => [422, 'validation_failed', __('The submitted data is invalid.'), $e->errors()],
+                $e instanceof AuthenticationException => [401, 'unauthenticated', __('Authentication is required.'), []],
+                $e instanceof AuthorizationException, $e instanceof AccessDeniedHttpException => [403, 'forbidden', __('You are not allowed to perform this action.'), []],
+                $e instanceof ModelNotFoundException, $e instanceof NotFoundHttpException => [404, 'not_found', __('The requested resource was not found.'), []],
+                $e instanceof ThrottleRequestsException => [429, 'rate_limited', __('Too many requests. Please slow down and try again later.'), []],
+                $e instanceof TokenMismatchException => [419, 'csrf_mismatch', __('Your session expired. Please reload the page and try again.'), []],
+                $e instanceof PostTooLargeException => [413, 'payload_too_large', __('The uploaded content is too large.'), []],
+                $e instanceof HttpExceptionInterface => [$e->getStatusCode(), 'http_error', $e->getStatusCode() >= 500 ? __('Server error.') : (__($e->getMessage()) ?: __('Request failed.')), []],
+                default => [500, 'server_error', __('An unexpected error occurred.'), []],
             };
 
             $body = [

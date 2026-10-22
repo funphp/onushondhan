@@ -18,13 +18,18 @@ class PlatformNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    /** @param array<string, mixed> $data */
+    /**
+     * @param  string  $title  translation key (English source text, may contain :placeholders)
+     * @param  array<string, mixed>  $data
+     * @param  array<string, string|int>  $titleParams
+     */
     public function __construct(
         public readonly string $kind,
         public readonly string $title,
         public readonly array $data = [],
         public readonly ?string $url = null,
         public readonly ?string $emailCategory = null,
+        public readonly array $titleParams = [],
     ) {
         $this->afterCommit();
     }
@@ -43,16 +48,20 @@ class PlatformNotification extends Notification implements ShouldQueue
     /** @return array<string, mixed> */
     public function toArray(User $notifiable): array
     {
-        return ['kind' => $this->kind, 'title' => $this->title, 'url' => $this->url] + $this->data;
+        // Rendered in the notifiable's preferred locale (Laravel switches locale while sending);
+        // the source key is kept so the API can re-render it in the reader's current language.
+        return ['kind' => $this->kind, 'title' => __($this->title, $this->titleParams), 'title_key' => $this->title, 'params' => $this->titleParams, 'url' => $this->url] + $this->data;
     }
 
     public function toMail(User $notifiable): MailMessage
     {
+        $title = __($this->title, $this->titleParams);
+
         return (new MailMessage)
-            ->subject($this->title.' — Onushondhan')
-            ->line($this->title.'.')
-            ->line('Sign in to Onushondhan to view the details.')
-            ->action('Open Onushondhan', config('onushondhan.frontend_url').'/account/notifications')
-            ->line('You can change email notification preferences in your account settings.');
+            ->subject($title.' — '.__('Onushondhan'))
+            ->line($title.'.')
+            ->line(__('Sign in to Onushondhan to view the details.'))
+            ->action(__('Open Onushondhan'), config('onushondhan.frontend_url').'/account/notifications')
+            ->line(__('You can change email notification preferences in your account settings.'));
     }
 }

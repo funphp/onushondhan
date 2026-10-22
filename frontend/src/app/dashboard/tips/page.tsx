@@ -6,37 +6,39 @@ import { ListPager } from "@/components/account/ListPager";
 import { useApiList } from "@/components/account/useApiList";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState, Spinner } from "@/components/ui/Card";
-import { formatDateTime, humanize } from "@/lib/format";
+import { labelFor } from "@/i18n";
+import { useI18n } from "@/i18n/client";
 import type { Tip } from "@/lib/types";
 
-const FILTERS = [["", "Inbox"], ["unread", "Unread"], ["important", "Important"], ["archived", "Archived"], ["closed", "Closed"]];
+const FILTERS = [["", "inbox"], ["unread", "unread"], ["important", "important"], ["archived", "archived"], ["closed", "closed"]] as const;
 
 export default function TipInboxPage() {
-  const [status, setStatus] = useState("");
+  const { t, f } = useI18n();
+  const [status, setStatus] = useState<string>("");
   const { items, meta, error, page, setPage } = useApiList<Tip>(`/me/inbox/tips${status ? `?status=${status}` : ""}`);
   return (
     <div className="space-y-4">
-      <h1 className="font-serif text-3xl font-bold">Tip inbox</h1>
-      <p className="text-sm text-muted">Protect your tipsters: do not try to identify anonymous senders, and never forward tip content without consent.</p>
-      <nav aria-label="Tip folders" className="flex flex-wrap gap-2">
+      <h1 className="font-serif text-3xl font-bold">{t.inbox.title}</h1>
+      <p className="text-sm text-muted">{t.inbox.lead}</p>
+      <nav aria-label={t.inbox.folders} className="flex flex-wrap gap-2">
         {FILTERS.map(([v, l]) => (
           <button key={v} type="button" aria-pressed={status === v} onClick={() => { setStatus(v); setPage(1); }} className={`rounded-full px-3 py-1 text-sm ${status === v ? "bg-accent text-white dark:text-paper" : "border border-line"}`}>
-            {l}{v === "unread" && meta?.unread ? ` (${meta.unread})` : ""}
+            {t.inbox[l]}{v === "unread" && meta?.unread ? ` (${f.number(meta.unread)})` : ""}
           </button>
         ))}
       </nav>
       {error && <p role="alert" className="text-danger">{error}</p>}
-      {!items ? <Spinner /> : items.length === 0 ? <EmptyState title="No tips here." /> : (
+      {!items ? <Spinner /> : items.length === 0 ? <EmptyState title={t.inbox.none} /> : (
         <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
-          {items.map((t) => (
-            <li key={t.id} className={`p-4 ${t.status === "new" ? "bg-accent-soft/50" : ""}`}>
+          {items.map((tip) => (
+            <li key={tip.id} className={`p-4 ${tip.status === "new" ? "bg-accent-soft/50" : ""}`}>
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <Link href={`/dashboard/tips/${t.id}`} className={`hover:underline ${t.status === "new" ? "font-semibold" : ""}`}>{t.subject}</Link>
-                <Badge tone={t.status === "important" ? "warning" : t.status === "new" ? "accent" : "neutral"}>{humanize(t.status)}</Badge>
+                <Link href={`/dashboard/tips/${tip.id}`} className={`hover:underline ${tip.status === "new" ? "font-semibold" : ""}`}>{tip.subject}</Link>
+                <Badge tone={tip.status === "important" ? "warning" : tip.status === "new" ? "accent" : "neutral"}>{labelFor(t.statuses, tip.status)}</Badge>
               </div>
               <p className="text-sm text-muted">
-                {t.sender?.anonymous ? `Anonymous ${t.sender.type === "guest" ? "guest" : "member"}` : t.sender?.username}
-                {t.investigation && <> · re: {t.investigation.title}</>} · {formatDateTime(t.last_message_at)}
+                {tip.sender?.anonymous ? t.inbox.anonymous(tip.sender.type === "guest") : tip.sender?.username}
+                {tip.investigation && <> · {t.inbox.re(tip.investigation.title)}</>} · {f.dateTime(tip.last_message_at)}
               </p>
             </li>
           ))}

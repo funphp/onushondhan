@@ -5,21 +5,14 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Checkbox, SelectInput, TextArea, TextInput } from "@/components/ui/Field";
+import { useI18n } from "@/i18n/client";
 import { api, ApiError, errorMessage } from "@/lib/api";
 
-const TYPES = [
-  { value: "factual_dispute", label: "Factual dispute — I believe the report is wrong" },
-  { value: "privacy", label: "Privacy — it exposes private information about me or others" },
-  { value: "personal_information", label: "Personal information (addresses, ID numbers, phone numbers)" },
-  { value: "copyright", label: "Copyright — it uses my material without permission" },
-  { value: "harassment", label: "Harassment or threats" },
-  { value: "prohibited_content", label: "Illegal or prohibited content" },
-  { value: "spam", label: "Spam or manipulation" },
-  { value: "other_terms_violation", label: "Other violation of the Terms" },
-];
+const TYPES = ["factual_dispute", "privacy", "personal_information", "copyright", "harassment", "prohibited_content", "spam", "other_terms_violation"] as const;
 
 export function ReportForm({ investigation, comment, evidence }: { investigation?: string; comment?: string; evidence?: string }) {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [type, setType] = useState("factual_dispute");
   const [description, setDescription] = useState("");
   const [email, setEmail] = useState("");
@@ -29,9 +22,9 @@ export function ReportForm({ investigation, comment, evidence }: { investigation
   const [done, setDone] = useState<string | null>(null);
 
   if (!investigation && !comment && !evidence) {
-    return <Alert tone="warning">Use the “Report” link on the investigation, comment or evidence you want to report.</Alert>;
+    return <Alert tone="warning">{t.report.pickTarget}</Alert>;
   }
-  if (done) return <Alert tone="success" title="Complaint received" live>{done}</Alert>;
+  if (done) return <Alert tone="success" title={t.report.received} live>{done}</Alert>;
   const fe = (f: string) => (error instanceof ApiError ? error.fieldError(f) : undefined);
 
   return (
@@ -50,16 +43,16 @@ export function ReportForm({ investigation, comment, evidence }: { investigation
         setBusy(false);
       }
     }}>
-      <SelectInput label="What is the problem?" value={type} onChange={(e) => setType(e.target.value)} options={TYPES} />
+      <SelectInput label={t.report.problem} value={type} onChange={(e) => setType(e.target.value)} options={TYPES.map((value) => ({ value, label: t.complaintTypes[value] }))} />
       {type === "factual_dispute" && (
-        <Alert>Onushondhan does not independently verify reports or decide factual disputes. We will record your dispute, may ask the investigator to review it, and will act where the Content Policy is breached. Include the specific statements and any evidence.</Alert>
+        <Alert>{t.report.factualNote}</Alert>
       )}
-      <TextArea label="Details" value={description} onChange={(e) => setDescription(e.target.value)} required minLength={20} maxLength={10000} rows={7} error={fe("description")}
-        hint="The investigator may see the category and your description, but never who filed the complaint." />
-      {!user && <TextInput label="Your email (so we can follow up)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required error={fe("reporter_email")} />}
-      <Checkbox label="The information I have provided is accurate and submitted in good faith." checked={goodFaith} onChange={(e) => setGoodFaith(e.target.checked)} required error={fe("good_faith")} />
+      <TextArea label={t.report.details} value={description} onChange={(e) => setDescription(e.target.value)} required minLength={20} maxLength={10000} rows={7} error={fe("description")}
+        hint={t.report.detailsHint} />
+      {!user && <TextInput label={t.report.email} type="email" value={email} onChange={(e) => setEmail(e.target.value)} required error={fe("reporter_email")} />}
+      <Checkbox label={t.report.goodFaith} checked={goodFaith} onChange={(e) => setGoodFaith(e.target.checked)} required error={fe("good_faith")} />
       {error && <Alert tone="danger">{typeof error === "string" ? error : error.message}</Alert>}
-      <Button type="submit" loading={busy}>Submit complaint</Button>
+      <Button type="submit" loading={busy}>{t.report.submit}</Button>
     </form>
   );
 }

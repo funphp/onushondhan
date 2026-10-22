@@ -6,6 +6,12 @@ return [
     // Seed local demo accounts/content (never in production regardless of this flag).
     'seed_demo_data' => (bool) env('SEED_DEMO_DATA', true),
 
+    // Language of the public API (messages, validation) and of user notifications/emails.
+    // The admin panel keeps APP_LOCALE (English). Clients may send `X-Locale: en|bn`.
+    'api_locale' => env('API_LOCALE', 'bn'),
+    'user_locale' => env('USER_LOCALE', 'bn'),
+    'supported_locales' => ['bn', 'en'],
+
     'frontend_url' => rtrim((string) env('FRONTEND_URL', 'http://localhost:3000'), '/'),
 
     'vault_disk' => env('VAULT_DISK', 'vault'),

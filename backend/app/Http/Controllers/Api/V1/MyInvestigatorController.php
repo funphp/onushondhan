@@ -81,7 +81,7 @@ class MyInvestigatorController extends Controller
             'private_email' => $identity?->private_email,
             'private_phone' => $identity?->private_phone,
             'notes' => $identity?->notes,
-            'notice' => 'This information is visible only to you and to specifically authorised platform staff. Every staff access is logged. Onushondhan cannot promise absolute anonymity (for example, in response to lawful orders).',
+            'notice' => __('This information is visible only to you and to specifically authorised platform staff. Every staff access is logged. Onushondhan cannot promise absolute anonymity (for example, in response to lawful orders).'),
         ]]);
     }
 

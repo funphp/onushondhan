@@ -50,8 +50,8 @@ class TipController extends Controller
                 'id' => $result['tip']->public_id,
                 'access_code' => $result['access_code'],
                 'message' => $result['access_code'] !== null
-                    ? 'Your tip was sent. Save this access code now — it is the only way to read replies, and it cannot be recovered.'
-                    : 'Your tip was sent. You can follow the conversation from your account.',
+                    ? __('Your tip was sent. Save this access code now — it is the only way to read replies, and it cannot be recovered.')
+                    : __('Your tip was sent. You can follow the conversation from your account.'),
             ],
         ], 201);
     }

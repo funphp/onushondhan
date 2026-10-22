@@ -5,17 +5,19 @@ import { useState } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { TextInput } from "@/components/ui/Field";
+import { useI18n } from "@/i18n/client";
 import { api, errorMessage } from "@/lib/api";
 import type { OwnerInvestigation } from "@/lib/types";
 
 export default function NewInvestigationPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   return (
     <div className="mx-auto max-w-xl space-y-6">
-      <h1 className="font-serif text-3xl font-bold">Start a new investigation</h1>
+      <h1 className="font-serif text-3xl font-bold">{t.myInvestigations.newTitle}</h1>
       <form className="space-y-4" onSubmit={async (e) => {
         e.preventDefault();
         setBusy(true);
@@ -27,9 +29,9 @@ export default function NewInvestigationPage() {
           setBusy(false);
         }
       }}>
-        <TextInput label="Working title" value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={250} hint="You can change it any time before publishing." />
+        <TextInput label={t.myInvestigations.workingTitle} value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={250} hint={t.myInvestigations.workingTitleHint} />
         {error && <Alert tone="danger">{error}</Alert>}
-        <Button type="submit" loading={busy}>Create draft</Button>
+        <Button type="submit" loading={busy}>{t.myInvestigations.createDraft}</Button>
       </form>
     </div>
   );

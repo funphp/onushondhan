@@ -31,6 +31,7 @@ class AuthService
                 'username' => $data['username'] ?? null,
                 'email' => Str::lower($data['email']),
                 'password' => $data['password'],
+                'locale' => $data['locale'] ?? app()->getLocale(),
             ]);
             $user->save();
             $user->assignRole('user');

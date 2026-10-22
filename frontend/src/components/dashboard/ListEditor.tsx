@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
+import { useI18n } from "@/i18n/client";
 
 /** Ordered list editor: add, remove, reorder. Rendering of each row is delegated. */
 export function ListEditor<T>({ items, onChange, empty, render, addLabel, itemLabel, max = 100 }: {
@@ -13,6 +14,7 @@ export function ListEditor<T>({ items, onChange, empty, render, addLabel, itemLa
   itemLabel: (item: T, index: number) => string;
   max?: number;
 }) {
+  const { t } = useI18n();
   const move = (i: number, d: number) => {
     const j = i + d;
     if (j < 0 || j >= items.length) return;
@@ -28,9 +30,9 @@ export function ListEditor<T>({ items, onChange, empty, render, addLabel, itemLa
             <div className="mb-3 flex items-center justify-between gap-2">
               <span className="text-sm font-medium">{itemLabel(item, i)}</span>
               <span className="flex gap-1">
-                <Button type="button" size="sm" variant="ghost" onClick={() => move(i, -1)} disabled={i === 0} aria-label={`Move ${itemLabel(item, i)} up`}>↑</Button>
-                <Button type="button" size="sm" variant="ghost" onClick={() => move(i, 1)} disabled={i === items.length - 1} aria-label={`Move ${itemLabel(item, i)} down`}>↓</Button>
-                <Button type="button" size="sm" variant="ghost" onClick={() => onChange(items.filter((_, k) => k !== i))} aria-label={`Remove ${itemLabel(item, i)}`}>Remove</Button>
+                <Button type="button" size="sm" variant="ghost" onClick={() => move(i, -1)} disabled={i === 0} aria-label={t.editor.moveUp(itemLabel(item, i))}>↑</Button>
+                <Button type="button" size="sm" variant="ghost" onClick={() => move(i, 1)} disabled={i === items.length - 1} aria-label={t.editor.moveDown(itemLabel(item, i))}>↓</Button>
+                <Button type="button" size="sm" variant="ghost" onClick={() => onChange(items.filter((_, k) => k !== i))} aria-label={t.editor.removeItem(itemLabel(item, i))}>{t.editor.remove}</Button>
               </span>
             </div>
             {render(item, (patch) => onChange(items.map((x, k) => (k === i ? { ...x, ...patch } : x))), i)}
