@@ -2,16 +2,20 @@ import Link from "next/link";
 import { getI18n } from "@/i18n/server";
 import { AccountNav } from "./AccountNav";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { LogoMark } from "./LogoMark";
 
 export async function Header() {
   const { t, locale } = await getI18n();
   return (
     <header className="border-b border-line bg-surface">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 lg:gap-x-6">
-        <Link href="/" className="flex items-baseline gap-2" aria-label={t.brand.homeLabel}>
-          <span className="font-serif text-2xl font-bold tracking-tight">{t.brand.name}</span>
-          {/* The name in the other script, so both readerships recognise it. */}
-          <span className="hidden text-xs text-muted sm:inline" lang={locale === "bn" ? "en" : "bn"}>{locale === "bn" ? "Onushondhan" : "অনুসন্ধান"}</span>
+        <Link href="/" className="flex items-center gap-2" aria-label={t.brand.homeLabel}>
+          <LogoMark size={34} className="shrink-0 text-accent" />
+          <span className="flex items-baseline gap-2">
+            <span className="font-serif text-2xl font-bold tracking-tight">{t.brand.name}</span>
+            {/* The name in the other script, so both readerships recognise it. */}
+            <span className="hidden text-xs text-muted sm:inline" lang={locale === "bn" ? "en" : "bn"}>{locale === "bn" ? "Onushondhan" : "অনুসন্ধান"}</span>
+          </span>
         </Link>
         <nav aria-label={t.nav.main} className="order-3 flex w-full gap-4 overflow-x-auto whitespace-nowrap text-sm sm:order-none sm:w-auto">
           <Link href="/search" className="hover:text-accent">{t.nav.discover}</Link>

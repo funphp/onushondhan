@@ -1,0 +1,21 @@
+/**
+ * Onushondhan mark: a magnifying glass (investigation) with অ — the first letter of অনুসন্ধান —
+ * in the lens, and a pen-nib handle (writing and publishing). The letter is a vector outline of
+ * Noto Serif Bengali Bold, so it renders identically without Bengali fonts.
+ * Ink follows `currentColor`; the nib's slit uses the surface colour so it adapts to dark mode.
+ * Standalone files: public/brand/ (mark.svg, icon.svg, lockup.svg, PNGs).
+ */
+export function LogoMark({ size = 32, title, className }: { size?: number; title?: string; className?: string }) {
+  return (
+    <svg viewBox="0 0 64 64" width={size} height={size} className={className} role={title ? "img" : undefined} aria-hidden={title ? undefined : true} focusable="false">
+      {title && <title>{title}</title>}
+      <circle cx="26" cy="26" r="18.5" fill="none" stroke="currentColor" strokeWidth="5.5" />
+      <path fill="currentColor" transform="translate(15.41 34.78) scale(0.02602 -0.02602)" d="M725.8 -24 656.2 18.2Q625.3 67.8 588.3 102.1Q551.3 136.4 504.6 160.5L534.3 241Q564.3 222.4 596.6 188Q629 153.6 658.8 92.8L644.9 76.2V550.3H6.3L-34.8 622H806.9L849.1 550.3H734.3V-21.9ZM359.9 46Q300.4 46 248.9 69.6Q197.4 93.2 154.2 143.5Q111.1 193.9 75.5 273.7Q39.9 353.6 11.8 465.1L66.5 479.2Q102.7 365.8 146.1 300.3Q189.5 234.9 241.1 207.3Q292.6 179.8 352.1 179.8Q417.5 179.8 458.5 207.5Q499.5 235.2 497.8 293.5Q497 327.9 483.2 349.2Q469.4 370.5 449 380.5Q428.5 390.5 406.6 390.5Q390.1 390.5 376.1 385.1Q362 379.7 351.1 373.8Q346.1 417.1 326.2 454.1Q306.3 491.1 265.8 518.9Q225.2 546.7 156.9 561.7L318.1 563.1Q340 547.1 363.9 520.1Q387.8 493.2 404.6 457.5Q421.4 421.9 421.4 378.8Q421.4 331.7 394.7 300.1Q368 268.5 317.5 268.5Q267 268.5 235.3 299.9Q203.6 331.3 203.6 379.7Q203.6 435.8 242.3 468Q280.9 500.1 345.5 500.1Q418 500.1 467.7 469.8Q517.4 439.4 542.8 388.9Q568.2 338.4 568.2 276.9Q568.2 220.8 553 177.8Q537.8 134.8 510 105.4Q482.2 76 443.9 61Q405.6 46 359.9 46Z" />
+      <g transform="translate(26 26) rotate(45) translate(20.75 0)">
+        <path fill="currentColor" d="M0 -5.6 L9 -5.6 Q14 -4.6 23 0 Q14 4.6 9 5.6 L0 5.6 Z" />
+        <path stroke="var(--surface)" strokeWidth="1.3" strokeLinecap="round" d="M12.5 0 L21 0" />
+        <circle fill="var(--surface)" cx="11" cy="0" r="1.6" />
+      </g>
+    </svg>
+  );
+}

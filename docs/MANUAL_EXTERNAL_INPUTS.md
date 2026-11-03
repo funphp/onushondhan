@@ -16,7 +16,7 @@ else is implemented, tested and documented.
 | 9 | **First super admin** | A real person must own the account | Person registers and verifies email on the live site, then on the server: `php artisan users:grant-role <their-email> super_admin`; they enrol TOTP on first `/admin` login |
 | 10 | **SMS provider** (optional phone verification) | External account | Implement/bind `App\Contracts\SmsSender`, set `SMS_DRIVER` |
 | 11 | **ClamAV on the server** | Server package/daemon | `sudo apt install clamav-daemon && sudo systemctl enable --now clamav-daemon clamav-freshclam`; set `MALWARE_SCANNER=clamav`, `EVIDENCE_REQUIRE_CLEAN_SCAN=true` |
-| 12 | **Branding assets** (logo, favicon, OG artwork) | Organisational decision | `frontend/src/app/favicon.ico`, `frontend/src/app/opengraph-image.tsx` |
+| 12 | **Branding assets** — logo done (magnifier with অ + pen-nib handle; `frontend/public/brand/`). Optional: professional refinement, Bangla wordmark artwork | Organisational decision | `frontend/src/components/site/LogoMark.tsx`, `frontend/src/app/{icon.svg,favicon.ico,apple-icon.png,opengraph-image.tsx}`, `frontend/public/brand/` |
 | 13 | **Recovery objectives** (RPO/RTO confirmation) | Business decision | `docs/OPERATIONS.md` (initial assumption: RPO 24 h, RTO 4 h) |
 
 ## Exact commands once inputs 1–7 exist
