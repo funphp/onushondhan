@@ -1,7 +1,7 @@
 # Environment & Secrets
 
-Templates: `backend/.env.example`, `frontend/.env.example`. Real values live only in the server
-environment / secret manager (`/var/www/onushondhan/shared/*.env`, `/etc/onushondhan/*.env`) and are
+Templates: `backend/.env.example`, `frontend/.env.example`. Production templates with every variable: `deploy/env/*.example`. Real values live only in the server
+environment / secret manager (`/var/www/onushondhan/shared/*.env`, `/etc/onushondhan/backup.env`) and are
 never committed. `.gitignore` excludes every `.env*` except the examples.
 
 ## Backend (Laravel)
@@ -14,7 +14,10 @@ never committed. `.gitignore` excludes every `.env*` except the examples.
 | `APP_DEBUG` | `false` (deploy script refuses otherwise) | |
 | `APP_URL` | `https://<domain>` | |
 | `FRONTEND_URL` | `https://<domain>` (links in emails) | |
-| `TRUSTED_PROXIES` | IPs of the reverse proxy / load balancer (default `127.0.0.1,::1`) | |
+| `TRUSTED_PROXIES` | IPs of the reverse proxy / load balancer (default `127.0.0.1,::1`; read via config so it survives `config:cache`) | |
+| `INTERNAL_API_TOKEN` | Random secret shared with the frontend; exempts server-side renders from the per-IP API limit | **yes** |
+| `API_LOCALE`, `USER_LOCALE` | `bn` — default language of API messages and of emails/notifications (users can switch) | |
+| `APP_LOCALE` | `en` (admin panel) | |
 | `LOG_CHANNEL`, `LOG_STACK`, `LOG_DAILY_DAYS`, `LOG_LEVEL` | `stack`, `daily`, `14`, `warning` | |
 | `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME` | MySQL 8 connection (dedicated least-privilege user) | |
 | `DB_PASSWORD` | | **yes** |
@@ -47,7 +50,8 @@ never committed. `.gitignore` excludes every `.env*` except the examples.
 
 | Variable | Guidance |
 |---|---|
-| `API_INTERNAL_URL` | Where the Next.js server reaches Laravel for SSR data, e.g. `http://127.0.0.1` (via Nginx) or the internal PHP host. Server-only. |
+| `API_INTERNAL_URL` | Where the Next.js server reaches Laravel: `http://127.0.0.1:8080` (internal Nginx listener) in production. Also baked into the `/api` rewrites at build time. Server-only. |
+| `INTERNAL_API_TOKEN` | Same secret as the backend's. Server-only — never `NEXT_PUBLIC_`. |
 | `NEXT_PUBLIC_SITE_URL` | `https://<domain>` — canonical URLs, OG tags, sitemap. **Baked in at build time.** |
 | `NEXT_PUBLIC_ADMIN_URL` | `https://<domain>/admin` — shown to staff. Baked in at build time. |
 

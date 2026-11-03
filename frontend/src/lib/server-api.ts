@@ -7,6 +7,8 @@ import type { ApiErrorBody } from "./types";
  * data: requests carry no user cookies, so nothing user-specific is ever cached.
  */
 const API = (process.env.API_INTERNAL_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "") + "/api/v1";
+// Identifies this server to the API so server-side renders are not throttled as one client (server-only secret).
+const INTERNAL_TOKEN = process.env.INTERNAL_API_TOKEN;
 
 export class ServerApiError extends Error {
   constructor(public status: number, public body: ApiErrorBody | null) {
@@ -21,7 +23,7 @@ export async function serverGet<T>(path: string, options: { revalidate?: number 
   }
   // The locale header is part of the fetch cache key, so each language is cached separately.
   const res = await fetch(url, {
-    headers: { Accept: "application/json", "X-Locale": await getLocale() },
+    headers: { Accept: "application/json", "X-Locale": await getLocale(), ...(INTERNAL_TOKEN ? { "X-Internal-Token": INTERNAL_TOKEN } : {}) },
     next: options.revalidate === false ? undefined : { revalidate: options.revalidate ?? 60 },
     cache: options.revalidate === false ? "no-store" : undefined,
   });

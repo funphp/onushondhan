@@ -12,6 +12,15 @@ return [
     'user_locale' => env('USER_LOCALE', 'bn'),
     'supported_locales' => ['bn', 'en'],
 
+    // Reverse proxies whose X-Forwarded-* headers are trusted (comma separated). Nginx talks to
+    // PHP-FPM directly, so only loopback is needed unless a CDN/load balancer sits in front.
+    'trusted_proxies' => array_values(array_filter(array_map('trim', explode(',', (string) env('TRUSTED_PROXIES', '127.0.0.1,::1'))))),
+
+    // Shared secret sent by the Next.js server (X-Internal-Token) on its server-side API calls.
+    // All SSR traffic arrives from one local address, so it is exempt from the per-IP `api`
+    // limit when the token matches. Empty disables the exemption.
+    'internal_api_token' => (string) env('INTERNAL_API_TOKEN', ''),
+
     'frontend_url' => rtrim((string) env('FRONTEND_URL', 'http://localhost:3000'), '/'),
 
     'vault_disk' => env('VAULT_DISK', 'vault'),

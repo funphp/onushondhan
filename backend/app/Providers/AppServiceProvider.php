@@ -23,6 +23,7 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -51,6 +52,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Read from config (not env() in bootstrap/app.php) so it still applies when config is cached.
+        TrustProxies::at(config('onushondhan.trusted_proxies'));
+
         // Catch mass-assignment of non-fillable attributes during development and tests.
         Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
 
@@ -69,11 +73,20 @@ class AppServiceProvider extends ServiceProvider
         }
     }
 
+    /** Server-side render requests from the Next.js server, identified by the shared internal token. */
+    private static function isInternalRequest(Request $request): bool
+    {
+        $token = (string) config('onushondhan.internal_api_token');
+        $sent = $request->header('X-Internal-Token');
+
+        return $token !== '' && is_string($sent) && hash_equals($token, $sent);
+    }
+
     private function configureRateLimiting(): void
     {
         $by = fn (Request $r) => $r->user()?->id !== null ? 'u:'.$r->user()->id : 'ip:'.$r->ip();
 
-        RateLimiter::for('api', fn (Request $r) => Limit::perMinute(240)->by($by($r)));
+        RateLimiter::for('api', fn (Request $r) => self::isInternalRequest($r) ? Limit::none() : Limit::perMinute(240)->by($by($r)));
         RateLimiter::for('auth', fn (Request $r) => Limit::perMinute(10)->by($by($r)));
         RateLimiter::for('login', fn (Request $r) => [
             Limit::perMinute(5)->by('login:'.mb_strtolower((string) $r->input('email')).'|'.$r->ip()),

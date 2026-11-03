@@ -13,4 +13,4 @@ ln -sfn "$BASE/releases/$TARGET" "$BASE/current.tmp" && mv -Tf "$BASE/current.tm
 sudo systemctl reload php8.3-fpm
 sudo systemctl restart onushondhan-queue onushondhan-next
 echo "rollback $CUR -> $TARGET $(date -u +%FT%TZ)" >> "$BASE/releases.log"
-echo "Done. Verify: curl -fsS http://127.0.0.1/api/v1/health"
+echo "Done. Verify: curl -fsS http://127.0.0.1:8080/api/v1/health"

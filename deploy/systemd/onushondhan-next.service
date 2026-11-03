@@ -7,7 +7,8 @@ Type=simple
 User=onushondhan
 Group=onushondhan
 WorkingDirectory=/var/www/onushondhan/current/frontend/.next/standalone
-EnvironmentFile=/etc/onushondhan/frontend.env
+# Same file deploy.sh builds with, so baked-in and runtime settings cannot drift.
+EnvironmentFile=/var/www/onushondhan/shared/frontend.env
 Environment=NODE_ENV=production HOSTNAME=127.0.0.1 PORT=3000
 ExecStart=/usr/bin/node server.js
 Restart=always

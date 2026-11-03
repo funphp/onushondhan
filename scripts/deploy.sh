@@ -17,7 +17,7 @@ REF="${1:?usage: deploy.sh <git-ref> [repo-url]}"
 REPO="${2:-${DEPLOY_REPO:?set DEPLOY_REPO or pass repo url}}"
 BASE="${DEPLOY_BASE:-/var/www/onushondhan}"
 KEEP="${DEPLOY_KEEP_RELEASES:-5}"
-HEALTH_URL="${DEPLOY_HEALTH_URL:-http://127.0.0.1/api/v1/health}"
+HEALTH_URL="${DEPLOY_HEALTH_URL:-http://127.0.0.1:8080/api/v1/health}"
 TS="$(date -u +%Y%m%d%H%M%S)"
 REL="$BASE/releases/$TS"
 PREV="$(readlink -f "$BASE/current" 2>/dev/null || true)"
@@ -46,10 +46,16 @@ set -a; . "$BASE/shared/frontend.env"; set +a
 (cd "$REL/frontend" && npm ci --no-audit --no-fund && npm run build)
 cp -r "$REL/frontend/.next/static" "$REL/frontend/.next/standalone/.next/static"
 cp -r "$REL/frontend/public" "$REL/frontend/.next/standalone/public"
+# Writable fetch/ISR cache (the systemd unit only allows writes here; it must exist).
+mkdir -p "$REL/frontend/.next/standalone/.next/cache"
 
 log "Verifying configuration"
 (cd "$REL/backend" && php artisan about --only=environment >/dev/null)
 grep -q '^APP_DEBUG=false' "$BASE/shared/backend.env" || { echo "APP_DEBUG must be false in production" >&2; exit 1; }
+grep -q '^APP_ENV=production' "$BASE/shared/backend.env" || { echo "APP_ENV must be production" >&2; exit 1; }
+grep -Eq '^APP_KEY=base64:.{40,}' "$BASE/shared/backend.env" || { echo "APP_KEY is missing" >&2; exit 1; }
+grep -Eq '^INTERNAL_API_TOKEN=.{32,}' "$BASE/shared/backend.env" || { echo "INTERNAL_API_TOKEN is missing (see deploy/env/)" >&2; exit 1; }
+if grep -Eq '=<|<domain>|<secret>' "$BASE/shared/backend.env" "$BASE/shared/frontend.env"; then echo "Unfilled <placeholders> remain in shared/*.env" >&2; exit 1; fi
 
 log "Running database migrations (forward-only, additive migrations expected)"
 (cd "$REL/backend" && php artisan migrate --force --no-interaction)

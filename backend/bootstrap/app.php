@@ -35,7 +35,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
-        $middleware->trustProxies(at: explode(',', (string) env('TRUSTED_PROXIES', '127.0.0.1,::1')));
         $middleware->prepend(AssignRequestId::class);
         $middleware->append(SecurityHeaders::class);
         $middleware->api(prepend: [SetApiLocale::class], append: [RejectRevokedSession::class]);

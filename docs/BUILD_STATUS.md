@@ -1,6 +1,6 @@
 # Build Status
 
-_Last verified: 2026-10-23 (UTC), against the repository and the automated suites listed below._
+_Last verified: 2026-11-04 (UTC), against the repository and the automated suites listed below._
 
 | Phase | Status | Key implementation | Tests |
 |---|---|---|---|
@@ -23,10 +23,9 @@ _Last verified: 2026-10-23 (UTC), against the repository and the automated suite
 ```
 backend:  composer validate · vendor/bin/pint --test · vendor/bin/phpstan analyse (level 5) · composer audit
           php artisan migrate:fresh --seed (clean DB) · APP_ENV=production migrate:fresh --seed (no demo data)
-          php artisan test → 157 passed (714 assertions)
-frontend: npm run lint · npm run typecheck · npm test → 16 passed · npm run build · npm audit --omit=dev → 0 vulnerabilities
-e2e:      scripts/e2e-backend.sh (fresh onushondhan_e2e) + npx playwright test → 32 tests (4 setup + 28): full run 30 passed; the 2 new Bangla
-          tests that failed (test bugs) were fixed and 08-bangla.spec.ts then passed 8/8 (incl. setup)
+          php artisan test → 159 passed (717 assertions) · composer audit → no advisories
+frontend: npm run lint · npm run typecheck · npm test → 16 passed · npm run build (Next.js 16.4.5) · npm audit --omit=dev → 0 vulnerabilities
+e2e:      scripts/e2e-backend.sh (fresh onushondhan_e2e) + npx playwright test → 32 passed (4 setup + 28: journeys in English, Bangla journey + axe)
 ```
 
 ## Local deployment

@@ -20,12 +20,22 @@ sudo mkdir -p /etc/onushondhan /var/log/onushondhan && sudo chown onushondhan /v
 MySQL: create the database (`utf8mb4`, `utf8mb4_unicode_ci`) and an application user with rights on that
 schema only; a separate read-only user for backups.
 
-Secrets (from your secret manager — never commit):
-- `/var/www/onushondhan/shared/backend.env` from `backend/.env.example` (see `docs/ENVIRONMENT.md`;
-  generate `APP_KEY` with `php artisan key:generate --show`).
-- `/var/www/onushondhan/shared/frontend.env` from `frontend/.env.example`.
-- `/etc/onushondhan/frontend.env` (runtime env for the Next.js unit: `API_INTERNAL_URL=http://127.0.0.1`).
+Secrets (from your secret manager — never commit; `chmod 600`, owner `onushondhan`):
+- `/var/www/onushondhan/shared/backend.env` from `deploy/env/backend.env.example` (see
+  `docs/ENVIRONMENT.md`; generate `APP_KEY` with `php artisan key:generate --show`).
+- `/var/www/onushondhan/shared/frontend.env` from `deploy/env/frontend.env.example`. The same file is
+  used for the build and by the `onushondhan-next` unit at runtime.
+- `INTERNAL_API_TOKEN` (same random value in both files: `php -r "echo bin2hex(random_bytes(32));"`)
+  lets server-side page renders bypass the per-IP API rate limit; without it, all page renders share
+  one client limit (240 requests/minute) and busy pages start failing.
 - `/etc/onushondhan/backup.env`.
+
+The Nginx file includes an internal listener on `127.0.0.1:8080` (API only). The Next.js server
+(`API_INTERNAL_URL=http://127.0.0.1:8080`) and the deploy health check use it; plain
+`http://127.0.0.1` would hit the HTTP→HTTPS redirect. Check the file with `sudo nginx -t`.
+
+The frontend build downloads the Noto Bengali fonts from Google Fonts once (self-hosted afterwards),
+so the server needs outbound HTTPS during `npm run build`.
 
 Install templates (edit domain/paths first):
 
@@ -58,7 +68,8 @@ DEPLOY_REPO=git@github.com:<org>/onushondhan.git scripts/deploy.sh <tag-or-branc
 
 The script: clones into `releases/<timestamp>` → links shared `.env` and `storage` → `composer install
 --no-dev` (also publishes Filament assets) → `npm ci && npm run build` (standalone output) → refuses
-`APP_DEBUG=true` → `php artisan migrate --force` → `optimize` + `filament:optimize` → atomically switches
+`APP_DEBUG=true`, a non-production `APP_ENV`, a missing `APP_KEY`/`INTERNAL_API_TOKEN` or unfilled
+`<placeholders>` → `php artisan migrate --force` → `optimize` + `filament:optimize` → atomically switches
 `current` → reloads PHP-FPM, restarts queue and Next.js → polls `/api/v1/health`. If health fails it
 rolls the **code** back to the previous release automatically. It records `releases.log` and keeps the
 last 5 releases.
@@ -94,6 +105,7 @@ scripts/rollback.sh 20260924120000
 ## 5. Verification after deploy
 
 ```bash
+curl -fsS http://127.0.0.1:8080/api/v1/health
 SITE_URL=https://<domain> scripts/healthcheck.sh
 curl -sI https://<domain>/ | grep -i content-security-policy
 cd /var/www/onushondhan/current/backend && php artisan about && php artisan audit:verify
