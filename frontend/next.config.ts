@@ -27,6 +27,11 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   reactStrictMode: true,
+  experimental: {
+    // Evidence uploads (up to 100 MB) pass through the /api rewrite proxy, which buffers bodies and
+    // silently truncates them at 10 MB by default.
+    proxyClientMaxBodySize: "110mb",
+  },
   async rewrites() {
     return [
       { source: "/api/:path*", destination: `${apiOrigin}/api/:path*` },

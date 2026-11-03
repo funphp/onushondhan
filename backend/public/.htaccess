@@ -1,3 +1,17 @@
+# Evidence uploads (EVIDENCE_MAX_UPLOAD_MB=100 + multipart overhead). LiteSpeed/LSAPI and mod_php
+# read these; PHP-FPM hosts set the same limits in the pool config (deploy/php-fpm).
+<IfModule lsapi_module>
+    php_value upload_max_filesize 105M
+    php_value post_max_size 110M
+    php_value max_execution_time 120
+    php_flag expose_php Off
+</IfModule>
+<IfModule php_module>
+    php_value upload_max_filesize 105M
+    php_value post_max_size 110M
+    php_value max_execution_time 120
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
