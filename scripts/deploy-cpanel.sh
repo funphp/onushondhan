@@ -64,6 +64,7 @@ log "Installing backend dependencies, migrating and caching"
   grep -q '^APP_ENV=production' ~/$DIR/shared/backend.env && grep -q '^APP_DEBUG=false' ~/$DIR/shared/backend.env || { echo 'shared/backend.env must have APP_ENV=production and APP_DEBUG=false' >&2; exit 1; }
   ln -sfn ~/$DIR/shared/backend.env .env
   rm -rf storage && ln -sfn ~/$DIR/shared/storage storage
+  mkdir -p resources/views   # empty in git (not archived) but required by view:cache
   $PHP -d memory_limit=1G ~/$DIR/bin/composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader --classmap-authoritative --quiet
   chmod 711 ~/$DIR/$REL ~/$DIR/$REL/backend && chmod -R go+rX public
   $PHP artisan migrate --force --no-interaction
