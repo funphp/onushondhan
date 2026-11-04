@@ -144,8 +144,6 @@ export const en = {
   },
   card: {
     archived: "Archived",
-    protectedIdentity: "(protected identity)",
-    protectedTitle: "Publishes under a protected public identity",
     updated: (date: string) => `updated ${date}`,
     stats: (reads: string, comments: string) => `${reads} reads · ${comments} comments`,
     investigatorStats: (published: string, followers: string, supporters: string) =>
@@ -631,7 +629,6 @@ export const en = {
     rankings: "Community rankings",
     noneFound: "No investigators found.",
     notFound: "Investigator not found",
-    protectedLine: "Publishes under a protected public identity.",
     published: "Published",
     reads: "Reads",
     followers: "Followers",

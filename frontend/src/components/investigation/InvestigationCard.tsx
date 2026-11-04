@@ -29,7 +29,6 @@ export function InvestigationCard({ item, compact }: { item: Card; compact?: boo
         {item.investigator && (
           <p>
             {t.common.by} <Link href={`/investigators/${item.investigator.slug}`} className="font-medium text-ink hover:underline">{item.investigator.public_name}</Link>
-            {item.investigator.identity_mode === "protected_public_identity" && <span title={t.card.protectedTitle}> {t.card.protectedIdentity}</span>}
           </p>
         )}
         <p className="mt-1">

@@ -145,8 +145,6 @@ export const bn: Messages = {
   },
   card: {
     archived: "আর্কাইভকৃত",
-    protectedIdentity: "(সুরক্ষিত পরিচয়)",
-    protectedTitle: "সুরক্ষিত প্রকাশ্য পরিচয়ে প্রকাশ করেন",
     updated: (date) => `হালনাগাদ ${date}`,
     stats: (reads, comments) => `${reads} বার পঠিত · ${comments}টি মন্তব্য`,
     investigatorStats: (published, followers, supporters) => `${published}টি প্রকাশিত · ${followers} অনুসারী · ${supporters} সমর্থক`,
@@ -630,7 +628,6 @@ export const bn: Messages = {
     rankings: "কমিউনিটি র‍্যাংকিং",
     noneFound: "কোনো অনুসন্ধানকারী পাওয়া যায়নি।",
     notFound: "অনুসন্ধানকারী পাওয়া যায়নি",
-    protectedLine: "সুরক্ষিত প্রকাশ্য পরিচয়ে প্রকাশ করেন।",
     published: "প্রকাশিত",
     reads: "পাঠ",
     followers: "অনুসারী",

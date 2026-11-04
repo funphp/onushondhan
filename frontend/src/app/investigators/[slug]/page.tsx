@@ -46,7 +46,6 @@ export default async function InvestigatorPage(props: PageProps<"/investigators/
         <Avatar name={profile.public_name} src={profile.avatar_url} size={96} />
         <div className="flex-1 space-y-3">
           <h1 className="font-serif text-3xl font-bold">{profile.public_name}</h1>
-          {profile.identity_mode === "protected_public_identity" && <p className="text-sm text-muted">{t.investigator.protectedLine}</p>}
           {profile.bio && <p className="whitespace-pre-line">{profile.bio}</p>}
           {website && <p className="text-sm"><a href={website} rel="noopener noreferrer nofollow ugc" target="_blank" className="text-accent underline">{new URL(website).host}</a></p>}
           <dl className="flex flex-wrap gap-6 text-sm">
