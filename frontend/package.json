@@ -39,7 +39,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
     "jsdom": "^25.0.1",
-    "prettier": "^3.9.9",
+    "prettier": "^3.9.10",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vite": "^6.4.3",
