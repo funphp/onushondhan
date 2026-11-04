@@ -14,7 +14,7 @@ export default async function NewTipPage(props: PageProps<"/tips/new">) {
   const investigation = typeof sp.investigation === "string" ? sp.investigation : undefined;
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="font-serif text-3xl font-bold">{t.tips.newTitle}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.tips.newTitle}</h1>
       <TipForm investigator={investigator} investigation={investigation} />
     </div>
   );

@@ -28,12 +28,17 @@ test.describe("Journeys 5 & 6 — investigator publishes with evidence; private 
     await page.keyboard.type("Subsidy records were obtained");
     await page.getByRole("button", { name: "Bold" }).click();
     await page.keyboard.type(" and compared with operator logs. ".repeat(3));
+    // A YouTube video anywhere in the report: shown as a thumbnail, saved as a link line.
+    page.once("dialog", (d) => void d.accept("https://youtu.be/dQw4w9WgXcQ"));
+    await page.getByRole("button", { name: "YouTube video" }).click();
+    await expect(page.locator("figure.yt-editor img")).toHaveAttribute("src", "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg");
     await expect(page.getByText(/^Saved /)).toBeVisible({ timeout: 15_000 });
     // The summary is generated from the report itself.
     await expect(page.getByRole("region", { name: "Summary" })).toContainText("An audit of how ferry fare subsidies were distributed");
     const saved = (await (await apiGet(page.request, `/api/v1/me/investigations/${id}`)).json()).data;
     expect(saved.body).toContain("## Background");
     expect(saved.body).toContain("**Subsidy records were obtained**");
+    expect(saved.body).toContain("\n\nhttps://www.youtube.com/watch?v=dQw4w9WgXcQ");
 
     await page.getByRole("tab", { name: "Findings & recommendations" }).click();
     await page.getByRole("button", { name: "Add finding" }).click();
@@ -86,10 +91,15 @@ test.describe("Journeys 5 & 6 — investigator publishes with evidence; private 
     // Public page shows the report and only public evidence.
     await page.getByRole("link", { name: "View public page" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
-    const cover = page.locator("article figure img");
+    const cover = page.locator("article > figure img");
     await expect(cover).toBeVisible();
     await expect.poll(() => cover.evaluate((img: HTMLImageElement) => img.complete ? img.naturalWidth : 0)).toBeGreaterThan(0);
     await expect(page.locator("article strong", { hasText: "Subsidy records were obtained" })).toBeVisible();
+    // Click-to-play: no YouTube player until the reader presses play.
+    await expect(page.getByRole("button", { name: "Play video" })).toBeVisible();
+    await expect(page.locator("iframe")).toHaveCount(0);
+    await page.getByRole("button", { name: "Play video" }).click();
+    await expect(page.locator('iframe[src^="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"]')).toBeAttached();
     await expect(page.getByText("Operator logs").first()).toBeVisible();
 
     // Another investigator cannot access the private evidence or the working copy.

@@ -17,7 +17,7 @@ export default function NewInvestigationPage() {
   const [error, setError] = useState<string | null>(null);
   return (
     <div className="mx-auto max-w-xl space-y-6">
-      <h1 className="font-serif text-3xl font-bold">{t.myInvestigations.newTitle}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.myInvestigations.newTitle}</h1>
       <form className="space-y-4" onSubmit={async (e) => {
         e.preventDefault();
         setBusy(true);

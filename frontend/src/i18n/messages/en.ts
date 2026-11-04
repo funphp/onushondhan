@@ -108,6 +108,8 @@ export const en = {
     topSupported: "Top supported investigators",
     communityLink: "Community →",
     noSupporters: "No supporters yet.",
+    ctaTitle: "Have you investigated something the public should know?",
+    topics: "Topics",
   },
   search: {
     title: "Discover investigations",
@@ -142,8 +144,17 @@ export const en = {
     relevance: "Relevance",
     oldest: "Oldest",
   },
+  video: {
+    play: "Play video",
+    player: "YouTube video player",
+    caption: "Video from YouTube. Playing it loads YouTube's player.",
+    openOnYouTube: "Open on YouTube",
+  },
   card: {
     archived: "Archived",
+    file: "File",
+    coverStory: "Cover investigation",
+    readMore: "Read the investigation",
     updated: (date: string) => `updated ${date}`,
     stats: (reads: string, comments: string) => `${reads} reads · ${comments} comments`,
     investigatorStats: (published: string, followers: string, supporters: string) =>
@@ -726,6 +737,9 @@ export const en = {
       orderedList: "Numbered list",
       quote: "Quote",
       divider: "Divider",
+      youtube: "YouTube video",
+      youtubePrompt: "YouTube video link (you can also paste a YouTube link anywhere in the report)",
+      youtubeInvalid: "That is not a YouTube video link.",
       undo: "Undo",
       redo: "Redo",
     },

@@ -146,7 +146,7 @@ async function VersionHistory({ inv }: { inv: PublicInvestigation }) {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <nav aria-label={t.common.breadcrumb} className="text-sm text-muted"><Link href={`/investigation/${inv.id}/${inv.slug}`}>{t.investigation.backToInvestigation}</Link></nav>
-      <h1 className="font-serif text-3xl font-bold">{t.investigation.versionHistory}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.investigation.versionHistory}</h1>
       <p className="text-muted">{t.investigation.historyIntro(inv.title, inv.investigator.public_name)}</p>
       <ol className="space-y-3">
         {versions.data.map((v) => (

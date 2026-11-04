@@ -179,7 +179,7 @@ export default function EditorPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <Link href="/dashboard/investigations" className="text-sm underline">{t.editor.all}</Link>
-          <h1 className="mt-1 font-serif text-2xl font-bold">{draft.title || t.editor.untitled}</h1>
+          <h1 className="mt-1 font-display text-2xl font-bold">{draft.title || t.editor.untitled}</h1>
           <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted">
             <StatusBadge status={inv.status} /> <span className="font-mono">{inv.id}</span>
             {inv.current_version > 0 && <span>{t.editor.publishedVersion(f.digits(inv.current_version))}</span>}

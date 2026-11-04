@@ -20,7 +20,7 @@ export default function MyInvestigationsPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-serif text-3xl font-bold">{t.myInvestigations.title}</h1>
+        <h1 className="font-display text-3xl font-bold">{t.myInvestigations.title}</h1>
         <ButtonLink href="/dashboard/investigations/new">{t.dashboard.newInvestigation}</ButtonLink>
       </div>
       <label className="text-sm">{t.myInvestigations.status}{" "}

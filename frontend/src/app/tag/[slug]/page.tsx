@@ -26,7 +26,7 @@ export default async function TagPage(props: PageProps<"/tag/[slug]">) {
   return (
     <div className="space-y-6">
       <nav aria-label={t.common.breadcrumb} className="text-sm text-muted"><Link href="/">{t.common.home}</Link> / <Link href="/search">{t.nav.discover}</Link> / <span aria-current="page">#{tag.name}</span></nav>
-      <h1 className="font-serif text-3xl font-bold">{t.search.tagged(tag.name)}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.search.tagged(tag.name)}</h1>
       <ResultsList result={result} base={`/tag/${tag.slug}`} filters={{ ...filters, tag: undefined }} />
     </div>
   );

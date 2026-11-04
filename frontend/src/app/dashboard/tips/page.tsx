@@ -18,7 +18,7 @@ export default function TipInboxPage() {
   const { items, meta, error, page, setPage } = useApiList<Tip>(`/me/inbox/tips${status ? `?status=${status}` : ""}`);
   return (
     <div className="space-y-4">
-      <h1 className="font-serif text-3xl font-bold">{t.inbox.title}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.inbox.title}</h1>
       <p className="text-sm text-muted">{t.inbox.lead}</p>
       <nav aria-label={t.inbox.folders} className="flex flex-wrap gap-2">
         {FILTERS.map(([v, l]) => (

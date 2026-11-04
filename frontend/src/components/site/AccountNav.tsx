@@ -30,7 +30,7 @@ export function AccountNav() {
   if (!user) {
     return (
       <div className="flex items-center gap-2">
-        <Link href="/login" className={buttonClass("ghost", "sm")}>{t.nav.signIn}</Link>
+        <Link href="/login" className={buttonClass("ghost", "sm", "text-masthead-ink hover:bg-white/10")}>{t.nav.signIn}</Link>
         <Link href="/register" className={buttonClass("primary", "sm")}>{t.nav.join}</Link>
       </div>
     );
@@ -40,13 +40,13 @@ export function AccountNav() {
   const item = "block rounded px-3 py-2 text-sm hover:bg-accent-soft";
   return (
     <div className="relative" ref={ref}>
-      <button type="button" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)} className={buttonClass("secondary", "sm")}>
+      <button type="button" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)} className={buttonClass("ghost", "sm", "border border-white/20 text-masthead-ink hover:bg-white/10")}>
         <span className="max-w-32 truncate">{user.username}</span>
         {unread > 0 && <span className="rounded-full bg-danger px-1.5 text-xs text-white" aria-label={t.nav.unread(f.digits(unread))}>{f.digits(unread)}</span>}
         <span aria-hidden>▾</span>
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 z-50 mt-2 w-60 rounded-md border border-line bg-surface p-1 shadow-lg" onClick={() => setOpen(false)}>
+        <div role="menu" className="absolute right-0 z-50 mt-2 w-60 rounded-md border border-line bg-surface p-1 text-ink shadow-lg" onClick={() => setOpen(false)}>
           <Link role="menuitem" className={item} href={user.investigator ? "/dashboard" : "/dashboard/onboarding"}>{user.investigator ? t.nav.dashboard : t.nav.becomeInvestigator}</Link>
           <Link role="menuitem" className={item} href="/account/notifications">{t.nav.notifications}{unread > 0 ? ` (${f.digits(unread)})` : ""}</Link>
           <Link role="menuitem" className={item} href="/account/bookmarks">{t.nav.bookmarks}</Link>

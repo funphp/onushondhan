@@ -12,7 +12,7 @@ export default function FollowingPage() {
   const supporting = useApiList<InvestigatorSummary>("/me/supporting");
   return (
     <div className="space-y-8">
-      <h1 className="font-serif text-3xl font-bold">{t.account.followingSupport}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.account.followingSupport}</h1>
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">{t.account.following}</h2>
         {!following.items ? <Spinner /> : following.items.length === 0 ? <EmptyState title={t.account.notFollowing} /> : following.items.map((i) => <InvestigatorCard key={i.id} inv={i} />)}

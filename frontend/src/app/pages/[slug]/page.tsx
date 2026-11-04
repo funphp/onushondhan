@@ -25,7 +25,7 @@ export default async function CmsPageView(props: PageProps<"/pages/[slug]">) {
   return (
     <article className="mx-auto max-w-3xl space-y-6">
       <header>
-        <h1 className="font-serif text-4xl font-bold">{page.title}</h1>
+        <h1 className="font-display text-4xl font-bold">{page.title}</h1>
         <p className="mt-2 text-sm text-muted">{t.pages.lastUpdated(f.date(page.updated_at))}</p>
       </header>
       {page.requires_legal_review && (

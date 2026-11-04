@@ -26,7 +26,7 @@ export default function AccountSettingsPage() {
   if (!user) return null;
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl font-bold">{t.account.settingsTitle}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.account.settingsTitle}</h1>
       <ProfileCard user={user} onSaved={setUser} />
       <Card as="section">
         <h2 className="mb-1 text-lg font-semibold">{t.account.language}</h2>

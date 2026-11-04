@@ -22,7 +22,7 @@ export default function MyComplaintsPage() {
   const { items, error } = useApiList<MyComplaint>("/me/complaints");
   return (
     <div className="space-y-4">
-      <h1 className="font-serif text-3xl font-bold">{t.account.complaintsTitle}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.account.complaintsTitle}</h1>
       {error && <p role="alert" className="text-danger">{error}</p>}
       {!items ? <Spinner /> : items.length === 0 ? <EmptyState title={t.account.noComplaints} /> : (
         <ul className="space-y-3">

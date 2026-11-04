@@ -13,7 +13,9 @@ const csp = [
   // Next.js inline bootstrap scripts; no third-party scripts are loaded.
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  // YouTube thumbnails (i.ytimg.com) and the click-to-play player (privacy-enhanced domain only).
+  "img-src 'self' data: blob: https://i.ytimg.com",
+  "frame-src https://www.youtube-nocookie.com",
   "media-src 'self' blob:",
   "font-src 'self'",
   "connect-src 'self'",

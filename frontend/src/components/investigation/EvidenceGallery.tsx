@@ -13,7 +13,7 @@ export function EvidenceGallery({ items }: { items: Evidence[] }) {
   if (items.length === 0) return null;
   return (
     <section aria-labelledby="evidence-h" className="space-y-4">
-      <h2 id="evidence-h" className="font-serif text-2xl font-bold">{t.evidence.title}</h2>
+      <h2 id="evidence-h" className="font-display text-2xl font-bold">{t.evidence.title}</h2>
       <ul className="grid gap-4 sm:grid-cols-2">
         {items.map((e) => {
           const stream = `/api/v1/evidence/${e.id}/preview`;

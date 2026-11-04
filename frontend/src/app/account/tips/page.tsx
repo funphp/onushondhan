@@ -14,7 +14,7 @@ export default function MyTipsPage() {
   const { items, meta, error, page, setPage } = useApiList<Tip>("/me/tips");
   return (
     <div className="space-y-4">
-      <h1 className="font-serif text-3xl font-bold">{t.account.tipsTitle}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.account.tipsTitle}</h1>
       {error && <p role="alert" className="text-danger">{error}</p>}
       {!items ? <Spinner /> : items.length === 0 ? <EmptyState title={t.account.noTips} /> : (
         <ul className="divide-y divide-line rounded-lg border border-line bg-surface">

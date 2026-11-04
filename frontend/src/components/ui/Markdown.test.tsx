@@ -27,3 +27,17 @@ describe("Markdown (user-authored content)", () => {
     expect(container.textContent).toContain("[🖼 tracker]");
   });
 });
+
+describe("Markdown YouTube videos", () => {
+  it("turns a YouTube link on its own line into a click-to-play video", async () => {
+    const { container, getByRole } = render(<Markdown>{"Before.\n\nhttps://youtu.be/dQw4w9WgXcQ?t=5\n\nAfter with an inline https://youtu.be/dQw4w9WgXcQ link."}</Markdown>);
+    // Only the thumbnail is loaded until play is pressed.
+    expect(container.querySelector("iframe")).toBeNull();
+    expect(container.querySelector("img")?.getAttribute("src")).toBe("https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg");
+    getByRole("button").click();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(container.querySelector("iframe")?.getAttribute("src")).toBe("https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0&start=5");
+    // A link inside a sentence stays a normal link.
+    expect(container.querySelectorAll("figure")).toHaveLength(1);
+  });
+});

@@ -13,7 +13,7 @@ export default async function ReportPage(props: PageProps<"/report">) {
   const pick = (k: string) => (typeof sp[k] === "string" ? (sp[k] as string) : undefined);
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="font-serif text-3xl font-bold">{t.report.title}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.report.title}</h1>
       <ReportForm investigation={pick("investigation")} comment={pick("comment")} evidence={pick("evidence")} />
     </div>
   );

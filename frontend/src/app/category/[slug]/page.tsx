@@ -33,7 +33,7 @@ export default async function CategoryPage(props: PageProps<"/category/[slug]">)
         <Link href="/">{t.common.home}</Link> / <Link href="/search">{t.nav.discover}</Link>
         {category.parent && <> / <Link href={`/category/${category.parent}`}>{category.parent}</Link></>} / <span aria-current="page">{category.name}</span>
       </nav>
-      <h1 className="font-serif text-3xl font-bold">{category.name}</h1>
+      <h1 className="font-display text-3xl font-bold">{category.name}</h1>
       {category.description && <p className="text-muted">{category.description}</p>}
       {category.children && category.children.length > 0 && (
         <ul className="flex flex-wrap gap-2">

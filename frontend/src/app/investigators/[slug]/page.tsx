@@ -45,7 +45,7 @@ export default async function InvestigatorPage(props: PageProps<"/investigators/
       <header className="flex flex-col gap-6 rounded-xl border border-line bg-surface p-6 sm:flex-row sm:items-start">
         <Avatar name={profile.public_name} src={profile.avatar_url} size={96} />
         <div className="flex-1 space-y-3">
-          <h1 className="font-serif text-3xl font-bold">{profile.public_name}</h1>
+          <h1 className="font-display text-3xl font-bold">{profile.public_name}</h1>
           {profile.bio && <p className="whitespace-pre-line">{profile.bio}</p>}
           {website && <p className="text-sm"><a href={website} rel="noopener noreferrer nofollow ugc" target="_blank" className="text-accent underline">{new URL(website).host}</a></p>}
           <dl className="flex flex-wrap gap-6 text-sm">
@@ -60,7 +60,7 @@ export default async function InvestigatorPage(props: PageProps<"/investigators/
         </div>
       </header>
       <section aria-labelledby="inv-h">
-        <h2 id="inv-h" className="mb-4 font-serif text-2xl font-bold">{t.investigator.investigations}</h2>
+        <h2 id="inv-h" className="mb-4 font-display text-2xl font-bold">{t.investigator.investigations}</h2>
         <ResultsList result={result} base={`/investigators/${profile.slug}`} filters={{ ...filters, investigator: undefined }} />
       </section>
     </div>

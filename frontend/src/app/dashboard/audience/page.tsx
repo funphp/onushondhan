@@ -26,7 +26,7 @@ export default function AudiencePage() {
   const { t } = useI18n();
   return (
     <div className="space-y-4">
-      <h1 className="font-serif text-3xl font-bold">{t.audience.title}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.audience.title}</h1>
       <p className="text-sm text-muted">{t.brand.supportNote} {t.audience.note}</p>
       <div className="grid gap-4 lg:grid-cols-2">
         <AudienceList title={t.audience.followers} path="/me/investigator/followers" />

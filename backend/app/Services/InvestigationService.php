@@ -450,6 +450,7 @@ class InvestigationService
         $text = preg_replace([
             '/```.*?```/su',                       // fenced code
             '/^\s{0,3}#{1,6}\s.*$/mu',             // headings (section titles read badly in a summary)
+            '/^\s*<?https?:\/\/\S+>?\s*$/mu',      // bare link lines (embedded videos)
             '/!\[[^\]]*\]\([^)]*\)/u',             // images
             '/\[([^\]]*)\]\([^)]*\)/u',            // links → their text
             '/^\s{0,3}(#{1,6}|>+|[-*+]|\d+[.)])\s+/mu', // quotes, list markers
@@ -457,7 +458,7 @@ class InvestigationService
             '/^\s*\|?(\s*:?-+:?\s*\|)+\s*:?-*:?\s*$/mu', // table separators
             '/[*_~`|]+/u',                         // emphasis, code and table pipes
             '/\\\\(?=\S)/u',                       // escapes
-        ], ['', '', '', '$1', '', '', '', '', ''], $markdown) ?? '';
+        ], ['', '', '', '', '$1', '', '', '', '', ''], $markdown) ?? '';
         $text = trim(preg_replace('/\s+/u', ' ', $text) ?? '');
         if ($text === '') {
             return null;

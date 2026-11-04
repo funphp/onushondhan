@@ -36,7 +36,7 @@ export default function DashboardHome() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-serif text-3xl font-bold">{t.dashboard.overview}</h1>
+        <h1 className="font-display text-3xl font-bold">{t.dashboard.overview}</h1>
         <div className="flex gap-2">
           <ButtonLink href="/dashboard/investigations/new">{t.dashboard.newInvestigation}</ButtonLink>
           <ButtonLink href="/dashboard/tips" variant="secondary">{t.dashboard.tipsButton(unread ? f.number(unread) : "")}</ButtonLink>

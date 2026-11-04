@@ -32,7 +32,8 @@ test.describe("Journey 1 — visitor discovers and reads a published investigati
     await page.goto("/category/environment-climate");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Environment & Climate");
     await page.goto("/investigators/river-delta-watch");
-    await expect(page.getByText("Publishes under a protected public identity.")).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("River Delta Watch");
+    await expect(page.getByText(/protected public identity/i)).toHaveCount(0);
     await page.goto("/leaderboards");
     await expect(page.getByText(/not a measure of accuracy/)).toBeVisible();
     await page.goto("/terms");

@@ -228,3 +228,15 @@ Status: Accepted (2026-11-04).
   stored in the private vault. The working cover is only served to the owner
   (`/me/investigations/{id}/cover`); it goes public on publish (`/investigations/{id}/cover`, hidden
   for withdrawn/restricted/removed reports). Replaced files are deleted once no copy references them.
+
+## ADR-026 — "Dossier" visual identity and YouTube videos in reports
+Status: Accepted (2026-11-04).
+
+- Visual identity chosen by the product owner: investigative-magazine "dossier" look — black masthead
+  and footer, one signal red (`--accent`), square edges (Tailwind radius tokens set to 0–4px), Anek Bangla
+  display face for headlines (self-hosted via next/font), mono "file number" labels derived from the
+  report's public id, and a hatched placeholder for reports without a header image.
+- YouTube videos: stored in the Markdown body as a YouTube URL on its own line (editor toolbar or paste).
+  The public page shows only the thumbnail (i.ytimg.com) until the reader presses play; the player then
+  loads from youtube-nocookie.com. CSP allows exactly those two hosts (`img-src`, `frame-src`).
+  Bare link lines are skipped when the summary is generated.

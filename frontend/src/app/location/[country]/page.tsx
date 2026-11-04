@@ -27,7 +27,7 @@ export default async function LocationPage(props: PageProps<"/location/[country]
   return (
     <div className="space-y-6">
       <nav aria-label={t.common.breadcrumb} className="text-sm text-muted"><Link href="/">{t.common.home}</Link> / <Link href="/search">{t.nav.discover}</Link> / <span aria-current="page">{f.country(country)}</span></nav>
-      <h1 className="font-serif text-3xl font-bold">{f.country(country)}{sp.location ? ` — ${sp.location}` : ""}</h1>
+      <h1 className="font-display text-3xl font-bold">{f.country(country)}{sp.location ? ` — ${sp.location}` : ""}</h1>
       {districts.length > 0 && (
         <ul className="flex flex-wrap gap-2" aria-label={t.search.districts}>
           {districts.map((d) => (

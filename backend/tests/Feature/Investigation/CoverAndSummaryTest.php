@@ -31,6 +31,7 @@ it('summarises Markdown as plain text, cutting at a Bangla sentence end', functi
         ->and(mb_strlen($summary))->toBeLessThanOrEqual(300)
         ->and($summary)->not->toContain('https://')->not->toContain('*')->not->toContain('#');
     expect(InvestigationService::summarize("  \n**  **"))->toBeNull();
+    expect(InvestigationService::summarize("https://youtu.be/dQw4w9WgXcQ\n\nভিডিওতে দেখা যাচ্ছে শ্রমিকদের বিক্ষোভ।"))->toBe('ভিডিওতে দেখা যাচ্ছে শ্রমিকদের বিক্ষোভ।');
 });
 
 it('keeps a new header image private until the report is published', function () {

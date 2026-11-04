@@ -25,7 +25,7 @@ export default async function InvestigatorsPage(props: PageProps<"/investigators
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl font-bold">{t.investigator.directoryTitle}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.investigator.directoryTitle}</h1>
       <form className="flex flex-wrap items-end gap-3" action="/investigators">
         <div>
           <label htmlFor="iq" className="mb-1 block text-xs font-medium">{t.investigator.name}</label>

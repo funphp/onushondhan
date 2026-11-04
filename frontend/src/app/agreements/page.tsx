@@ -62,7 +62,7 @@ export default function AgreementsPage() {
   const { t } = useI18n();
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <h1 className="font-serif text-3xl font-bold">{t.agreements.title}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.agreements.title}</h1>
       <RequireAuth><AgreementsInner /></RequireAuth>
     </div>
   );

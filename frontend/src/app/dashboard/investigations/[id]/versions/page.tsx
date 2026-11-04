@@ -31,7 +31,7 @@ export default function VersionsPage() {
   return (
     <div className="space-y-5">
       <Link href={`/dashboard/investigations/${id}`} className="text-sm underline">← {t.editor.backToEditor}</Link>
-      <h1 className="font-serif text-3xl font-bold">{t.editor.publishedVersions}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.editor.publishedVersions}</h1>
       {error && <p role="alert" className="text-danger">{error}</p>}
       {!versions ? <Spinner /> : (
         <>

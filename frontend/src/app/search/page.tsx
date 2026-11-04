@@ -21,7 +21,7 @@ export default async function SearchPage(props: PageProps<"/search">) {
   const [result, categories] = await Promise.all([searchInvestigations(filters), getCategories()]);
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl font-bold">{filters.q ? t.search.resultsFor(filters.q) : t.search.title}</h1>
+      <h1 className="font-display text-3xl font-bold">{filters.q ? t.search.resultsFor(filters.q) : t.search.title}</h1>
       <SearchFilters params={filters} categories={categories} />
       <ResultsList result={result} base="/search" filters={filters} />
     </div>

@@ -41,7 +41,7 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl font-bold">{t.profile.title}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.profile.title}</h1>
       <Card as="section">
         <h2 className="mb-4 text-lg font-semibold">{t.profile.publicProfile}</h2>
         <form className="grid gap-4" onSubmit={async (e) => {

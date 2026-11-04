@@ -12,7 +12,7 @@ export default async function LoginPage(props: PageProps<"/login">) {
   const sp = await props.searchParams;
   return (
     <div className="mx-auto max-w-md space-y-6">
-      <h1 className="font-serif text-3xl font-bold">{t.auth.signInTitle}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.auth.signInTitle}</h1>
       <LoginForm next={typeof sp.next === "string" ? sp.next : undefined} />
     </div>
   );

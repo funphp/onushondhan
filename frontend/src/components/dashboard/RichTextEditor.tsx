@@ -8,11 +8,13 @@ import { useId, type ReactNode } from "react";
 import { cn } from "@/components/ui/cn";
 import { useI18n } from "@/i18n/client";
 import { safeHref } from "@/lib/format";
+import { YouTubeVideo } from "./YouTubeNode";
 
 /**
  * Word-processor style editor for the report body. Content is stored as Markdown (the same
  * format the public page renders without raw HTML), so only formatting that Markdown can
- * express is offered: headings, bold/italic, lists, quotes, links and dividers.
+ * express is offered: headings, bold/italic, lists, quotes, links and dividers — plus YouTube
+ * videos, stored as a YouTube link on its own line (paste a YouTube link anywhere to embed it).
  */
 export function RichTextEditor({ label, value, onChange, hint, error, disabled, placeholder }: {
   label: ReactNode; value: string; onChange: (markdown: string) => void; hint?: ReactNode; error?: string; disabled?: boolean; placeholder?: string;
@@ -28,6 +30,7 @@ export function RichTextEditor({ label, value, onChange, hint, error, disabled, 
         link: { openOnClick: false, autolink: true, protocols: ["http", "https"], defaultProtocol: "https", isAllowedUri: (url) => safeHref(url) !== null },
       }),
       Markdown,
+      YouTubeVideo,
       Placeholder.configure({ placeholder: placeholder ?? "" }),
     ],
     content: value,
@@ -90,6 +93,12 @@ function Toolbar({ editor }: { editor: Editor }) {
     else chain.setLink({ href }).run();
   };
 
+  const addVideo = () => {
+    const input = window.prompt(tb.youtubePrompt, "https://www.youtube.com/watch?v=");
+    if (input === null) return;
+    if (!editor.chain().focus().insertYouTube(input.trim()).run()) window.alert(tb.youtubeInvalid);
+  };
+
   const c = () => editor.chain().focus();
   const buttons: ({ label: string; icon: ReactNode; on?: boolean; run: () => void; disabled?: boolean } | "sep")[] = [
     { label: tb.heading, icon: <span className="font-bold">H2</span>, on: s.h2, run: () => c().toggleHeading({ level: 2 }).run() },
@@ -104,6 +113,7 @@ function Toolbar({ editor }: { editor: Editor }) {
     { label: tb.orderedList, icon: <Icon d="M10 6h10M10 12h10M10 18h10M4 4.5h1v4M4 8.5h2M4 14.5a1 1 0 0 1 2 0c0 1-2 1.5-2 3h2" />, on: s.ordered, run: () => c().toggleOrderedList().run() },
     { label: tb.quote, icon: <Icon d="M7 7h4v6H5v-2a4 4 0 0 1 2-4m8 0h4v6h-6v-2a4 4 0 0 1 2-4" />, on: s.quote, run: () => c().toggleBlockquote().run() },
     { label: tb.divider, icon: <Icon d="M4 12h16" />, run: () => c().setHorizontalRule().run() },
+    { label: tb.youtube, icon: <Icon d="M3 8.5a3 3 0 0 1 2.6-3C7.6 5.2 9.8 5 12 5s4.4.2 6.4.5A3 3 0 0 1 21 8.5v7a3 3 0 0 1-2.6 3c-2 .3-4.2.5-6.4.5s-4.4-.2-6.4-.5A3 3 0 0 1 3 15.5zM10 9.5v5l4.5-2.5z" />, run: addVideo },
     "sep",
     { label: tb.undo, icon: <Icon d="M9 14 4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3" />, run: () => c().undo().run(), disabled: !s.canUndo },
     { label: tb.redo, icon: <Icon d="m15 14 5-5-5-5M20 9H9a5 5 0 0 0 0 10h3" />, run: () => c().redo().run(), disabled: !s.canRedo },

@@ -51,7 +51,7 @@ export function Comments({ investigationId }: { investigationId: string }) {
   return (
     <section aria-labelledby="comments-h" className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 id="comments-h" className="font-serif text-2xl font-bold">{t.comments.title} {data ? `(${f.number(data.meta.total)})` : ""}</h2>
+        <h2 id="comments-h" className="font-display text-2xl font-bold">{t.comments.title} {data ? `(${f.number(data.meta.total)})` : ""}</h2>
         <label className="text-sm">
           <span className="mr-2">{t.comments.sort}</span>
           <select value={sort} onChange={(e) => { setSort(e.target.value as "top" | "new"); setPage(1); }} className="rounded-md border border-line bg-surface px-2 py-1">

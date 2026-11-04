@@ -23,7 +23,7 @@ export default async function LeaderboardsPage(props: PageProps<"/leaderboards">
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl font-bold">{t.leaderboards.title}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.leaderboards.title}</h1>
       <Alert>{res?.note ?? t.leaderboards.fallbackNote}</Alert>
       <nav aria-label={t.leaderboards.type} className="flex flex-wrap gap-2">
         {(res?.boards ?? []).map((b) => (

@@ -21,7 +21,7 @@ export default function NotificationsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-3xl font-bold">{t.account.notifications}</h1>
+        <h1 className="font-display text-3xl font-bold">{t.account.notifications}</h1>
         <Button size="sm" variant="secondary" onClick={() => markRead()}>{t.account.markAllRead}</Button>
       </div>
       {error && <p role="alert" className="text-danger">{error}</p>}

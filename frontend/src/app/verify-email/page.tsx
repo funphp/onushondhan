@@ -13,7 +13,7 @@ export default async function VerifyEmailPage(props: PageProps<"/verify-email">)
   const s = (k: string) => (typeof sp[k] === "string" ? (sp[k] as string) : "");
   return (
     <div className="mx-auto max-w-md space-y-6">
-      <h1 className="font-serif text-3xl font-bold">{t.auth.verifyTitle}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.auth.verifyTitle}</h1>
       <VerifyEmail params={{ id: s("id"), hash: s("hash"), expires: s("expires"), signature: s("signature") }} justSent={s("sent") === "1"} />
     </div>
   );

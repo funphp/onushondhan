@@ -40,7 +40,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <h1 className="font-serif text-3xl font-bold">{t.onboarding.title}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.onboarding.title}</h1>
       <p className="text-muted">{t.onboarding.lead}</p>
       <form className="space-y-6" onSubmit={async (e) => {
         e.preventDefault();

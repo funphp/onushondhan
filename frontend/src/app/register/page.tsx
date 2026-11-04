@@ -11,7 +11,7 @@ export default async function RegisterPage() {
   const { t } = await getI18n();
   return (
     <div className="mx-auto max-w-md space-y-6">
-      <h1 className="font-serif text-3xl font-bold">{t.auth.registerTitle}</h1>
+      <h1 className="font-display text-3xl font-bold">{t.auth.registerTitle}</h1>
       <RegisterForm />
     </div>
   );

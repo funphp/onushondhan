@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Noto_Sans_Bengali, Noto_Serif_Bengali } from "next/font/google";
+import { Anek_Bangla, Noto_Sans_Bengali, Noto_Serif_Bengali } from "next/font/google";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { AccountBanners } from "@/components/site/AccountBanners";
 import { Footer } from "@/components/site/Footer";
@@ -12,6 +12,7 @@ import "./globals.css";
 // Self-hosted at build time (no runtime requests to Google). Covers Bangla and Latin text.
 const sans = Noto_Sans_Bengali({ subsets: ["bengali", "latin"], weight: ["400", "500", "600", "700"], variable: "--font-bn-sans", display: "swap" });
 const serif = Noto_Serif_Bengali({ subsets: ["bengali", "latin"], weight: ["400", "700"], variable: "--font-bn-serif", display: "swap" });
+const display = Anek_Bangla({ subsets: ["bengali", "latin"], weight: ["600", "700", "800"], variable: "--font-display-face", display: "swap" });
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t, locale } = await getI18n();
@@ -28,15 +29,15 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fbfaf7" },
-    { media: "(prefers-color-scheme: dark)", color: "#121417" },
+    { media: "(prefers-color-scheme: light)", color: "#111111" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
   ],
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const { locale, t } = await getI18n();
   return (
-    <html lang={locale} className={`h-full antialiased ${sans.variable} ${serif.variable}`}>
+    <html lang={locale} className={`h-full antialiased ${sans.variable} ${serif.variable} ${display.variable}`}>
       <body className="flex min-h-full flex-col">
         <a href="#main" className="skip-link">{t.nav.skip}</a>
         <I18nProvider locale={locale}>

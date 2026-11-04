@@ -16,13 +16,14 @@ export function InvestigationArticle({ inv }: { inv: PublicInvestigation }) {
 
   return (
     <article className="space-y-8">
-      <header className="space-y-3">
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          {inv.category && <Link href={`/category/${inv.category.slug}`} className="font-medium text-accent hover:underline">{inv.category.name}</Link>}
-          {inv.subcategory && <><span className="text-muted">/</span><Link href={`/category/${inv.subcategory.slug}`} className="text-accent hover:underline">{inv.subcategory.name}</Link></>}
+      <header className="space-y-4 border-t-4 border-ink pt-4">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+          <span className="file-stamp mr-2 bg-ink px-2 py-0.5 text-paper">{t.card.file} {inv.id.replace(/^INV-/, "")}</span>
+          {inv.category && <Link href={`/category/${inv.category.slug}`} className="inline-flex min-h-6 items-center font-semibold text-accent hover:underline">{inv.category.name}</Link>}
+          {inv.subcategory && <><span className="text-muted">/</span><Link href={`/category/${inv.subcategory.slug}`} className="inline-flex min-h-6 items-center text-accent hover:underline">{inv.subcategory.name}</Link></>}
           {inv.status !== "published" && <Badge tone={inv.status === "archived" ? "neutral" : "warning"}>{t.statuses[inv.status as keyof typeof t.statuses] ?? inv.status}</Badge>}
         </div>
-        <h1 className="font-serif text-3xl font-bold leading-tight sm:text-4xl">{inv.title}</h1>
+        <h1 className="font-display text-3xl font-bold leading-[1.15] sm:text-5xl">{inv.title}</h1>
         <p className="text-sm text-muted">
           {t.common.by} <Link href={`/investigators/${inv.investigator.slug}`} className="font-semibold text-ink hover:underline">{inv.investigator.public_name}</Link>
           {inv.published_at && <> · {t.investigation.publishedOn} <time dateTime={inv.published_at}>{f.date(inv.published_at)}</time></>}
@@ -37,9 +38,9 @@ export function InvestigationArticle({ inv }: { inv: PublicInvestigation }) {
       </header>
 
       {!tombstone && inv.cover_url && (
-        <figure className="overflow-hidden rounded-lg">
+        <figure className="overflow-hidden bg-[#111]">
           {/* eslint-disable-next-line @next/next/no-img-element -- metadata-free rendition served by our API */}
-          <img src={inv.cover_url} alt="" className="aspect-[21/9] w-full bg-accent-soft object-cover" />
+          <img src={inv.cover_url} alt="" className="aspect-[16/9] w-full object-cover sm:aspect-[21/9]" />
         </figure>
       )}
 
@@ -50,7 +51,7 @@ export function InvestigationArticle({ inv }: { inv: PublicInvestigation }) {
         </Alert>
       )}
 
-      <aside aria-label={t.investigation.responsibilityNotice} className="rounded-md border-l-4 border-accent bg-accent-soft p-4 text-sm">
+      <aside aria-label={t.investigation.responsibilityNotice} className="border-l-4 border-ink bg-surface p-4 text-sm text-muted">
         {inv.disclaimer}
       </aside>
 
@@ -61,7 +62,7 @@ export function InvestigationArticle({ inv }: { inv: PublicInvestigation }) {
 
           {inv.findings.length > 0 && (
             <section aria-labelledby="findings-h" className="space-y-3">
-              <h2 id="findings-h" className="font-serif text-2xl font-bold">{t.investigation.findings}</h2>
+              <h2 id="findings-h" className="font-display text-2xl font-bold">{t.investigation.findings}</h2>
               <ol className="space-y-3">
                 {inv.findings.map((item, i) => (
                   <li key={i} className="rounded-lg border border-line bg-surface p-4">
@@ -75,14 +76,14 @@ export function InvestigationArticle({ inv }: { inv: PublicInvestigation }) {
 
           {inv.recommendations.length > 0 && (
             <section aria-labelledby="rec-h">
-              <h2 id="rec-h" className="mb-3 font-serif text-2xl font-bold">{t.investigation.recommendations}</h2>
+              <h2 id="rec-h" className="mb-3 font-display text-2xl font-bold">{t.investigation.recommendations}</h2>
               <ul className="list-disc space-y-1 pl-6">{inv.recommendations.map((r, i) => <li key={i}>{r}</li>)}</ul>
             </section>
           )}
 
           {inv.timeline.length > 0 && (
             <section aria-labelledby="timeline-h">
-              <h2 id="timeline-h" className="mb-3 font-serif text-2xl font-bold">{t.investigation.timeline}</h2>
+              <h2 id="timeline-h" className="mb-3 font-display text-2xl font-bold">{t.investigation.timeline}</h2>
               <ol className="relative space-y-4 border-l-2 border-line pl-6">
                 {inv.timeline.map((ev, i) => (
                   <li key={i}>
@@ -98,7 +99,7 @@ export function InvestigationArticle({ inv }: { inv: PublicInvestigation }) {
 
           {inv.entities.length > 0 && (
             <section aria-labelledby="entities-h">
-              <h2 id="entities-h" className="mb-3 font-serif text-2xl font-bold">{t.investigation.entities}</h2>
+              <h2 id="entities-h" className="mb-3 font-display text-2xl font-bold">{t.investigation.entities}</h2>
               <p className="mb-2 text-xs text-muted">{t.investigation.entitiesNote}</p>
               <ul className="flex flex-wrap gap-2">
                 {inv.entities.map((e, i) => <li key={i} className="rounded-md border border-line px-3 py-1 text-sm">{e.name} <span className="text-muted">· {t.entityTypes[e.type as keyof typeof t.entityTypes] ?? e.type}{e.role ? ` · ${e.role}` : ""}</span></li>)}
@@ -110,7 +111,7 @@ export function InvestigationArticle({ inv }: { inv: PublicInvestigation }) {
 
           {inv.sources.length > 0 && (
             <section aria-labelledby="sources-h">
-              <h2 id="sources-h" className="mb-3 font-serif text-2xl font-bold">{t.investigation.sources}</h2>
+              <h2 id="sources-h" className="mb-3 font-display text-2xl font-bold">{t.investigation.sources}</h2>
               <ol className="list-decimal space-y-2 pl-6 text-sm">
                 {inv.sources.map((s, i) => {
                   const href = safeHref(s.url);
