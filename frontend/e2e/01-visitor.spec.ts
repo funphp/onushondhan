@@ -14,7 +14,7 @@ test.describe("Journey 1 — visitor discovers and reads a published investigati
     await result.click();
 
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Tannery effluent");
-    await expect(page.getByLabel("Responsibility notice")).toContainText("has not independently verified");
+    await expect(page.getByLabel("Responsibility notice")).toContainText("The investigator is responsible for the report");
     await expect(page.getByText("River Delta Watch").first()).toBeVisible();
     // Confidential source must never be published.
     await expect(page.getByText("Interview notes (confidential)")).toHaveCount(0);

@@ -25,7 +25,6 @@ export function InvestigationArticle({ inv }: { inv: PublicInvestigation }) {
         <h1 className="font-serif text-3xl font-bold leading-tight sm:text-4xl">{inv.title}</h1>
         <p className="text-sm text-muted">
           {t.common.by} <Link href={`/investigators/${inv.investigator.slug}`} className="font-semibold text-ink hover:underline">{inv.investigator.public_name}</Link>
-          {inv.investigator.identity_mode === "protected_public_identity" && <span> · {t.investigation.protected}</span>}
           {inv.published_at && <> · {t.investigation.publishedOn} <time dateTime={inv.published_at}>{f.date(inv.published_at)}</time></>}
           {inv.version > 1 && inv.updated_at && <> · {t.investigation.updatedOn} <time dateTime={inv.updated_at}>{f.date(inv.updated_at)}</time> ({t.investigation.version(f.digits(inv.version))})</>}
         </p>

@@ -156,7 +156,6 @@ export const bn: Messages = {
     publishedOn: "প্রকাশ",
     updatedOn: "হালনাগাদ",
     version: (n) => `সংস্করণ ${n}`,
-    protected: "সুরক্ষিত প্রকাশ্য পরিচয়ে প্রকাশিত",
     location: "স্থান",
     period: "সময়কাল",
     responsibilityNotice: "দায়িত্ব-সংক্রান্ত বিজ্ঞপ্তি",

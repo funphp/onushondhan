@@ -156,7 +156,6 @@ export const en = {
     publishedOn: "Published",
     updatedOn: "Updated",
     version: (n: string) => `version ${n}`,
-    protected: "publishing under a protected public identity",
     location: "Location",
     period: "Period",
     responsibilityNotice: "Responsibility notice",
