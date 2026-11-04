@@ -7,15 +7,17 @@ import { useI18n } from "@/i18n/client";
 import type { InvestigationCard as Card } from "@/lib/types";
 
 /** Header image, or a hatched "case file" panel with the category when a report has none. */
-export function CoverArt({ item, className, large }: { item: Card; className?: string; large?: boolean }) {
+export function CoverArt({ item, className, large, bare }: { item: Card; className?: string; large?: boolean; bare?: boolean }) {
   if (item.cover_url) {
     // eslint-disable-next-line @next/next/no-img-element -- metadata-free rendition served by our API
     return <img src={item.cover_url} alt="" loading={large ? "eager" : "lazy"} className={cn("h-full w-full bg-[#1a1a1a] object-cover", className)} />;
   }
   return (
     <div aria-hidden className={cn("dossier-hatch flex h-full w-full flex-col justify-start gap-1 p-4 text-white", className)}>
+      {!bare && <>
       <span className="file-stamp text-[#ff6b78]">{item.id}</span>
       {item.category && <span className={cn("font-display font-bold leading-tight text-white/80", large ? "text-3xl" : "text-xl")}>{item.category.name}</span>}
+      </>}
     </div>
   );
 }
@@ -82,7 +84,7 @@ export function CoverStory({ item }: { item: Card }) {
   return (
     <article className="relative overflow-hidden bg-[#111] text-white">
       <div className="aspect-[4/3] sm:aspect-[16/9]">
-        <CoverArt item={item} large />
+        <CoverArt item={item} large bare />
       </div>
       <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/5" aria-hidden />
       <div className="absolute inset-x-0 bottom-0 space-y-3 p-5 sm:p-8">
