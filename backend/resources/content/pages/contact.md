@@ -1,4 +1,4 @@
-For general questions, account help, press enquiries or legal notices, contact the Onushondhan team.
+For general questions, account help, press enquiries or legal notices, contact the onusondhan.com team.
 
 - **Support:** *[support email to be configured]*
 - **Legal and data-protection requests:** *[legal contact to be configured]*

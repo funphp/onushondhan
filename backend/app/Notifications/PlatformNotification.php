@@ -58,10 +58,10 @@ class PlatformNotification extends Notification implements ShouldQueue
         $title = __($this->title, $this->titleParams);
 
         return (new MailMessage)
-            ->subject($title.' — '.__('Onushondhan'))
+            ->subject($title.' — '.__('onusondhan.com'))
             ->line($title.'.')
-            ->line(__('Sign in to Onushondhan to view the details.'))
-            ->action(__('Open Onushondhan'), config('onushondhan.frontend_url').'/account/notifications')
+            ->line(__('Sign in to onusondhan.com to view the details.'))
+            ->action(__('Open onusondhan.com'), config('onushondhan.frontend_url').'/account/notifications')
             ->line(__('You can change email notification preferences in your account settings.'));
     }
 }

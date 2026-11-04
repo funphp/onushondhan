@@ -1,8 +1,8 @@
-> **TEMPLATE — REQUIRES LEGAL REVIEW.** This text is a product-policy template prepared for the Onushondhan platform. It is not legal advice and has not been reviewed for any jurisdiction. Qualified legal counsel must review and adapt it before it is relied on in production.
+> **TEMPLATE — REQUIRES LEGAL REVIEW.** This text is a product-policy template prepared for the onusondhan.com platform. It is not legal advice and has not been reviewed for any jurisdiction. Qualified legal counsel must review and adapt it before it is relied on in production.
 
 ## 1. Who we are
 
-Onushondhan operates a publishing and community platform for independent investigators. *[Insert legal entity name, registered address and data-protection contact.]*
+onusondhan.com operates a publishing and community platform for independent investigators. *[Insert legal entity name, registered address and data-protection contact.]*
 
 ## 2. What we collect
 

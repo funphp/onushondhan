@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Onushondhan — a home for independent investigations";
+export const alt = "onusondhan.com — a home for independent investigations";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -13,7 +13,7 @@ export default function Image() {
       <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", padding: 80, background: "#fbfaf7", color: "#1b1f24" }}>
         <img src={MARK} width={260} height={260} alt="" style={{ marginRight: 64 }} />
         <div style={{ display: "flex", flexDirection: "column", maxWidth: 720 }}>
-          <div style={{ fontSize: 84, fontWeight: 700, letterSpacing: -2 }}>Onushondhan</div>
+          <div style={{ fontSize: 84, fontWeight: 700, letterSpacing: -2 }}>onusondhan.com</div>
           <div style={{ fontSize: 38, marginTop: 20, color: "#0f5c63" }}>A home for independent investigations</div>
           <div style={{ fontSize: 24, marginTop: 36, color: "#56606b" }}>Publication is not verification. Investigators are responsible for their own reports.</div>
         </div>

@@ -36,14 +36,14 @@ export const en = {
     requestFailed: "Request failed.",
   },
   brand: {
-    name: "Onushondhan",
+    name: "onusondhan.com",
     tagline: "A home for independent investigations",
-    homeLabel: "Onushondhan home",
+    homeLabel: "onusondhan.com home",
     disclaimer:
-      "Onushondhan is a publishing platform for independent investigators. Publication does not mean Onushondhan has verified or endorsed a report — investigators are responsible for their own work.",
+      "onusondhan.com is a publishing platform for independent investigators. Publication does not mean onusondhan.com has verified or endorsed a report — investigators are responsible for their own work.",
     supportNote: "Support counts reflect community engagement, not accuracy or quality.",
     metaDescription:
-      "Onushondhan is a publishing, discovery and community platform for independent investigators. Publication is not verification or endorsement.",
+      "onusondhan.com is a publishing, discovery and community platform for independent investigators. Publication is not verification or endorsement.",
   },
   language: {
     label: "Language",
@@ -91,7 +91,7 @@ export const en = {
     privacy: "Privacy Policy",
     contentPolicy: "Content Policy",
     responsibility: "Investigator Responsibility Agreement",
-    copyright: (year: string) => `© ${year} Onushondhan. Reports are the responsibility of their investigators.`,
+    copyright: (year: string) => `© ${year} onusondhan.com. Reports are the responsibility of their investigators.`,
   },
   home: {
     heroTitle: "Independent investigations, published in the open.",
@@ -189,7 +189,7 @@ export const en = {
     added: (date: string) => `added ${date}`,
     pages: (n: string) => `${n} pages`,
     fingerprint: "SHA-256 fingerprint of the stored file",
-    note: "Evidence is supplied by the investigator. Onushondhan scans files where possible but does not verify their authenticity.",
+    note: "Evidence is supplied by the investigator. onusondhan.com scans files where possible but does not verify their authenticity.",
   },
   engagement: {
     signInPrompt: "to bookmark, react, follow or support this investigator.",
@@ -263,23 +263,23 @@ export const en = {
     accessCodeTitle: "Your one-time access code",
     accessCodeLabel: "Access code",
     accessCodeHelp:
-      "Write it down or store it somewhere safe now. Onushondhan only keeps a scrambled version, so it cannot be shown again or recovered. Use it on the tip replies page to read and answer the investigator.",
+      "Write it down or store it somewhere safe now. onusondhan.com only keeps a scrambled version, so it cannot be shown again or recovered. Use it on the tip replies page to read and answer the investigator.",
     repliesPage: "tip replies page",
     followFromAccount: "Follow the conversation from",
     yourTips: "your tips",
     anonymityTitleMember: "About your anonymity",
     anonymityTitleGuest: "Sending as a guest",
     anonymityMember: (username: string) =>
-      `You are signed in as ${username}. You can hide your identity from the investigator; Onushondhan still knows which account sent the tip.`,
+      `You are signed in as ${username}. You can hide your identity from the investigator; onusondhan.com still knows which account sent the tip.`,
     anonymityGuest:
-      "You are not signed in, so the tip is anonymous to the platform: no account, IP address or browser details are attached to it. You will receive an access code to read replies. Onushondhan cannot promise absolute anonymity — avoid details that identify you if that matters.",
+      "You are not signed in, so the tip is anonymous to the platform: no account, IP address or browser details are attached to it. You will receive an access code to read replies. onusondhan.com cannot promise absolute anonymity — avoid details that identify you if that matters.",
     subject: "Subject",
     yourTip: "Your tip",
     yourTipHint: "Describe what you know. Do not include information you are not comfortable sharing with the investigator.",
     hideIdentity: "Hide my identity from the investigator (recommended)",
     followUp: "How may the investigator follow up?",
-    viaPlatformMember: "Through Onushondhan messages",
-    viaPlatformGuest: "Through Onushondhan messages (using my access code)",
+    viaPlatformMember: "Through onusondhan.com messages",
+    viaPlatformGuest: "Through onusondhan.com messages (using my access code)",
     viaEmail: "By email (shared with the investigator)",
     viaPhone: "By phone (shared with the investigator)",
     noFollowUp: "No follow-up",
@@ -315,7 +315,7 @@ export const en = {
     received: "Complaint received",
     problem: "What is the problem?",
     factualNote:
-      "Onushondhan does not independently verify reports or decide factual disputes. We will record your dispute, may ask the investigator to review it, and will act where the Content Policy is breached. Include the specific statements and any evidence.",
+      "onusondhan.com does not independently verify reports or decide factual disputes. We will record your dispute, may ask the investigator to review it, and will act where the Content Policy is breached. Include the specific statements and any evidence.",
     details: "Details",
     detailsHint: "The investigator may see the category and your description, but never who filed the complaint.",
     email: "Your email (so we can follow up)",
@@ -569,7 +569,7 @@ export const en = {
   },
   onboarding: {
     title: "Become an investigator",
-    lead: "Investigators publish under their own responsibility. Onushondhan hosts and moderates your work but does not verify or endorse it.",
+    lead: "Investigators publish under their own responsibility. onusondhan.com hosts and moderates your work but does not verify or endorse it.",
     verifyFirst: "Verify your email first",
     verifyFirstBody: "Check your inbox for the verification link, then return here.",
     resend: "Resend",
@@ -578,7 +578,7 @@ export const en = {
     realNameDesc: "Your reports show your real name.",
     protected: "Under a protected public identity",
     protectedDesc:
-      "Readers see only the public name you choose. Onushondhan keeps the link to your account and any private details you add, with strictly limited, logged staff access. This is not a guarantee of absolute anonymity (for example, against lawful orders).",
+      "Readers see only the public name you choose. onusondhan.com keeps the link to your account and any private details you add, with strictly limited, logged staff access. This is not a guarantee of absolute anonymity (for example, against lawful orders).",
     nameReal: "Your name as it should appear",
     namePseudonym: "Public name (pseudonym)",
     pseudonymHint: "Choose a name that does not reveal who you are.",
@@ -617,7 +617,7 @@ export const en = {
   },
   investigator: {
     directoryTitle: "Investigators",
-    directoryMeta: "Independent investigators publishing on Onushondhan.",
+    directoryMeta: "Independent investigators publishing on onusondhan.com.",
     name: "Name",
     sort: "Sort",
     sorts: {
@@ -636,9 +636,9 @@ export const en = {
     reads: "Reads",
     followers: "Followers",
     supporters: "Supporters",
-    since: "On Onushondhan since",
+    since: "On onusondhan.com since",
     investigations: "Investigations",
-    profileMeta: (name: string) => `Investigations by ${name} on Onushondhan.`,
+    profileMeta: (name: string) => `Investigations by ${name} on onusondhan.com.`,
   },
   leaderboards: {
     title: "Community rankings",

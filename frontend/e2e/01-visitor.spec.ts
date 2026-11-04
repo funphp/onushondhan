@@ -4,7 +4,7 @@ test.describe("Journey 1 — visitor discovers and reads a published investigati
   test("home → search → investigation → share/tip controls, with disclaimer and SEO metadata", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Independent investigations");
-    await expect(page.getByText("does not mean Onushondhan has verified").first()).toBeVisible();
+    await expect(page.getByText("does not mean onusondhan.com has verified").first()).toBeVisible();
 
     await page.getByRole("search").first().getByLabel("Search investigations").fill("tannery");
     await page.keyboard.press("Enter");

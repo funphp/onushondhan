@@ -36,7 +36,7 @@ class PhoneVerificationService
             ]);
         });
 
-        $this->sms->send($phone, "Your Onushondhan verification code is {$code}. It expires in 10 minutes.");
+        $this->sms->send($phone, "Your onusondhan.com verification code is {$code}. It expires in 10 minutes.");
     }
 
     public function verify(User $user, string $code): void

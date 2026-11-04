@@ -171,7 +171,7 @@ class DemoSeeder extends Seeder
 
         The documents obtained show discrepancies between what was announced and what was recorded. The authorities were invited to respond before publication.
 
-        > Publication on Onushondhan does not mean the platform has verified these findings. The investigator is responsible for this report.
+        > Publication on onusondhan.com does not mean the platform has verified these findings. The investigator is responsible for this report.
 
         ## Open questions
 

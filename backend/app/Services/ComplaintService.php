@@ -85,7 +85,7 @@ class ComplaintService
                     'complaint_type' => $complaint->complaint_type->value,
                     'summary' => mb_substr($complaint->description, 0, 1000),
                     'note' => $complaint->complaint_type === ComplaintType::FactualDispute
-                        ? __('This is a factual dispute. Onushondhan does not adjudicate factual accuracy; please review your report and sources and respond or correct as you see fit.')
+                        ? __('This is a factual dispute. onusondhan.com does not adjudicate factual accuracy; please review your report and sources and respond or correct as you see fit.')
                         : null,
                 ], '/dashboard/investigations/'.$investigation->public_id, emailCategory: 'moderation'));
             }

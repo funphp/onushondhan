@@ -25,10 +25,10 @@ class ContentSeeder extends Seeder
     ];
 
     private const PAGES = [
-        'about' => ['About Onushondhan', 'What Onushondhan is — and what it is not.'],
-        'how-it-works' => ['How It Works', 'Publishing, reading, tips and support on Onushondhan.'],
-        'faq' => ['Frequently Asked Questions', 'Answers to common questions about Onushondhan.'],
-        'contact' => ['Contact', 'How to reach the Onushondhan team.'],
+        'about' => ['About onusondhan.com', 'What onusondhan.com is — and what it is not.'],
+        'how-it-works' => ['How It Works', 'Publishing, reading, tips and support on onusondhan.com.'],
+        'faq' => ['Frequently Asked Questions', 'Answers to common questions about onusondhan.com.'],
+        'contact' => ['Contact', 'How to reach the onusondhan.com team.'],
     ];
 
     public function run(): void
@@ -69,9 +69,9 @@ class ContentSeeder extends Seeder
         }
 
         CmsPage::query()->firstOrCreate(['slug' => 'welcome-to-onushondhan'], [
-            'title' => 'Welcome to Onushondhan',
+            'title' => 'Welcome to onusondhan.com',
             'excerpt' => 'A home for independent investigations.',
-            'body' => "Onushondhan is now open for independent investigators to publish their work.\n\nRemember: publication on Onushondhan is not verification or endorsement — investigators are responsible for their reports.",
+            'body' => "onusondhan.com is now open for independent investigators to publish their work.\n\nRemember: publication on onusondhan.com is not verification or endorsement — investigators are responsible for their reports.",
             'page_type' => 'announcement',
             'status' => 'published',
             'published_at' => now()->subDay(),

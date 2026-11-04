@@ -1,8 +1,8 @@
-> **TEMPLATE — REQUIRES LEGAL REVIEW.** This text is a product-policy template prepared for the Onushondhan platform. It is not legal advice and has not been reviewed for any jurisdiction. Qualified legal counsel must review and adapt it before it is relied on in production.
+> **TEMPLATE — REQUIRES LEGAL REVIEW.** This text is a product-policy template prepared for the onusondhan.com platform. It is not legal advice and has not been reviewed for any jurisdiction. Qualified legal counsel must review and adapt it before it is relied on in production.
 
 ## Purpose
 
-This policy explains what may be published on Onushondhan and how moderation works. Moderation enforces these rules; **it does not verify the factual accuracy of reports**.
+This policy explains what may be published on onusondhan.com and how moderation works. Moderation enforces these rules; **it does not verify the factual accuracy of reports**.
 
 ## Prohibited content
 
@@ -18,7 +18,7 @@ This policy explains what may be published on Onushondhan and how moderation wor
 
 ## Investigation standards
 
-Investigators should clearly distinguish documented findings from allegation and opinion, cite sources, describe evidence accurately, avoid presenting unverified claims about named individuals as established fact, and correct errors promptly. These are expectations for investigators; Onushondhan does not certify compliance.
+Investigators should clearly distinguish documented findings from allegation and opinion, cite sources, describe evidence accurately, avoid presenting unverified claims about named individuals as established fact, and correct errors promptly. These are expectations for investigators; onusondhan.com does not certify compliance.
 
 ## Comments
 

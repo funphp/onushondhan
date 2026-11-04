@@ -21,7 +21,7 @@ use Illuminate\Support\Collection;
  */
 class PublicInvestigationResource extends JsonResource
 {
-    public const DISCLAIMER = 'This report was published by an independent investigator. Onushondhan is a publishing platform. The investigator is responsible for the report, its evidence and its sources.';
+    public const DISCLAIMER = 'This report was published by an independent investigator. onusondhan.com is a publishing platform. The investigator is responsible for the report, its evidence and its sources.';
 
     public ?InvestigationVersion $previewVersion = null;
 

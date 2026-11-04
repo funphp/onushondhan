@@ -1,14 +1,14 @@
-> **TEMPLATE — REQUIRES LEGAL REVIEW.** This text is a product-policy template prepared for the Onushondhan platform. It is not legal advice and has not been reviewed for any jurisdiction. Qualified legal counsel must review and adapt it before it is relied on in production.
+> **TEMPLATE — REQUIRES LEGAL REVIEW.** This text is a product-policy template prepared for the onusondhan.com platform. It is not legal advice and has not been reviewed for any jurisdiction. Qualified legal counsel must review and adapt it before it is relied on in production.
 
 ## 1. About these terms
 
-These Terms of Use ("Terms") govern your use of Onushondhan ("the platform", "we", "us"). By creating an account or using the platform you agree to these Terms, the Privacy Policy and the Content Policy.
+These Terms of Use ("Terms") govern your use of onusondhan.com ("the platform", "we", "us"). By creating an account or using the platform you agree to these Terms, the Privacy Policy and the Content Policy.
 
-## 2. What Onushondhan is — and is not
+## 2. What onusondhan.com is — and is not
 
-Onushondhan is a digital publishing, hosting, discovery and community platform for independent investigators. **Onushondhan is not an investigative organisation.** Reports are written and published by independent investigators under their own account and public identity.
+onusondhan.com is a digital publishing, hosting, discovery and community platform for independent investigators. **onusondhan.com is not an investigative organisation.** Reports are written and published by independent investigators under their own account and public identity.
 
-- Publication on Onushondhan **does not mean** that Onushondhan has independently verified, fact-checked, approved or endorsed a report, its evidence or its sources.
+- Publication on onusondhan.com **does not mean** that onusondhan.com has independently verified, fact-checked, approved or endorsed a report, its evidence or its sources.
 - Investigators are responsible for their own reports, claims, evidence, sources, permissions, legality and the consequences of publication.
 - Moderation enforces platform policy (for example spam, abuse, prohibited content, privacy or copyright complaints and malicious files). Moderation is not verification.
 
@@ -29,15 +29,15 @@ Supporting or following an investigator, reactions, votes and rankings are **com
 
 ## 6. Tips
 
-Tips are sent to the investigator you choose. Onushondhan distinguishes between being anonymous to the investigator (the platform still knows your account) and being anonymous to the platform (sending as a guest without an account). Onushondhan cannot guarantee absolute anonymity in every circumstance, including where disclosure is required by law.
+Tips are sent to the investigator you choose. onusondhan.com distinguishes between being anonymous to the investigator (the platform still knows your account) and being anonymous to the platform (sending as a guest without an account). onusondhan.com cannot guarantee absolute anonymity in every circumstance, including where disclosure is required by law.
 
 ## 7. Your content and licence to us
 
-You keep ownership of the content you submit. You grant Onushondhan a worldwide, non-exclusive, royalty-free licence to host, store, reproduce, display, distribute and make your public content available on and through the platform, and to create technical derivatives (such as previews and metadata-stripped image renditions) for that purpose. This licence ends when content is removed, except for copies retained for legal, audit or backup purposes described in the Privacy Policy.
+You keep ownership of the content you submit. You grant onusondhan.com a worldwide, non-exclusive, royalty-free licence to host, store, reproduce, display, distribute and make your public content available on and through the platform, and to create technical derivatives (such as previews and metadata-stripped image renditions) for that purpose. This licence ends when content is removed, except for copies retained for legal, audit or backup purposes described in the Privacy Policy.
 
 ## 8. Complaints and moderation
 
-Anyone may file a complaint about content (including factual-dispute, privacy, copyright, personal-information, prohibited-content, harassment and spam complaints). We review complaints against our policies and may restrict, hide or remove content, lock comments, or suspend or block accounts. A factual-dispute complaint does not lead Onushondhan to declare either party correct.
+Anyone may file a complaint about content (including factual-dispute, privacy, copyright, personal-information, prohibited-content, harassment and spam complaints). We review complaints against our policies and may restrict, hide or remove content, lock comments, or suspend or block accounts. A factual-dispute complaint does not lead onusondhan.com to declare either party correct.
 
 ## 9. Suspension and termination
 
@@ -45,7 +45,7 @@ We may suspend, block or deactivate accounts that breach these Terms or the Cont
 
 ## 10. Disclaimers and limitation of liability
 
-The platform is provided "as is". To the extent permitted by law, Onushondhan disclaims warranties and is not liable for user content or for decisions made in reliance on it. *[Counsel to draft jurisdiction-appropriate limitation and indemnity clauses.]*
+The platform is provided "as is". To the extent permitted by law, onusondhan.com disclaims warranties and is not liable for user content or for decisions made in reliance on it. *[Counsel to draft jurisdiction-appropriate limitation and indemnity clauses.]*
 
 ## 11. Changes
 

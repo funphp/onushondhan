@@ -112,7 +112,7 @@ class ComplaintResource extends Resource
                 TextEntry::make('internal_notes')->placeholder('—'),
             ]),
             Section::make('Note')->schema([
-                TextEntry::make('note')->hiddenLabel()->state('For factual disputes, record the dispute and any evidence supplied. Onushondhan does not declare either side factually correct; act only on policy breaches (privacy, copyright, prohibited content, etc.).'),
+                TextEntry::make('note')->hiddenLabel()->state('For factual disputes, record the dispute and any evidence supplied. onusondhan.com does not declare either side factually correct; act only on policy breaches (privacy, copyright, prohibited content, etc.).'),
             ])->visible(fn (Complaint $record) => $record->complaint_type === ComplaintType::FactualDispute),
         ]);
     }

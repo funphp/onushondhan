@@ -32,8 +32,8 @@ class InvestigationService
     public const CONFIRMATION_STATEMENTS = [
         'responsible_for_claims' => 'I am solely responsible for this report\'s claims, statements and supporting material.',
         'has_rights_to_material' => 'I have the rights and permissions needed for all submitted material, including evidence and sources.',
-        'subject_to_policies_and_law' => 'Publication is subject to Onushondhan\'s policies and applicable law.',
-        'no_platform_verification' => 'Publication by Onushondhan does not mean Onushondhan has independently verified or endorsed this report.',
+        'subject_to_policies_and_law' => 'Publication is subject to onusondhan.com\'s policies and applicable law.',
+        'no_platform_verification' => 'Publication by onusondhan.com does not mean onusondhan.com has independently verified or endorsed this report.',
     ];
 
     public function __construct(

@@ -38,10 +38,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('Onushondhan Admin')
+            ->brandName('onusondhan.com Admin')
             ->colors(['primary' => Color::Teal])
             ->multiFactorAuthentication(
-                [AppAuthentication::make()->recoverable()->brandName('Onushondhan')],
+                [AppAuthentication::make()->recoverable()->brandName('onusondhan.com')],
                 isRequired: (bool) config('onushondhan.admin.mfa_required'),
             )
             ->navigationGroups(['Content', 'Community', 'Moderation', 'People', 'Configuration', 'Audit'])
