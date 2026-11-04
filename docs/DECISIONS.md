@@ -211,3 +211,20 @@ Status: Accepted (2026-10-22).
   responses are still cached per request (`revalidate`). The generated per-investigation OG image
   was removed because the OG renderer cannot shape Bengali script; pages fall back to the site OG
   image.
+
+## ADR-025 — Report editor: rich text over Markdown, generated summary, header image
+Status: Accepted (2026-11-04).
+
+- The report body is edited in a WYSIWYG editor (TipTap 3, `@tiptap/markdown`) but **stored as
+  Markdown**, so ADR-021 still holds: the public page renders it without raw HTML, existing reports
+  need no migration, and version diffs and FULLTEXT search are unchanged. The toolbar only offers what
+  Markdown can express (H2/H3, bold, italic, strike, links (http/https only), lists, quote, divider).
+- The summary is no longer typed by the investigator: `InvestigationService::summarize()` derives it
+  on every body save from the report's opening text (Markdown and headings removed, cut at a sentence
+  end incl. `।`, ≤ 300 chars). A `summary` sent by a client is ignored. The public page hides the lead
+  when it merely repeats the opening paragraph; older hand-written summaries are still shown.
+- Header image (`cover_path` / `published_cover_path`): uploaded separately from the text autosave
+  (no revision bump), type/size checked, re-encoded via `ImageSanitizer` (EXIF/GPS removed), ≥ 600×250,
+  stored in the private vault. The working cover is only served to the owner
+  (`/me/investigations/{id}/cover`); it goes public on publish (`/investigations/{id}/cover`, hidden
+  for withdrawn/restricted/removed reports). Replaced files are deleted once no copy references them.

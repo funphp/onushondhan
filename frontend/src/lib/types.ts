@@ -52,6 +52,7 @@ export interface InvestigationCard {
   slug: string;
   title: string;
   summary: string;
+  cover_url?: string | null;
   status: string;
   category: TaxonomyRef | null;
   tags: TaxonomyRef[];
@@ -129,6 +130,7 @@ export interface PublicInvestigation {
   summary: string | null;
   body: string | null;
   findings: Finding[];
+  cover_url?: string | null;
   recommendations: string[];
   timeline: TimelineItem[];
   sources: SourceItem[];
@@ -175,6 +177,8 @@ export interface OwnerInvestigation {
   public_url: string | null;
   summary?: string | null;
   body?: string | null;
+  cover_url?: string | null;
+  published_cover_url?: string | null;
   category?: string | null;
   subcategory?: string | null;
   tags?: string[];

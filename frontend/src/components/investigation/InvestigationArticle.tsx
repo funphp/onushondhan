@@ -37,6 +37,13 @@ export function InvestigationArticle({ inv }: { inv: PublicInvestigation }) {
         )}
       </header>
 
+      {!tombstone && inv.cover_url && (
+        <figure className="overflow-hidden rounded-lg">
+          {/* eslint-disable-next-line @next/next/no-img-element -- metadata-free rendition served by our API */}
+          <img src={inv.cover_url} alt="" className="aspect-[21/9] w-full bg-accent-soft object-cover" />
+        </figure>
+      )}
+
       {inv.notice && (
         <Alert tone={inv.notice.type === "archived" ? "info" : "warning"} title={inv.notice.message}>
           {inv.notice.detail && <p>{inv.notice.detail}</p>}
@@ -50,7 +57,7 @@ export function InvestigationArticle({ inv }: { inv: PublicInvestigation }) {
 
       {!tombstone && (
         <>
-          {inv.summary && <p className="font-serif text-xl leading-relaxed">{inv.summary}</p>}
+          {inv.summary && !leadRepeatsBody(inv.summary, inv.body) && <p className="font-serif text-xl leading-relaxed">{inv.summary}</p>}
           <Markdown>{inv.body}</Markdown>
 
           {inv.findings.length > 0 && (
@@ -137,4 +144,15 @@ export function InvestigationArticle({ inv }: { inv: PublicInvestigation }) {
       )}
     </article>
   );
+}
+
+/**
+ * Summaries are generated from the opening of the report, so showing one as a lead would
+ * repeat the first paragraph. Older, hand-written summaries are still shown.
+ */
+export function leadRepeatsBody(summary: string, body: string | null): boolean {
+  if (!body) return false;
+  const plain = (s: string) => s.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/[#>*_~`|-]+/g, " ").replace(/\s+/g, " ").trim();
+  const head = plain(summary.replace(/…$/, "")).slice(0, 80);
+  return head.length > 0 && plain(body.slice(0, 2000).replace(/^\s{0,3}#{1,6}\s.*$/gm, "")).startsWith(head);
 }

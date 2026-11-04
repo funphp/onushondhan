@@ -44,8 +44,9 @@ export async function generateMetadata(props: PageProps<"/investigation/[id]/[[.
       modifiedTime: inv.updated_at ?? undefined,
       section: inv.category?.name,
       tags: inv.tags.map((tag) => tag.name),
+      ...(inv.cover_url ? { images: [{ url: inv.cover_url, alt: inv.title }] } : {}),
     },
-    twitter: { card: "summary_large_image", title: inv.title, description },
+    twitter: { card: "summary_large_image", title: inv.title, description, ...(inv.cover_url ? { images: [inv.cover_url] } : {}) },
   };
 }
 

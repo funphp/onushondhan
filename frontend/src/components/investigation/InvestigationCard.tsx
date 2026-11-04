@@ -8,7 +8,14 @@ import type { InvestigationCard as Card } from "@/lib/types";
 export function InvestigationCard({ item, compact }: { item: Card; compact?: boolean }) {
   const { t, f } = useI18n();
   return (
-    <article className="flex h-full flex-col rounded-lg border border-line bg-surface p-5">
+    <article className="flex h-full flex-col overflow-hidden rounded-lg border border-line bg-surface">
+      {item.cover_url && !compact && (
+        <Link href={item.url} tabIndex={-1} aria-hidden>
+          {/* eslint-disable-next-line @next/next/no-img-element -- metadata-free rendition served by our API */}
+          <img src={item.cover_url} alt="" loading="lazy" className="aspect-[2/1] w-full bg-accent-soft object-cover" />
+        </Link>
+      )}
+      <div className="flex flex-1 flex-col p-5">
       <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-muted">
         {item.category && <Link href={`/category/${item.category.slug}`} className="font-medium text-accent hover:underline">{item.category.name}</Link>}
         {item.location_country && <span>· {item.location_name ?? f.country(item.location_country)}</span>}
@@ -30,6 +37,7 @@ export function InvestigationCard({ item, compact }: { item: Card; compact?: boo
           {item.version > 1 && <span> · {t.card.updated(f.date(item.updated_at))}</span>}
           <span> · {t.card.stats(f.number(item.counts.views), f.number(item.counts.comments))}</span>
         </p>
+      </div>
       </div>
     </article>
   );

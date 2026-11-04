@@ -116,6 +116,11 @@ body {
 .prose-report th, .prose-report td { border: 1px solid var(--line); padding: 0.4rem 0.6rem; text-align: left; }
 .prose-report hr { border-color: var(--line); margin: 2rem 0; }
 
+/* Rich-text editor (TipTap) */
+.tiptap > :first-child { margin-top: 0; }
+.tiptap p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; height: 0; color: var(--ink-muted); pointer-events: none; }
+.tiptap hr.ProseMirror-selectednode { border-color: var(--accent); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

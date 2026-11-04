@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Contracts\FileVault;
 use App\Enums\InvestigationStatus;
 use App\Enums\InvestigationVisibility;
 use App\Enums\SharePlatform;
@@ -19,11 +20,13 @@ use App\Models\Reaction;
 use App\Models\Share;
 use App\Services\AnalyticsService;
 use App\Services\SearchService;
+use App\Support\CoverImageResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /** Public discovery and reading. Only published, non-private content is reachable here. */
 class InvestigationController extends Controller
@@ -75,6 +78,15 @@ class InvestigationController extends Controller
         }
 
         return $resource;
+    }
+
+    /** Published header image. Hidden with the content when a report is withdrawn, restricted or removed. */
+    public function cover(string $id, FileVault $vault): StreamedResponse
+    {
+        $inv = $this->findReadable($id);
+        abort_unless(in_array($inv->status, [InvestigationStatus::Published, InvestigationStatus::Archived], true), 404);
+
+        return CoverImageResponse::make($vault, $inv->published_cover_path, true);
     }
 
     /** Public, metadata-only version history (content of superseded versions is not public). */

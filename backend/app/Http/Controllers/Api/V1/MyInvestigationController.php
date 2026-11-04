@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Contracts\FileVault;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Investigation\SaveInvestigationRequest;
@@ -14,11 +15,13 @@ use App\Models\InvestigationVersion;
 use App\Models\Investigator;
 use App\Models\User;
 use App\Services\InvestigationService;
+use App\Support\CoverImageResponse;
 use App\Support\TextDiff;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /** Investigator-owned investigations (working copies, lifecycle, versions). */
 class MyInvestigationController extends Controller
@@ -145,6 +148,30 @@ class MyInvestigationController extends Controller
         $this->service->deleteDraft($investigation, $request->user());
 
         return response()->json(['message' => __('Draft deleted.')]);
+    }
+
+    public function uploadCover(Request $request, Investigation $investigation): InvestigationOwnerResource
+    {
+        $this->authorizeOwner($request->user(), $investigation, 'update');
+        $request->validate(['cover' => ['required', 'file', 'max:8192']]);
+        $saved = $this->service->updateCover($investigation, $request->file('cover'), $request->user());
+
+        return new InvestigationOwnerResource($saved->load(self::WITH));
+    }
+
+    public function removeCover(Request $request, Investigation $investigation): InvestigationOwnerResource
+    {
+        $this->authorizeOwner($request->user(), $investigation, 'update');
+
+        return new InvestigationOwnerResource($this->service->removeCover($investigation, $request->user())->load(self::WITH));
+    }
+
+    /** The working-copy header image, for the owner's editor and preview only. */
+    public function cover(Request $request, Investigation $investigation, FileVault $vault): StreamedResponse
+    {
+        $this->authorizeOwner($request->user(), $investigation, 'view');
+
+        return CoverImageResponse::make($vault, $investigation->cover_path, false);
     }
 
     public function versions(Request $request, Investigation $investigation): JsonResponse

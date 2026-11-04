@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { CoverImageField } from "@/components/dashboard/CoverImageField";
 import { EvidenceManager } from "@/components/dashboard/EvidenceManager";
 import { ListEditor } from "@/components/dashboard/ListEditor";
 import { PublishDialog } from "@/components/dashboard/PublishDialog";
+import { RichTextEditor } from "@/components/dashboard/RichTextEditor";
 import { StatusBadge } from "@/components/dashboard/StatusBadge";
 import { Alert } from "@/components/ui/Alert";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -21,13 +23,13 @@ import type { Category, Entity, Finding, OwnerInvestigation, SourceItem, Timelin
 type Loc = { country: string | null; region: string | null; district: string | null; city: string | null; area: string | null };
 
 interface Draft {
-  title: string; summary: string; body: string; category: string; subcategory: string; tags: string; visibility: string;
+  title: string; body: string; category: string; subcategory: string; tags: string; visibility: string;
   location_name: string; location_country: string; period_start: string; period_end: string;
   recommendations: string[]; entities: Entity[]; findings: Finding[]; timeline: TimelineItem[]; sources: SourceItem[]; locations: Loc[];
 }
 
 const toDraft = (i: OwnerInvestigation): Draft => ({
-  title: i.title ?? "", summary: i.summary ?? "", body: i.body ?? "", category: i.category ?? "", subcategory: i.subcategory ?? "",
+  title: i.title ?? "", body: i.body ?? "", category: i.category ?? "", subcategory: i.subcategory ?? "",
   tags: (i.tags ?? []).join(", "), visibility: i.visibility, location_name: i.location_name ?? "", location_country: i.location_country ?? "",
   period_start: i.period_start ?? "", period_end: i.period_end ?? "", recommendations: i.recommendations ?? [], entities: i.entities ?? [],
   findings: i.findings ?? [], timeline: i.timeline ?? [], sources: i.sources ?? [], locations: i.locations ?? [],
@@ -36,7 +38,6 @@ const toDraft = (i: OwnerInvestigation): Draft => ({
 const toPayload = (d: Draft, revision: number, untitled: string) => ({
   revision,
   title: d.title || untitled,
-  summary: d.summary || null,
   body: d.body || null,
   category: d.category || null,
   subcategory: d.category ? d.subcategory || null : null,
@@ -75,6 +76,7 @@ export default function EditorPage() {
   const [withdrawReason, setWithdrawReason] = useState("");
   const [notice, setNotice] = useState<{ tone: "success" | "danger"; text: string } | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [editorKey, setEditorKey] = useState(0);
 
   const revision = useRef(0);
   const dirty = useRef(false);
@@ -87,6 +89,7 @@ export default function EditorPage() {
     const d = toDraft(r.data);
     setDraft(d);
     draftRef.current = d;
+    setEditorKey((k) => k + 1); // remount the rich-text editor with the loaded content
     revision.current = r.data.revision;
     dirty.current = false;
     setSave({ kind: "saved", at: r.data.updated_at });
@@ -220,11 +223,15 @@ export default function EditorPage() {
         {tab === "content" && (
           <Card className="space-y-4">
             <p className="text-sm text-muted">{t.editor.contentLanguageHint}</p>
+            <CoverImageField investigation={inv} disabled={!editable} onChange={(r) => setInv(r)} />
             <TextInput label={t.editor.title} value={draft.title} onChange={(e) => update({ title: e.target.value })} maxLength={250} required error={fieldErr("title")} />
-            <TextArea label={t.editor.summary} value={draft.summary} onChange={(e) => update({ summary: e.target.value })} maxLength={2000} rows={3} error={fieldErr("summary")}
-              hint={t.editor.summaryHint} />
-            <TextArea label={t.editor.body} value={draft.body} onChange={(e) => update({ body: e.target.value })} rows={20} maxLength={200000} error={fieldErr("body")}
-              hint={t.editor.bodyHint} className="font-mono" />
+            <RichTextEditor key={editorKey} label={t.editor.body} value={draft.body} onChange={(body) => update({ body })} disabled={!editable}
+              error={fieldErr("body")} hint={t.editor.bodyHint} placeholder={t.editor.bodyPlaceholder} />
+            <section aria-labelledby="auto-summary" className="rounded-md border border-line bg-accent-soft/40 p-4">
+              <h2 id="auto-summary" className="text-sm font-medium">{t.editor.summary}</h2>
+              <p className="mt-1 text-sm leading-relaxed" aria-live="polite">{inv.summary || <span className="text-muted">{t.editor.summaryEmpty}</span>}</p>
+              <p className="mt-2 text-xs text-muted">{t.editor.summaryHint}</p>
+            </section>
           </Card>
         )}
 

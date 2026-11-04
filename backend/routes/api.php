@@ -62,6 +62,7 @@ Route::middleware('throttle:api')->group(function () {
     Route::get('investigations/{id}', [InvestigationController::class, 'show']);
     Route::get('investigations/{id}/related', [InvestigationController::class, 'related']);
     Route::get('investigations/{id}/versions', [InvestigationController::class, 'versions']);
+    Route::get('investigations/{id}/cover', [InvestigationController::class, 'cover']);
     Route::get('investigations/{id}/comments', [CommentController::class, 'index']);
     Route::post('investigations/{id}/view', [InvestigationController::class, 'recordView'])->middleware('throttle:analytics');
     Route::post('investigations/{id}/share', [InvestigationController::class, 'share'])->middleware('throttle:analytics');
@@ -167,6 +168,9 @@ Route::middleware('throttle:api')->group(function () {
             Route::get('investigations/{investigation}/versions', [MyInvestigationController::class, 'versions']);
             Route::get('investigations/{investigation}/versions/{versionNo}', [MyInvestigationController::class, 'version'])->whereNumber('versionNo');
             Route::get('investigations/{investigation}/diff', [MyInvestigationController::class, 'diff']);
+            Route::get('investigations/{investigation}/cover', [MyInvestigationController::class, 'cover']);
+            Route::post('investigations/{investigation}/cover', [MyInvestigationController::class, 'uploadCover'])->middleware('throttle:uploads');
+            Route::delete('investigations/{investigation}/cover', [MyInvestigationController::class, 'removeCover']);
 
             Route::get('investigations/{investigation}/evidence', [EvidenceController::class, 'index']);
             Route::post('investigations/{investigation}/evidence', [EvidenceController::class, 'store'])->middleware('throttle:uploads');

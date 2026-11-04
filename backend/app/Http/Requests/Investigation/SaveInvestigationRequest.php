@@ -34,7 +34,6 @@ class SaveInvestigationRequest extends FormRequest
         return [
             'revision' => ['sometimes', 'integer', 'min:1'],
             'title' => ['sometimes', 'string', 'max:250'],
-            'summary' => ['sometimes', 'nullable', 'string', 'max:2000'],
             'body' => ['sometimes', 'nullable', 'string', 'max:200000'],
             'category_id' => ['sometimes', 'nullable', 'integer', Rule::exists('investigation_categories', 'id')->whereNull('parent_id')],
             'subcategory_id' => ['sometimes', 'nullable', 'integer', Rule::exists('investigation_categories', 'id')->where('parent_id', $this->input('category_id'))],

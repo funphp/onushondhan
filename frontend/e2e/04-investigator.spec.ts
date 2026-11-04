@@ -1,3 +1,4 @@
+import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { apiGet, field, storageFor, unique } from "./helpers";
 
@@ -12,9 +13,27 @@ test.describe("Journeys 5 & 6 — investigator publishes with evidence; private 
     await expect(page).toHaveURL(/\/dashboard\/investigations\/INV-/);
     const id = page.url().split("/").pop()!;
 
-    await page.getByLabel("Summary").fill("An audit of how ferry fare subsidies were distributed across three river routes in 2025.");
-    await page.getByLabel("Report body (Markdown)").fill("## Background\n\n" + "Subsidy records were obtained and compared with operator logs. ".repeat(4));
+    // Header image: uploaded on its own, shown in the editor straight away.
+    await page.locator('input[type="file"][accept^="image/"]').setInputFiles(path.join(__dirname, "fixtures", "cover.jpg"));
+    await expect(page.getByRole("img", { name: "Header image of the report" })).toBeVisible();
+
+    // Rich-text report body: formatting comes from the toolbar and is stored as Markdown.
+    const report = page.getByRole("textbox", { name: "Report" });
+    await report.click();
+    await page.getByRole("button", { name: "Heading", exact: true }).click();
+    await page.keyboard.type("Background");
+    await page.keyboard.press("Enter");
+    await page.keyboard.type("An audit of how ferry fare subsidies were distributed across three river routes in 2025. ");
+    await page.getByRole("button", { name: "Bold" }).click();
+    await page.keyboard.type("Subsidy records were obtained");
+    await page.getByRole("button", { name: "Bold" }).click();
+    await page.keyboard.type(" and compared with operator logs. ".repeat(3));
     await expect(page.getByText(/^Saved /)).toBeVisible({ timeout: 15_000 });
+    // The summary is generated from the report itself.
+    await expect(page.getByRole("region", { name: "Summary" })).toContainText("An audit of how ferry fare subsidies were distributed");
+    const saved = (await (await apiGet(page.request, `/api/v1/me/investigations/${id}`)).json()).data;
+    expect(saved.body).toContain("## Background");
+    expect(saved.body).toContain("**Subsidy records were obtained**");
 
     await page.getByRole("tab", { name: "Findings & recommendations" }).click();
     await page.getByRole("button", { name: "Add finding" }).click();
@@ -67,6 +86,10 @@ test.describe("Journeys 5 & 6 — investigator publishes with evidence; private 
     // Public page shows the report and only public evidence.
     await page.getByRole("link", { name: "View public page" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
+    const cover = page.locator("article figure img");
+    await expect(cover).toBeVisible();
+    await expect.poll(() => cover.evaluate((img: HTMLImageElement) => img.complete ? img.naturalWidth : 0)).toBeGreaterThan(0);
+    await expect(page.locator("article strong", { hasText: "Subsidy records were obtained" })).toBeVisible();
     await expect(page.getByText("Operator logs").first()).toBeVisible();
 
     // Another investigator cannot access the private evidence or the working copy.

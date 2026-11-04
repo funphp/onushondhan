@@ -22,6 +22,7 @@ class InvestigationCardResource extends JsonResource
             'slug' => $inv->slug,
             'title' => $inv->published_title,
             'summary' => Str::limit((string) $inv->published_summary, 320),
+            'cover_url' => $inv->publishedCoverUrl(),
             'status' => $inv->status->value,
             'category' => $inv->relationLoaded('category') && $inv->category ? ['name' => $inv->category->displayName(), 'slug' => $inv->category->slug] : null,
             'tags' => $inv->relationLoaded('tags') ? $inv->tags->map(fn ($t) => ['name' => $t->name, 'slug' => $t->slug])->values() : [],

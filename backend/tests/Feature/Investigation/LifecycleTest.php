@@ -30,9 +30,9 @@ it('creates a draft and autosaves with optimistic revision checks', function () 
     expect($id)->toMatch('/^INV-\d{4}-[0-9A-Z]{8}$/');
     expect($res->json('data.status'))->toBe('draft')->and($res->json('data.revision'))->toBe(1);
 
-    $this->actingAs($inv->user)->patchJson("/api/v1/me/investigations/{$id}", ['revision' => 1, 'summary' => 'Autosaved summary text'])
-        ->assertOk()->assertJsonPath('data.revision', 2)->assertJsonPath('data.summary', 'Autosaved summary text');
-    $this->actingAs($inv->user)->patchJson("/api/v1/me/investigations/{$id}", ['revision' => 1, 'summary' => 'Stale write'])
+    $this->actingAs($inv->user)->patchJson("/api/v1/me/investigations/{$id}", ['revision' => 1, 'body' => 'Autosaved **report** text.'])
+        ->assertOk()->assertJsonPath('data.revision', 2)->assertJsonPath('data.summary', 'Autosaved report text.');
+    $this->actingAs($inv->user)->patchJson("/api/v1/me/investigations/{$id}", ['revision' => 1, 'body' => 'Stale write'])
         ->assertStatus(409)->assertJsonPath('code', 'revision_conflict');
 });
 
@@ -86,7 +86,7 @@ it('refuses to publish incomplete drafts', function () {
     $inv = $this->investigator();
     $id = $this->actingAs($inv->user)->postJson('/api/v1/me/investigations', ['title' => 'Too short'])->json('data.id');
     $this->actingAs($inv->user)->postJson("/api/v1/me/investigations/{$id}/publish", ['confirmations' => $this->confirmations()])
-        ->assertUnprocessable()->assertJsonPath('code', 'not_ready')->assertJsonValidationErrors(['summary', 'body', 'category']);
+        ->assertUnprocessable()->assertJsonPath('code', 'not_ready')->assertJsonValidationErrors(['body', 'category']);
 });
 
 it('keeps working-copy edits private until an update is published with a reason', function () {

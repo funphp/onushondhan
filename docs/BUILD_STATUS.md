@@ -23,8 +23,8 @@ _Last verified: 2026-11-04 (UTC), against the repository and the automated suite
 ```
 backend:  composer validate · vendor/bin/pint --test · vendor/bin/phpstan analyse (level 5) · composer audit
           php artisan migrate:fresh --seed (clean DB) · APP_ENV=production migrate:fresh --seed (no demo data)
-          php artisan test → 159 passed (717 assertions) · composer audit → no advisories
-frontend: npm run lint · npm run typecheck · npm test → 16 passed · npm run build (Next.js 16.4.5) · npm audit --omit=dev → 0 vulnerabilities
+          php artisan test → 165 passed (768 assertions) · composer audit → no advisories
+frontend: npm run lint · npm run typecheck · npm test → 18 passed · npm run build (Next.js 16.4.5) · npm audit --omit=dev → 0 vulnerabilities
 e2e:      scripts/e2e-backend.sh (fresh onushondhan_e2e) + npx playwright test → 32 passed (4 setup + 28: journeys in English, Bangla journey + axe)
 ```
 

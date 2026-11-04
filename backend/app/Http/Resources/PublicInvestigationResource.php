@@ -59,6 +59,7 @@ class PublicInvestigationResource extends JsonResource
             'title' => $version->title ?? $inv->published_title ?? $inv->title,
             'summary' => $showContent ? $version->summary : null,
             'body' => $showContent ? $version->body : null,
+            'cover_url' => ! $showContent ? null : ($isPreview ? $inv->draftCoverUrl() : $inv->publishedCoverUrl()),
             'findings' => $showContent ? ($version->findings_json ?? []) : [],
             'recommendations' => $showContent ? ($version->recommendations_json ?? []) : [],
             'timeline' => $showContent ? ($version->timeline_json ?? []) : [],

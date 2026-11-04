@@ -31,6 +31,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $slug
  * @property string|null $summary
  * @property string|null $body
+ * @property string|null $cover_path
  * @property array<int, string>|null $recommendations
  * @property array<int, array<string, string>>|null $entities
  * @property string|null $location_name
@@ -44,6 +45,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $published_title
  * @property string|null $published_summary
  * @property string|null $published_body
+ * @property string|null $published_cover_path
  * @property array<string, mixed>|null $identity_snapshot
  * @property InvestigationStatus $status
  * @property InvestigationVisibility $visibility
@@ -174,6 +176,20 @@ class Investigation extends Model
     public function isEditableByOwner(): bool
     {
         return in_array($this->status, [InvestigationStatus::Draft, InvestigationStatus::Published, InvestigationStatus::Withdrawn], true);
+    }
+
+    /** Relative URL of the published header image (served by the API), or null. */
+    public function publishedCoverUrl(): ?string
+    {
+        return $this->published_cover_path === null ? null
+            : '/api/v1/investigations/'.$this->public_id.'/cover?v='.substr(hash('sha256', $this->published_cover_path), 0, 12);
+    }
+
+    /** Relative URL of the working-copy header image; only the owner can load it. */
+    public function draftCoverUrl(): ?string
+    {
+        return $this->cover_path === null ? null
+            : '/api/v1/me/investigations/'.$this->public_id.'/cover?v='.substr(hash('sha256', $this->cover_path), 0, 12);
     }
 
     public function publicUrl(): string

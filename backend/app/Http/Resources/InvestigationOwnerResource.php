@@ -49,6 +49,8 @@ class InvestigationOwnerResource extends JsonResource
         return $base + [
             'summary' => $inv->summary,
             'body' => $inv->body,
+            'cover_url' => $inv->draftCoverUrl(),
+            'published_cover_url' => $inv->publishedCoverUrl(),
             'category' => $inv->category?->slug,
             'subcategory' => $inv->subcategory?->slug,
             'tags' => $inv->tags->pluck('name')->values(),

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\FileVault;
 use App\Enums\InvestigationStatus;
 use App\Enums\InvestigationVisibility;
 use App\Exceptions\ApiException;
@@ -15,6 +16,9 @@ use App\Models\Investigator;
 use App\Models\PublishConfirmation;
 use App\Models\TermsVersion;
 use App\Models\User;
+use App\Services\Files\FileInspector;
+use App\Services\Files\ImageSanitizer;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
@@ -35,6 +39,9 @@ class InvestigationService
     public function __construct(
         private readonly AuditLogger $audit,
         private readonly AnalyticsService $analytics,
+        private readonly FileVault $vault,
+        private readonly FileInspector $inspector,
+        private readonly ImageSanitizer $sanitizer,
     ) {}
 
     /** @param array<string, mixed> $data */
@@ -160,6 +167,7 @@ class InvestigationService
                 'user_agent' => mb_substr((string) Request::userAgent(), 0, 500),
             ]);
 
+            $previousCover = $inv->published_cover_path;
             $inv->forceFill([
                 'current_version' => $versionNo,
                 'status' => InvestigationStatus::Published,
@@ -167,6 +175,7 @@ class InvestigationService
                 'published_title' => $inv->title,
                 'published_summary' => $inv->summary,
                 'published_body' => $inv->body,
+                'published_cover_path' => $inv->cover_path,
                 'identity_snapshot' => $identity,
                 'published_at' => $inv->published_at ?? now(),
                 'last_published_at' => now(),
@@ -175,6 +184,10 @@ class InvestigationService
                 'public_status_note' => null,
                 'has_unpublished_changes' => false,
             ])->save();
+
+            if ($previousCover !== null && $previousCover !== $inv->cover_path) {
+                DB::afterCommit(fn () => $this->deleteCoverFile($previousCover));
+            }
 
             $this->recountInvestigator($inv->investigator);
             $this->audit->log($isFirst ? 'investigation.published' : 'investigation.updated', $inv, $before, [
@@ -261,10 +274,8 @@ class InvestigationService
         if (mb_strlen(trim($investigation->title)) < 5 || in_array($investigation->title, ['Untitled investigation', __('Untitled investigation')], true)) {
             $errors['title'] = ['Add a descriptive title (at least 5 characters).'];
         }
-        if (mb_strlen(trim((string) $investigation->summary)) < 20) {
-            $errors['summary'] = ['Add a summary of at least 20 characters.'];
-        }
-        if (mb_strlen(trim((string) $investigation->body)) < 100) {
+        // The summary is generated from the body, so a too-short summary means too little readable text.
+        if (mb_strlen(trim((string) $investigation->body)) < 100 || mb_strlen(trim((string) $investigation->summary)) < 20) {
             $errors['body'] = ['The report body must be at least 100 characters.'];
         }
         if ($investigation->category_id === null) {
@@ -279,10 +290,10 @@ class InvestigationService
     private function applyWorkingCopy(Investigation $investigation, array $data): void
     {
         $fields = Arr::only($data, [
-            'title', 'summary', 'body', 'category_id', 'subcategory_id', 'visibility', 'location_name',
+            'title', 'body', 'category_id', 'subcategory_id', 'visibility', 'location_name',
             'location_country', 'location_lat', 'location_lng', 'period_start', 'period_end',
         ]);
-        foreach (['title', 'summary', 'body', 'location_name'] as $text) {
+        foreach (['title', 'body', 'location_name'] as $text) {
             if (array_key_exists($text, $fields) && is_string($fields[$text])) {
                 $fields[$text] = self::cleanText($fields[$text]);
             }
@@ -291,6 +302,9 @@ class InvestigationService
             $fields['location_country'] = strtoupper($fields['location_country']);
         }
         $investigation->fill($fields);
+        if (array_key_exists('body', $fields)) {
+            $investigation->summary = self::summarize((string) $fields['body']);
+        }
 
         if (array_key_exists('recommendations', $data)) {
             $investigation->recommendations = array_values(array_filter(array_map(
@@ -359,6 +373,106 @@ class InvestigationService
                 ]);
             }
         }
+    }
+
+    /**
+     * Set the working copy's header image. The upload is type/size checked and re-encoded
+     * (EXIF/GPS dropped) before it is stored in the private vault; it goes live on publish.
+     */
+    public function updateCover(Investigation $investigation, UploadedFile $file, User $actor): Investigation
+    {
+        if (! $investigation->isEditableByOwner()) {
+            throw ApiException::invalidState('This investigation can no longer be edited.', 'not_editable');
+        }
+        $inspected = $this->inspector->inspect($file, [
+            'image/jpeg' => ['jpg', 'jpeg'], 'image/png' => ['png'], 'image/webp' => ['webp'],
+        ], 8 * 1024 * 1024, 'cover');
+        $clean = $this->sanitizer->sanitize($inspected->path, $inspected->mime);
+        if ($clean === null) {
+            throw new ApiException('The image could not be processed.', 'image_unprocessable', 422, ['cover' => ['The image could not be processed.']]);
+        }
+        if ($clean['width'] < 600 || $clean['height'] < 250) {
+            @unlink($clean['path']);
+            throw new ApiException('The header image is too small.', 'image_too_small', 422, ['cover' => ['Use an image at least 600 × 250 pixels.']]);
+        }
+        try {
+            $key = $this->vault->putFile($clean['path'], 'covers');
+        } finally {
+            @unlink($clean['path']);
+        }
+
+        return $this->replaceCover($investigation, $key, $actor);
+    }
+
+    public function removeCover(Investigation $investigation, User $actor): Investigation
+    {
+        if (! $investigation->isEditableByOwner()) {
+            throw ApiException::invalidState('This investigation can no longer be edited.', 'not_editable');
+        }
+
+        return $this->replaceCover($investigation, null, $actor);
+    }
+
+    private function replaceCover(Investigation $investigation, ?string $key, User $actor): Investigation
+    {
+        return DB::transaction(function () use ($investigation, $key, $actor): Investigation {
+            /** @var Investigation $locked */
+            $locked = Investigation::query()->lockForUpdate()->findOrFail($investigation->id);
+            $old = $locked->cover_path;
+            // The revision is not bumped: the cover is saved on its own, so it must not conflict with text autosaves.
+            $locked->forceFill([
+                'cover_path' => $key,
+                'has_unpublished_changes' => $locked->current_version > 0 ? true : $locked->has_unpublished_changes,
+            ])->save();
+            // The published copy keeps its own file until the next publish.
+            if ($old !== null && $old !== $locked->published_cover_path) {
+                DB::afterCommit(fn () => $this->deleteCoverFile($old));
+            }
+            $this->audit->log($key === null ? 'investigation.cover_removed' : 'investigation.cover_updated', $locked, null, null, $actor);
+
+            return $locked;
+        });
+    }
+
+    private function deleteCoverFile(string $key): void
+    {
+        if ($this->vault->exists($key)) {
+            $this->vault->delete($key);
+        }
+    }
+
+    /**
+     * Plain-text summary generated from the Markdown body: the opening of the report, cut at a
+     * sentence end (., !, ?, ।) when one falls late enough, otherwise at a word boundary.
+     */
+    public static function summarize(string $markdown, int $limit = 300): ?string
+    {
+        $text = preg_replace([
+            '/```.*?```/su',                       // fenced code
+            '/^\s{0,3}#{1,6}\s.*$/mu',             // headings (section titles read badly in a summary)
+            '/!\[[^\]]*\]\([^)]*\)/u',             // images
+            '/\[([^\]]*)\]\([^)]*\)/u',            // links → their text
+            '/^\s{0,3}(#{1,6}|>+|[-*+]|\d+[.)])\s+/mu', // quotes, list markers
+            '/^\s*([-*_]\s*){3,}$/mu',             // horizontal rules
+            '/^\s*\|?(\s*:?-+:?\s*\|)+\s*:?-*:?\s*$/mu', // table separators
+            '/[*_~`|]+/u',                         // emphasis, code and table pipes
+            '/\\\\(?=\S)/u',                       // escapes
+        ], ['', '', '', '$1', '', '', '', '', ''], $markdown) ?? '';
+        $text = trim(preg_replace('/\s+/u', ' ', $text) ?? '');
+        if ($text === '') {
+            return null;
+        }
+        if (mb_strlen($text) <= $limit) {
+            return $text;
+        }
+
+        $cut = mb_substr($text, 0, $limit);
+        if (preg_match('/^(.*[.!?।])(?:\s|$)/su', $cut, $m) && mb_strlen($m[1]) >= (int) ($limit * 0.4)) {
+            return $m[1];
+        }
+        $space = mb_strrpos($cut, ' ');
+
+        return rtrim(mb_substr($cut, 0, $space !== false && $space > $limit * 0.6 ? $space : $limit), ' ,;:—-').'…';
     }
 
     /** Strip NUL/control characters (except newlines/tabs); content is Markdown rendered without raw HTML. */
