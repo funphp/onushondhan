@@ -62,7 +62,7 @@ class ContentSeeder extends Seeder
                 'excerpt' => $excerpt,
                 'body' => (string) file_get_contents(resource_path("content/pages/{$slug}.md")),
                 'page_type' => 'page',
-                'requires_legal_review' => $slug === 'contact',
+                'requires_legal_review' => false,
                 'status' => 'published',
                 'published_at' => now()->subDay(),
             ]);
