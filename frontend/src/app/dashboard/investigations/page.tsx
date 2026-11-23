@@ -38,7 +38,7 @@ export default function MyInvestigationsPage() {
                 <tr key={i.id} className="border-t border-line">
                   <td className="p-3"><Link href={`/dashboard/investigations/${i.id}`} className="font-medium hover:underline">{i.title}</Link>
                     {i.has_unpublished_changes && <span className="ml-2 text-xs text-warning">{t.myInvestigations.unpublishedChanges}</span>}</td>
-                  <td className="p-3"><StatusBadge status={i.status} /></td>
+                  <td className="p-3"><StatusBadge status={i.status} review={i.review} /></td>
                   <td className="p-3">{i.current_version ? f.digits(i.current_version) : "—"}</td>
                   <td className="p-3">{f.number(i.counts.views)}</td>
                   <td className="p-3 whitespace-nowrap">{f.dateTime(i.updated_at)}</td>

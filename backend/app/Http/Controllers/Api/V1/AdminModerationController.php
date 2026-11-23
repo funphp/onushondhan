@@ -30,6 +30,7 @@ class AdminModerationController extends Controller
     public function queue(): JsonResponse
     {
         return response()->json(['data' => [
+            'investigations_awaiting_review' => Investigation::query()->where('review_status', 'pending')->count(),
             'open_complaints' => Complaint::query()->whereIn('status', [ComplaintStatus::Submitted, ComplaintStatus::UnderReview, ComplaintStatus::Escalated])->count(),
             'open_comment_reports' => CommentReport::query()->where('status', 'open')->count(),
             'pending_comments' => Comment::query()->where('status', CommentStatus::Pending)->count(),

@@ -21,6 +21,9 @@ return [
     // limit when the token matches. Empty disables the exemption.
     'internal_api_token' => (string) env('INTERNAL_API_TOKEN', ''),
 
+    // New reports and updates wait for moderator approval before they are published.
+    'publication_review' => (bool) env('PUBLICATION_REVIEW_REQUIRED', true),
+
     'frontend_url' => rtrim((string) env('FRONTEND_URL', 'http://localhost:3000'), '/'),
 
     'vault_disk' => env('VAULT_DISK', 'vault'),

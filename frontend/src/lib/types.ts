@@ -175,6 +175,7 @@ export interface OwnerInvestigation {
   created_at: string;
   counts: Counts;
   public_url: string | null;
+  review?: { status: "pending" | "rejected"; requested_at: string | null; note: string | null } | null;
   summary?: string | null;
   body?: string | null;
   cover_url?: string | null;

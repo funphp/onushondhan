@@ -29,6 +29,10 @@ use Illuminate\Support\Facades\Request;
  */
 class InvestigationService
 {
+    public const REVIEW_PENDING = 'pending';
+
+    public const REVIEW_REJECTED = 'rejected';
+
     public const CONFIRMATION_STATEMENTS = [
         'responsible_for_claims' => 'I am solely responsible for this report\'s claims, statements and supporting material.',
         'has_rights_to_material' => 'I have the rights and permissions needed for all submitted material, including evidence and sources.',
@@ -64,9 +68,7 @@ class InvestigationService
     /** @param array<string, mixed> $data */
     public function saveWorkingCopy(Investigation $investigation, array $data, User $actor): Investigation
     {
-        if (! $investigation->isEditableByOwner()) {
-            throw ApiException::invalidState('This investigation can no longer be edited.', 'not_editable');
-        }
+        $this->assertEditable($investigation);
 
         return DB::transaction(function () use ($investigation, $data, $actor): Investigation {
             /** @var Investigation $locked */
@@ -112,95 +114,185 @@ class InvestigationService
         if ($investigation->current_version > 0 && blank($changeReason)) {
             throw new ApiException('Describe what changed in this update.', 'change_reason_required', 422, ['change_reason' => ['A change summary is required for updates.']]);
         }
+        if ($investigation->review_status === self::REVIEW_PENDING) {
+            throw ApiException::invalidState('This investigation is already waiting for review.', 'under_review');
+        }
         $this->assertPublishable($investigation);
 
         return DB::transaction(function () use ($investigation, $actor, $statements, $changeReason): Investigation {
             /** @var Investigation $inv */
             $inv = Investigation::query()->lockForUpdate()->findOrFail($investigation->id);
-            $inv->load(['findings', 'timeline', 'sources', 'tags', 'locations', 'category', 'subcategory', 'investigator']);
-            $isFirst = $inv->published_at === null;
-            $before = ['status' => $inv->status->value, 'version' => $inv->current_version];
-            $versionNo = $inv->current_version + 1;
-            $identity = $inv->investigator->identitySnapshot();
+            $this->recordConfirmation($inv, $actor, $statements);
 
-            InvestigationVersion::query()->create([
-                'investigation_id' => $inv->id,
-                'version_no' => $versionNo,
-                'title' => $inv->title,
-                'summary' => $inv->summary,
-                'body' => $inv->body,
-                'findings_json' => $inv->findings->map(fn ($f) => ['title' => $f->title, 'body' => $f->body])->values()->all(),
-                'recommendations_json' => array_values($inv->recommendations ?? []),
-                'timeline_json' => $inv->timeline->map(fn ($t) => [
-                    'event_date' => $t->event_date?->toDateString(), 'title' => $t->title, 'description' => $t->description,
-                ])->values()->all(),
-                // Only sources the investigator marked public are ever snapshotted for display.
-                'sources_json' => $inv->sources->where('is_public', true)->map(fn ($s) => [
-                    'title' => $s->title, 'source_type' => $s->source_type, 'publisher' => $s->publisher, 'url' => $s->url,
-                    'citation_text' => $s->citation_text, 'accessed_at' => $s->accessed_at?->toDateString(),
-                ])->values()->all(),
-                'entities_json' => array_values($inv->entities ?? []),
-                'meta_json' => [
-                    'category' => $inv->category?->slug,
-                    'subcategory' => $inv->subcategory?->slug,
-                    'tags' => $inv->tags->pluck('slug')->all(),
-                    'location_name' => $inv->location_name,
-                    'location_country' => $inv->location_country,
-                    'period_start' => $inv->period_start?->toDateString(),
-                    'period_end' => $inv->period_end?->toDateString(),
-                ],
-                'identity_snapshot' => $identity,
-                'changed_by' => $actor->id,
-                'change_reason' => $isFirst ? ($changeReason ?: __('Initial publication')) : $changeReason,
-                'created_at' => now(),
-            ]);
+            if (! config('onushondhan.publication_review')) {
+                return $this->publishLocked($inv, $actor->id, $changeReason, $actor);
+            }
 
-            $terms = TermsVersion::currentFor('investigator_responsibility');
-            PublishConfirmation::query()->create([
-                'investigation_id' => $inv->id,
-                'user_id' => $actor->id,
-                'version_no' => $versionNo,
-                'terms_version_id' => $terms?->id,
-                'statements_json' => array_intersect_key($statements, self::CONFIRMATION_STATEMENTS),
-                'confirmed_at' => now(),
-                'ip_address' => Request::ip(),
-                'user_agent' => mb_substr((string) Request::userAgent(), 0, 500),
-            ]);
-
-            $previousCover = $inv->published_cover_path;
+            // Pre-publication review: nothing changes publicly until a moderator approves.
             $inv->forceFill([
-                'current_version' => $versionNo,
-                'status' => InvestigationStatus::Published,
-                'slug' => Investigation::makeSlug($inv->title),
-                'published_title' => $inv->title,
-                'published_summary' => $inv->summary,
-                'published_body' => $inv->body,
-                'published_cover_path' => $inv->cover_path,
-                'identity_snapshot' => $identity,
-                'published_at' => $inv->published_at ?? now(),
-                'last_published_at' => now(),
-                'withdrawn_at' => null,
-                'withdrawal_reason' => null,
-                'public_status_note' => null,
-                'has_unpublished_changes' => false,
+                'review_status' => self::REVIEW_PENDING,
+                'review_requested_at' => now(),
+                'review_change_reason' => $changeReason !== null ? mb_substr($changeReason, 0, 1000) : null,
+                'review_note' => null,
             ])->save();
-
-            if ($previousCover !== null && $previousCover !== $inv->cover_path) {
-                DB::afterCommit(fn () => $this->deleteCoverFile($previousCover));
-            }
-
-            $this->recountInvestigator($inv->investigator);
-            $this->audit->log($isFirst ? 'investigation.published' : 'investigation.updated', $inv, $before, [
-                'status' => 'published', 'version' => $versionNo, 'change_reason' => $changeReason,
+            $this->audit->log('investigation.submitted_for_review', $inv, null, [
+                'version' => $inv->current_version + 1, 'change_reason' => $changeReason,
             ], $actor);
-            $this->analytics->record('investigation_published', ['investigation_id' => $inv->id, 'investigator_id' => $inv->investigator_id, 'user_id' => $actor->id], ['version' => $versionNo]);
-
-            if ($isFirst && $inv->visibility === InvestigationVisibility::Public) {
-                NotifyFollowersOfPublication::dispatch($inv->id)->afterCommit();
-            }
 
             return $inv;
         });
+    }
+
+    /** Moderator approval: the reviewed working copy becomes the next published version. */
+    public function approvePublication(Investigation $investigation, User $moderator): Investigation
+    {
+        if ($investigation->review_status !== self::REVIEW_PENDING) {
+            throw ApiException::invalidState('This investigation is not waiting for review.', 'not_under_review');
+        }
+        $this->assertPublishable($investigation);
+
+        return DB::transaction(function () use ($investigation, $moderator): Investigation {
+            /** @var Investigation $inv */
+            $inv = Investigation::query()->lockForUpdate()->findOrFail($investigation->id);
+            $inv->forceFill(['review_status' => null, 'review_requested_at' => null, 'review_note' => null]);
+            $changeReason = $inv->review_change_reason;
+            $inv->review_change_reason = null;
+
+            return $this->publishLocked($inv, (int) $inv->investigator->user_id, $changeReason, $moderator);
+        });
+    }
+
+    /** Moderator rejection: the investigator sees the reason, edits and can submit again. */
+    public function rejectPublication(Investigation $investigation, User $moderator, string $reason): Investigation
+    {
+        if ($investigation->review_status !== self::REVIEW_PENDING) {
+            throw ApiException::invalidState('This investigation is not waiting for review.', 'not_under_review');
+        }
+        $investigation->forceFill([
+            'review_status' => self::REVIEW_REJECTED,
+            'review_note' => mb_substr(self::cleanText($reason), 0, 1000),
+        ])->save();
+        $this->audit->log('investigation.review_rejected', $investigation, null, ['reason' => $reason], $moderator);
+
+        return $investigation;
+    }
+
+    /** The investigator takes a submission back to keep editing it. */
+    public function cancelReview(Investigation $investigation, User $actor): Investigation
+    {
+        if ($investigation->review_status !== self::REVIEW_PENDING) {
+            throw ApiException::invalidState('This investigation is not waiting for review.', 'not_under_review');
+        }
+        $investigation->forceFill(['review_status' => null, 'review_requested_at' => null, 'review_change_reason' => null])->save();
+        $this->audit->log('investigation.review_cancelled', $investigation, null, null, $actor);
+
+        return $investigation;
+    }
+
+    private function assertEditable(Investigation $investigation): void
+    {
+        if (! $investigation->isEditableByOwner()) {
+            throw ApiException::invalidState('This investigation can no longer be edited.', 'not_editable');
+        }
+        // The reviewed content must be exactly what goes live, so editing waits until the review ends.
+        if ($investigation->review_status === self::REVIEW_PENDING) {
+            throw ApiException::invalidState('This investigation is waiting for review. Cancel the review to make changes.', 'under_review');
+        }
+    }
+
+    /** @param array<string, bool> $statements */
+    private function recordConfirmation(Investigation $inv, User $actor, array $statements): void
+    {
+        $terms = TermsVersion::currentFor('investigator_responsibility');
+        PublishConfirmation::query()->create([
+            'investigation_id' => $inv->id,
+            'user_id' => $actor->id,
+            'version_no' => $inv->current_version + 1,
+            'terms_version_id' => $terms?->id,
+            'statements_json' => array_intersect_key($statements, self::CONFIRMATION_STATEMENTS),
+            'confirmed_at' => now(),
+            'ip_address' => Request::ip(),
+            'user_agent' => mb_substr((string) Request::userAgent(), 0, 500),
+        ]);
+    }
+
+    /**
+     * Snapshot the locked working copy as the next published version (call inside a transaction).
+     * $authorId is the investigator's user; $actor is who triggered it (the moderator when reviewed).
+     */
+    private function publishLocked(Investigation $inv, int $authorId, ?string $changeReason, User $actor): Investigation
+    {
+        $inv->load(['findings', 'timeline', 'sources', 'tags', 'locations', 'category', 'subcategory', 'investigator']);
+        $isFirst = $inv->published_at === null;
+        $before = ['status' => $inv->status->value, 'version' => $inv->current_version];
+        $versionNo = $inv->current_version + 1;
+        $identity = $inv->investigator->identitySnapshot();
+
+        InvestigationVersion::query()->create([
+            'investigation_id' => $inv->id,
+            'version_no' => $versionNo,
+            'title' => $inv->title,
+            'summary' => $inv->summary,
+            'body' => $inv->body,
+            'findings_json' => $inv->findings->map(fn ($f) => ['title' => $f->title, 'body' => $f->body])->values()->all(),
+            'recommendations_json' => array_values($inv->recommendations ?? []),
+            'timeline_json' => $inv->timeline->map(fn ($t) => [
+                'event_date' => $t->event_date?->toDateString(), 'title' => $t->title, 'description' => $t->description,
+            ])->values()->all(),
+            // Only sources the investigator marked public are ever snapshotted for display.
+            'sources_json' => $inv->sources->where('is_public', true)->map(fn ($s) => [
+                'title' => $s->title, 'source_type' => $s->source_type, 'publisher' => $s->publisher, 'url' => $s->url,
+                'citation_text' => $s->citation_text, 'accessed_at' => $s->accessed_at?->toDateString(),
+            ])->values()->all(),
+            'entities_json' => array_values($inv->entities ?? []),
+            'meta_json' => [
+                'category' => $inv->category?->slug,
+                'subcategory' => $inv->subcategory?->slug,
+                'tags' => $inv->tags->pluck('slug')->all(),
+                'location_name' => $inv->location_name,
+                'location_country' => $inv->location_country,
+                'period_start' => $inv->period_start?->toDateString(),
+                'period_end' => $inv->period_end?->toDateString(),
+            ],
+            'identity_snapshot' => $identity,
+            'changed_by' => $authorId,
+            'change_reason' => $isFirst ? ($changeReason ?: __('Initial publication')) : $changeReason,
+            'created_at' => now(),
+        ]);
+
+        $previousCover = $inv->published_cover_path;
+        $inv->forceFill([
+            'current_version' => $versionNo,
+            'status' => InvestigationStatus::Published,
+            'slug' => Investigation::makeSlug($inv->title),
+            'published_title' => $inv->title,
+            'published_summary' => $inv->summary,
+            'published_body' => $inv->body,
+            'published_cover_path' => $inv->cover_path,
+            'identity_snapshot' => $identity,
+            'published_at' => $inv->published_at ?? now(),
+            'last_published_at' => now(),
+            'withdrawn_at' => null,
+            'withdrawal_reason' => null,
+            'public_status_note' => null,
+            'has_unpublished_changes' => false,
+        ])->save();
+
+        if ($previousCover !== null && $previousCover !== $inv->cover_path) {
+            DB::afterCommit(fn () => $this->deleteCoverFile($previousCover));
+        }
+
+        $this->recountInvestigator($inv->investigator);
+        $this->audit->log($isFirst ? 'investigation.published' : 'investigation.updated', $inv, $before, [
+            'status' => 'published', 'version' => $versionNo, 'change_reason' => $changeReason,
+        ], $actor);
+        $this->analytics->record('investigation_published', ['investigation_id' => $inv->id, 'investigator_id' => $inv->investigator_id, 'user_id' => $authorId], ['version' => $versionNo]);
+
+        if ($isFirst && $inv->visibility === InvestigationVisibility::Public) {
+            NotifyFollowersOfPublication::dispatch($inv->id)->afterCommit();
+        }
+
+        return $inv;
     }
 
     public function withdraw(Investigation $investigation, User $actor, string $reason): Investigation
@@ -381,9 +473,7 @@ class InvestigationService
      */
     public function updateCover(Investigation $investigation, UploadedFile $file, User $actor): Investigation
     {
-        if (! $investigation->isEditableByOwner()) {
-            throw ApiException::invalidState('This investigation can no longer be edited.', 'not_editable');
-        }
+        $this->assertEditable($investigation);
         $inspected = $this->inspector->inspect($file, [
             'image/jpeg' => ['jpg', 'jpeg'], 'image/png' => ['png'], 'image/webp' => ['webp'],
         ], 8 * 1024 * 1024, 'cover');
@@ -406,9 +496,7 @@ class InvestigationService
 
     public function removeCover(Investigation $investigation, User $actor): Investigation
     {
-        if (! $investigation->isEditableByOwner()) {
-            throw ApiException::invalidState('This investigation can no longer be edited.', 'not_editable');
-        }
+        $this->assertEditable($investigation);
 
         return $this->replaceCover($investigation, null, $actor);
     }

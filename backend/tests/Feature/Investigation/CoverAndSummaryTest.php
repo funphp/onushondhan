@@ -49,6 +49,7 @@ it('keeps a new header image private until the report is published', function ()
     $this->actingAs($other->user)->get($draftUrl)->assertNotFound();
 
     $this->actingAs($inv->user)->postJson("/api/v1/me/investigations/{$id}/publish", ['confirmations' => $this->confirmations()])->assertOk();
+    $this->approvePublication($id);
     auth()->forgetGuards();
     $publicUrl = $this->getJson("/api/v1/investigations/{$id}")->json('data.cover_url');
     expect($publicUrl)->toStartWith("/api/v1/investigations/{$id}/cover?v=");
@@ -61,6 +62,7 @@ it('replaces and removes covers without touching the published image until repub
     $id = $this->actingAs($inv->user)->postJson('/api/v1/me/investigations', coverDraft())->json('data.id');
     $this->actingAs($inv->user)->post("/api/v1/me/investigations/{$id}/cover", ['cover' => UploadedFile::fake()->image('a.jpg', 1200, 600)])->assertOk();
     $this->actingAs($inv->user)->postJson("/api/v1/me/investigations/{$id}/publish", ['confirmations' => $this->confirmations()])->assertOk();
+    $this->approvePublication($id);
     $model = Investigation::query()->where('public_id', $id)->first();
     $first = $model->published_cover_path;
     $vault = app(FileVault::class);
@@ -75,6 +77,7 @@ it('replaces and removes covers without touching the published image until repub
     expect($vault->exists($second))->toBeFalse()->and($vault->exists($first))->toBeTrue();
 
     $this->actingAs($inv->user)->postJson("/api/v1/me/investigations/{$id}/publish", ['confirmations' => $this->confirmations(), 'change_reason' => 'Removed the header image'])->assertOk();
+    $this->approvePublication($id);
     expect($model->refresh()->published_cover_path)->toBeNull()->and($vault->exists($first))->toBeFalse();
     auth()->forgetGuards();
     $this->get("/api/v1/investigations/{$id}/cover")->assertNotFound();
@@ -95,6 +98,7 @@ it('hides the published cover when a report is withdrawn', function () {
     $id = $this->actingAs($inv->user)->postJson('/api/v1/me/investigations', coverDraft())->json('data.id');
     $this->actingAs($inv->user)->post("/api/v1/me/investigations/{$id}/cover", ['cover' => UploadedFile::fake()->image('a.jpg', 1200, 600)])->assertOk();
     $this->actingAs($inv->user)->postJson("/api/v1/me/investigations/{$id}/publish", ['confirmations' => $this->confirmations()])->assertOk();
+    $this->approvePublication($id);
     $this->actingAs($inv->user)->postJson("/api/v1/me/investigations/{$id}/withdraw", ['reason' => 'Retracting for corrections'])->assertOk();
     auth()->forgetGuards();
 

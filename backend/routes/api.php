@@ -163,6 +163,7 @@ Route::middleware('throttle:api')->group(function () {
             Route::delete('investigations/{investigation}', [MyInvestigationController::class, 'destroy']);
             Route::get('investigations/{investigation}/preview', [MyInvestigationController::class, 'preview']);
             Route::post('investigations/{investigation}/publish', [MyInvestigationController::class, 'publish']);
+            Route::post('investigations/{investigation}/cancel-review', [MyInvestigationController::class, 'cancelReview']);
             Route::post('investigations/{investigation}/withdraw', [MyInvestigationController::class, 'withdraw']);
             Route::post('investigations/{investigation}/archive', [MyInvestigationController::class, 'archive']);
             Route::get('investigations/{investigation}/versions', [MyInvestigationController::class, 'versions']);

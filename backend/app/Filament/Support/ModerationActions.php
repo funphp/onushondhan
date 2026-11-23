@@ -24,9 +24,10 @@ final class ModerationActions
     /**
      * @param  \Closure|null  $visible  receives the record, returns whether the action is shown
      */
-    public static function make(string $targetType, ModerationActionType $type, string $label, string $color = 'gray', ?\Closure $visible = null, bool $withPublicNote = false, bool $withDays = false): Action
+    public static function make(string $targetType, ModerationActionType $type, string $label, string $color = 'gray', ?\Closure $visible = null, bool $withPublicNote = false, bool $withDays = false, bool $reasonRequired = true, string $reasonLabel = 'Reason (recorded in the audit log)'): Action
     {
-        $fields = [Textarea::make('reason')->label('Reason (recorded in the audit log)')->required()->minLength(5)->maxLength(1000)];
+        $reason = Textarea::make('reason')->label($reasonRequired ? $reasonLabel : 'Note (optional, recorded in the audit log)')->maxLength(1000);
+        $fields = [$reasonRequired ? $reason->required()->minLength(5) : $reason];
         if ($withPublicNote) {
             $fields[] = TextInput::make('public_note')->label('Public note (optional, shown on the tombstone)')->maxLength(500)
                 ->helperText('Keep it factual. Do not disclose sensitive moderation details.');
@@ -50,7 +51,7 @@ final class ModerationActions
                 ], fn ($v) => $v !== null && $v !== '');
 
                 try {
-                    app(ModerationService::class)->apply($actor, $targetType, $record, $type, (string) $data['reason'], $details);
+                    app(ModerationService::class)->apply($actor, $targetType, $record, $type, trim((string) ($data['reason'] ?? '')) ?: $type->getLabel(), $details);
                     Notification::make()->title('Action recorded')->success()->send();
                 } catch (ApiException $e) {
                     Notification::make()->title($e->getMessage())->danger()->send();

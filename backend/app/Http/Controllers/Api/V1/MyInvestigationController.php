@@ -127,6 +127,14 @@ class MyInvestigationController extends Controller
         return new InvestigationOwnerResource($published->load(self::WITH));
     }
 
+    /** Take a submission back from the review queue to keep editing it. */
+    public function cancelReview(Request $request, Investigation $investigation): InvestigationOwnerResource
+    {
+        $this->authorizeOwner($request->user(), $investigation, 'update');
+
+        return new InvestigationOwnerResource($this->service->cancelReview($investigation, $request->user())->load(self::WITH));
+    }
+
     public function withdraw(Request $request, Investigation $investigation): InvestigationOwnerResource
     {
         $this->authorizeOwner($request->user(), $investigation, 'withdraw');

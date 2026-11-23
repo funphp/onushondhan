@@ -48,6 +48,10 @@ use Illuminate\Support\Carbon;
  * @property string|null $published_cover_path
  * @property array<string, mixed>|null $identity_snapshot
  * @property InvestigationStatus $status
+ * @property string|null $review_status
+ * @property Carbon|null $review_requested_at
+ * @property string|null $review_change_reason
+ * @property string|null $review_note
  * @property InvestigationVisibility $visibility
  * @property Carbon|null $published_at
  * @property Carbon|null $last_published_at
@@ -108,6 +112,7 @@ class Investigation extends Model
             'archived_at' => 'datetime',
             'restricted_at' => 'datetime',
             'removed_at' => 'datetime',
+            'review_requested_at' => 'datetime',
             'has_unpublished_changes' => 'boolean',
             'comments_locked' => 'boolean',
             'trending_score' => 'float',

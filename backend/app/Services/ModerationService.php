@@ -33,7 +33,7 @@ class ModerationService
 {
     /** target type => [permission, allowed actions] */
     private const MATRIX = [
-        'investigation' => ['investigations.moderate', [A::NoAction, A::RequestCorrection, A::Warn, A::Restrict, A::Remove, A::Restore, A::LockComments, A::UnlockComments, A::Escalate]],
+        'investigation' => ['investigations.moderate', [A::NoAction, A::ApprovePublication, A::RejectPublication, A::RequestCorrection, A::Warn, A::Restrict, A::Remove, A::Restore, A::LockComments, A::UnlockComments, A::Escalate]],
         'comment' => ['comments.moderate', [A::NoAction, A::Hide, A::Remove, A::Restore, A::LockComments, A::UnlockComments, A::Escalate]],
         'evidence' => ['evidence.moderate', [A::NoAction, A::Hide, A::Remove, A::Restore, A::Escalate]],
         'user' => ['users.manage', [A::NoAction, A::Warn, A::SuspendUser, A::BanUser, A::ReinstateUser, A::Escalate]],
@@ -109,6 +109,8 @@ class ModerationService
             A::Restrict => $this->investigations->transition($inv, $actor, InvestigationStatus::Restricted, 'investigation.restricted', ['restricted_at' => now(), 'public_status_note' => $publicNote], $reason),
             A::Remove => $this->investigations->transition($inv, $actor, InvestigationStatus::Removed, 'investigation.removed', ['removed_at' => now(), 'public_status_note' => $publicNote], $reason),
             A::Restore => $this->investigations->transition($inv, $actor, $inv->current_version > 0 ? InvestigationStatus::Published : InvestigationStatus::Draft, 'investigation.restored', ['restricted_at' => null, 'removed_at' => null, 'public_status_note' => null], $reason),
+            A::ApprovePublication => $this->investigations->approvePublication($inv, $actor),
+            A::RejectPublication => $this->investigations->rejectPublication($inv, $actor, $reason),
             A::LockComments => $inv->forceFill(['comments_locked' => true])->save(),
             A::UnlockComments => $inv->forceFill(['comments_locked' => false])->save(),
             default => null,
@@ -207,12 +209,14 @@ class ModerationService
     /** @return array<string, mixed> */
     private function snapshot(Model $target): array
     {
-        return array_intersect_key($target->getAttributes(), array_flip(['status', 'moderation_status', 'comments_locked', 'is_pinned', 'suspended_until', 'visibility']));
+        return array_intersect_key($target->getAttributes(), array_flip(['status', 'review_status', 'moderation_status', 'comments_locked', 'is_pinned', 'suspended_until', 'visibility']));
     }
 
     private function noticeTitle(string $type, A $action): string
     {
         return match ($action) {
+            A::ApprovePublication => 'Your investigation was approved and published',
+            A::RejectPublication => 'Your investigation was not approved for publication',
             A::RequestCorrection => 'A moderator requested a correction to your investigation',
             A::Warn => 'You received a warning from the moderation team',
             A::Restrict => $type === 'investigator' ? 'Your investigator profile has been suspended' : 'Your investigation has been restricted pending review',

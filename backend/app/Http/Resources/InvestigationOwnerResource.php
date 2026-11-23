@@ -27,6 +27,12 @@ class InvestigationOwnerResource extends JsonResource
             'revision' => $inv->draft_revision,
             'current_version' => $inv->current_version,
             'has_unpublished_changes' => $inv->has_unpublished_changes,
+            // Pre-publication review: pending (waiting for a moderator) or rejected (with the moderator's note).
+            'review' => $inv->review_status === null ? null : [
+                'status' => $inv->review_status,
+                'requested_at' => $inv->review_requested_at?->toIso8601String(),
+                'note' => $inv->review_status === 'rejected' ? $inv->review_note : null,
+            ],
             'published_at' => $inv->published_at?->toIso8601String(),
             'last_published_at' => $inv->last_published_at?->toIso8601String(),
             'withdrawn_at' => $inv->withdrawn_at?->toIso8601String(),

@@ -22,5 +22,7 @@ enum ModerationActionType: string implements HasLabel
     case SuspendUser = 'suspend_user';
     case BanUser = 'ban_user';
     case ReinstateUser = 'reinstate_user';
+    case ApprovePublication = 'approve_publication';
+    case RejectPublication = 'reject_publication';
     case Escalate = 'escalate';
 }

@@ -240,3 +240,18 @@ Status: Accepted (2026-11-04).
   The public page shows only the thumbnail (i.ytimg.com) until the reader presses play; the player then
   loads from youtube-nocookie.com. CSP allows exactly those two hosts (`img-src`, `frame-src`).
   Bare link lines are skipped when the summary is generated.
+
+## ADR-027 — Pre-publication review
+Status: Accepted (2026-11-23).
+
+Every submission is reviewed by a moderator before it becomes public (product owner's decision).
+Submitting records the responsibility confirmation and sets `review_status = pending`; editing is paused
+(the reviewed working copy is exactly what goes live) until the investigator cancels the submission or a
+moderator decides. "Approve and publish" (moderation action `approve_publication`) creates the next
+published version with the investigator as author and the moderator as the audit actor; "Reject (send
+back)" (`reject_publication`) returns it with a reason shown to the investigator. Updates to published
+reports go through the same queue while the current version stays public. Both actions run through
+ModerationService (permission `investigations.moderate`, audit log, notification to the investigator).
+The queue is visible in the admin panel (sidebar badge, dashboard stat, "Awaiting review" filter, and the
+submitted content on the record page). `PUBLICATION_REVIEW_REQUIRED=false` restores direct publishing.
+Review is not fact verification (see "Moderation is not verification").

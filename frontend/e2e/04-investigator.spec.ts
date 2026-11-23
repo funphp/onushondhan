@@ -1,11 +1,12 @@
 import path from "node:path";
 import { expect, test } from "@playwright/test";
-import { apiGet, field, storageFor, unique } from "./helpers";
+import { ADMIN_URL, adminLogin, apiGet, field, storageFor, unique, USERS } from "./helpers";
 
 test.describe("Journeys 5 & 6 — investigator publishes with evidence; private evidence stays private", () => {
   test.use({ storageState: storageFor("investigator") });
 
   test("create draft, autosave, upload evidence, preview, confirm responsibility, publish", async ({ page, browser }) => {
+    test.setTimeout(150_000); // long journey: editor, evidence, review and moderator approval
     const title = `Ferry fare subsidies audit ${unique("x")}`;
     await page.goto("/dashboard/investigations/new");
     await page.getByLabel("Working title").fill(title);
@@ -79,14 +80,35 @@ test.describe("Journeys 5 & 6 — investigator publishes with evidence; private 
     await expect(page.getByText("private-notes")).toHaveCount(0);
     await page.getByRole("link", { name: "Back to the editor" }).click();
 
-    await page.getByRole("button", { name: "Review & publish" }).click();
+    await page.getByRole("button", { name: "Submit for publication" }).click();
     const dialog = page.getByRole("dialog");
-    const publish = dialog.getByRole("button", { name: "Publish" });
+    const publish = dialog.getByRole("button", { name: "Submit for review" });
     await expect(publish).toBeDisabled();
     await expect(dialog.getByRole("checkbox")).toHaveCount(4);
     for (const box of await dialog.getByRole("checkbox").all()) await box.check();
     await publish.click();
-    await expect(page.getByText("Published version 1.")).toBeVisible();
+    // Pre-publication review: waiting for a moderator, editing paused, nothing public yet.
+    await expect(page.getByText("Submitted for review. You will be notified when a moderator approves it.")).toBeVisible();
+    await expect(page.getByText("Waiting for review")).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "Title" })).toBeDisabled();
+    const anon = await browser.newContext({ storageState: { cookies: [], origins: [] } });
+    expect((await anon.request.get(`/api/v1/investigations/${id}`, { headers: { Accept: "application/json" } })).status()).toBe(404);
+    await anon.close();
+
+    // A moderator approves it in the admin panel.
+    const modCtx = await browser.newContext({ storageState: { cookies: [], origins: [] } }); // not the investigator's session
+    const mp = await modCtx.newPage();
+    await adminLogin(mp, USERS.moderator);
+    await mp.goto(`${ADMIN_URL}/investigations/${id}`);
+    await expect(mp.getByText("Submitted for review")).toBeVisible();
+    await mp.getByRole("button", { name: "Moderate" }).click();
+    await mp.getByRole("button", { name: "Approve and publish" }).click();
+    await mp.getByRole("button", { name: "Confirm", exact: true }).click();
+    await expect(mp.getByText("Action recorded")).toBeVisible();
+    await modCtx.close();
+
+    await page.reload();
+    await expect(page.getByText("Waiting for review")).toHaveCount(0);
 
     // Public page shows the report and only public evidence.
     await page.getByRole("link", { name: "View public page" }).click();

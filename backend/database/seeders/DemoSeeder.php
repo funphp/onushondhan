@@ -98,13 +98,13 @@ class DemoSeeder extends Seeder
                 ],
                 'locations' => [['country' => 'BD', 'region' => $division, 'district' => $district, 'is_primary' => true]],
             ], $owner);
-            $published[] = $service->publish($inv->fresh(), $owner, $statements, null);
+            $published[] = $this->publishApproved($service, $inv, $owner, $statements, null);
         }
 
         // A published update (version 2) and an unpublished draft.
         $first = $published[0];
-        $service->saveWorkingCopy($first, ['summary' => $first->summary.' Updated with the authority\'s response received after publication.'], $realUser);
-        $service->publish($first->fresh(), $realUser, $statements, 'Added the district office\'s response.');
+        $service->saveWorkingCopy($first, ['body' => $first->body."\n\nUpdate: the district office's response, received after publication, is now included."], $realUser);
+        $this->publishApproved($service, $first, $realUser, $statements, 'Added the district office\'s response.');
         $service->createDraft($real, ['title' => 'Draft: hospital procurement of oxygen concentrators', 'summary' => 'Work in progress.'], $realUser);
 
         // Engagement.
@@ -178,5 +178,17 @@ class DemoSeeder extends Seeder
         - Why were the records not published proactively?
         - Who approved the exceptions noted above?
         MD;
+    }
+
+    /**
+     * Demo data skips the moderator queue: submit, then approve straight away.
+     *
+     * @param  array<string, bool>  $statements
+     */
+    private function publishApproved(InvestigationService $service, Investigation $inv, User $author, array $statements, ?string $reason): Investigation
+    {
+        $submitted = $service->publish($inv->fresh(), $author, $statements, $reason);
+
+        return $submitted->review_status === InvestigationService::REVIEW_PENDING ? $service->approvePublication($submitted, $author) : $submitted;
     }
 }

@@ -153,7 +153,10 @@ export default function EditorPage() {
   if (loadError) return <Alert tone="danger">{loadError}</Alert>;
   if (!inv || !draft) return <Spinner />;
 
-  const editable = ["draft", "published", "withdrawn"].includes(inv.status);
+  const underReview = inv.review?.status === "pending";
+  // Editing pauses while a submission waits for a moderator (the reviewed content is what goes live).
+  const lifecycleOpen = ["draft", "published", "withdrawn"].includes(inv.status);
+  const editable = lifecycleOpen && !underReview;
   const parent = categories.find((c) => c.slug === draft.category);
   const fieldErr = (k: string) => (save.kind === "error" ? save.fields?.[k]?.[0] : undefined);
 
@@ -181,7 +184,7 @@ export default function EditorPage() {
           <Link href="/dashboard/investigations" className="text-sm underline">{t.editor.all}</Link>
           <h1 className="mt-1 font-display text-2xl font-bold">{draft.title || t.editor.untitled}</h1>
           <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted">
-            <StatusBadge status={inv.status} /> <span className="font-mono">{inv.id}</span>
+            <StatusBadge status={inv.status} review={inv.review} /> <span className="font-mono">{inv.id}</span>
             {inv.current_version > 0 && <span>{t.editor.publishedVersion(f.digits(inv.current_version))}</span>}
             <span aria-live="polite" className="ml-2">
               {save.kind === "saving" && t.editor.saving}
@@ -209,7 +212,27 @@ export default function EditorPage() {
             : <Button size="sm" variant="secondary" className="mt-2" onClick={() => void doSave()}>{t.common.retry}</Button>}
         </Alert>
       )}
-      {inv.status === "published" && inv.has_unpublished_changes && (
+      {underReview && (
+        <Alert tone="info" title={t.review.pendingTitle}>
+          <p>{inv.current_version > 0 ? t.review.pendingUpdateBody(f.dateTime(inv.review?.requested_at ?? ""), f.digits(inv.current_version)) : t.review.pendingBody(f.dateTime(inv.review?.requested_at ?? ""))}</p>
+          <Button size="sm" variant="secondary" className="mt-2" onClick={async () => {
+            if (!window.confirm(t.review.cancelConfirm)) return;
+            try {
+              apply(await api<{ data: OwnerInvestigation }>(`/me/investigations/${id}/cancel-review`, { method: "POST" }));
+              setNotice({ tone: "success", text: t.review.cancelled });
+            } catch (e) {
+              setNotice({ tone: "danger", text: errorMessage(e) });
+            }
+          }}>{t.review.cancel}</Button>
+        </Alert>
+      )}
+      {inv.review?.status === "rejected" && (
+        <Alert tone="danger" title={t.review.rejectedTitle}>
+          {inv.review.note && <p className="whitespace-pre-line">{inv.review.note}</p>}
+          <p className="mt-1 text-xs">{t.review.rejectedHint}</p>
+        </Alert>
+      )}
+      {inv.status === "published" && inv.has_unpublished_changes && !underReview && (
         <Alert tone="warning">{t.editor.unpublishedNotice(f.digits(inv.current_version))}</Alert>
       )}
       {(inv.status === "restricted" || inv.status === "removed") && (
@@ -225,7 +248,7 @@ export default function EditorPage() {
             <p className="text-sm text-muted">{t.editor.contentLanguageHint}</p>
             <CoverImageField investigation={inv} disabled={!editable} onChange={(r) => setInv(r)} />
             <TextInput label={t.editor.title} value={draft.title} onChange={(e) => update({ title: e.target.value })} maxLength={250} required error={fieldErr("title")} />
-            <RichTextEditor key={editorKey} label={t.editor.body} value={draft.body} onChange={(body) => update({ body })} disabled={!editable}
+            <RichTextEditor key={`${editorKey}-${editable}`} label={t.editor.body} value={draft.body} onChange={(body) => update({ body })} disabled={!editable}
               error={fieldErr("body")} hint={t.editor.bodyHint} placeholder={t.editor.bodyPlaceholder} />
             <section aria-labelledby="auto-summary" className="rounded-md border border-line bg-accent-soft/40 p-4">
               <h2 id="auto-summary" className="text-sm font-medium">{t.editor.summary}</h2>
@@ -328,7 +351,7 @@ export default function EditorPage() {
 
       {tab === "evidence" && <EvidenceManager investigationId={inv.id} initial={inv.evidence ?? []} disabled={!editable} />}
 
-      {inv.status !== "draft" && editable && (
+      {inv.status !== "draft" && lifecycleOpen && (
         <Card as="section" className="space-y-3">
           <h2 className="text-lg font-semibold">{t.editor.lifecycle}</h2>
           <div className="flex flex-wrap gap-2">
@@ -342,7 +365,7 @@ export default function EditorPage() {
       )}
 
       <PublishDialog open={publishOpen} onClose={() => setPublishOpen(false)} investigation={inv} beforePublish={doSave}
-        onPublished={(r) => { setInv(r); setPublishOpen(false); setNotice({ tone: "success", text: t.editor.publishedNotice(f.digits(r.current_version)) }); }} />
+        onPublished={(r) => { setInv(r); setPublishOpen(false); setNotice({ tone: "success", text: r.review?.status === "pending" ? t.review.submitted : t.editor.publishedNotice(f.digits(r.current_version)) }); }} />
       <Modal open={withdrawOpen} onClose={() => setWithdrawOpen(false)} title={t.editor.withdrawTitle} footer={<><Button variant="ghost" onClick={() => setWithdrawOpen(false)}>{t.common.cancel}</Button><Button variant="danger" disabled={withdrawReason.trim().length < 5} onClick={() => void lifecycle("withdraw")}>{t.editor.withdraw}</Button></>}>
         <p className="mb-3 text-sm">{t.editor.withdrawLead}</p>
         <TextArea label={t.editor.withdrawReason} value={withdrawReason} onChange={(e) => setWithdrawReason(e.target.value)} required maxLength={1000} />

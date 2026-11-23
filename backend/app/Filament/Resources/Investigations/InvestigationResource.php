@@ -57,6 +57,10 @@ class InvestigationResource extends Resource
                     InvestigationStatus::Withdrawn => 'warning',
                     default => 'gray',
                 }),
+                TextColumn::make('review_status')->label('Review')->badge()->placeholder('—')
+                    ->formatStateUsing(fn (?string $state) => $state === 'pending' ? 'Awaiting review' : ($state === 'rejected' ? 'Rejected' : '—'))
+                    ->color(fn (?string $state) => $state === 'pending' ? 'warning' : 'danger'),
+                TextColumn::make('review_requested_at')->label('Submitted')->since()->sortable()->toggleable(),
                 TextColumn::make('visibility')->badge(),
                 TextColumn::make('current_version')->label('Ver.'),
                 TextColumn::make('views_count')->label('Views')->numeric()->sortable(),
@@ -65,6 +69,7 @@ class InvestigationResource extends Resource
                 TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('review_status')->label('Review')->options(['pending' => 'Awaiting review', 'rejected' => 'Rejected']),
                 SelectFilter::make('status')->options(InvestigationStatus::options()),
                 SelectFilter::make('visibility')->options(['public' => 'Public', 'unlisted' => 'Unlisted', 'private' => 'Private']),
             ])
@@ -80,7 +85,11 @@ class InvestigationResource extends Resource
         $published = fn (Investigation $r) => in_array($r->status, [InvestigationStatus::Published, InvestigationStatus::Archived], true);
         $moderated = fn (Investigation $r) => in_array($r->status, [InvestigationStatus::Restricted, InvestigationStatus::Removed], true);
 
+        $pending = fn (Investigation $r) => $r->review_status === 'pending';
+
         return [
+            ModerationActions::make('investigation', A::ApprovePublication, 'Approve and publish', 'success', $pending, reasonRequired: false),
+            ModerationActions::make('investigation', A::RejectPublication, 'Reject (send back)', 'danger', $pending, reasonLabel: 'Reason (shown to the investigator)'),
             ModerationActions::make('investigation', A::RequestCorrection, 'Request correction', 'info'),
             ModerationActions::make('investigation', A::Warn, 'Warn investigator', 'warning'),
             ModerationActions::make('investigation', A::Restrict, 'Restrict (pending review)', 'warning', $published, withPublicNote: true),
@@ -106,6 +115,16 @@ class InvestigationResource extends Resource
                 IconEntry::make('comments_locked')->boolean(),
                 TextEntry::make('public_status_note')->placeholder('—')->columnSpanFull(),
             ]),
+            Section::make('Submitted for review')
+                ->description('This working copy is not public. Approving publishes exactly this content.')
+                ->visible(fn (Investigation $record) => $record->review_status === 'pending')
+                ->schema([
+                    TextEntry::make('review_requested_at')->label('Submitted')->dateTime(),
+                    TextEntry::make('review_change_reason')->label('What changed (updates)')->placeholder('—'),
+                    TextEntry::make('title')->label('Title'),
+                    TextEntry::make('summary')->label('Summary (generated)')->placeholder('—'),
+                    TextEntry::make('body')->label('Report (Markdown)')->markdown()->placeholder('—')->columnSpanFull(),
+                ]),
             Section::make('Published content')->schema([
                 TextEntry::make('published_title')->label('Title')->placeholder('Not published'),
                 TextEntry::make('published_summary')->label('Summary')->placeholder('—'),
@@ -120,6 +139,19 @@ class InvestigationResource extends Resource
                 TextEntry::make('tips_count')->label('Tips'),
             ]),
         ]);
+    }
+
+    /** Sidebar badge: reports waiting for review. */
+    public static function getNavigationBadge(): ?string
+    {
+        $count = Investigation::query()->where('review_status', 'pending')->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
     }
 
     public static function getPages(): array

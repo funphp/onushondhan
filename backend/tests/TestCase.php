@@ -57,6 +57,14 @@ abstract class TestCase extends BaseTestCase
         return Investigation::factory()->published()->create(['investigator_id' => $investigator->id] + $attributes)->fresh();
     }
 
+    /** A moderator approves a report that is waiting for pre-publication review. */
+    protected function approvePublication(string $publicId): Investigation
+    {
+        $investigation = Investigation::query()->where('public_id', $publicId)->firstOrFail();
+
+        return app(InvestigationService::class)->approvePublication($investigation, $this->staff('moderator'))->fresh();
+    }
+
     protected function confirmations(): array
     {
         return array_fill_keys(array_keys(InvestigationService::CONFIRMATION_STATEMENTS), true);

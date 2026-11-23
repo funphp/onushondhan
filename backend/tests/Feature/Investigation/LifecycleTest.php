@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\InvestigationStatus;
 use App\Models\AuditLog;
 use App\Models\Investigation;
 use App\Models\PublishConfirmation;
@@ -72,8 +73,10 @@ it('requires every responsibility confirmation to publish and records it', funct
     $this->actingAs($inv->user)->postJson("/api/v1/me/investigations/{$id}/publish", ['confirmations' => $partial])
         ->assertUnprocessable()->assertJsonPath('code', 'confirmation_required');
 
+    // Submitting sends the report to moderator review; nothing is public yet.
     $this->actingAs($inv->user)->postJson("/api/v1/me/investigations/{$id}/publish", ['confirmations' => $this->confirmations()])
-        ->assertOk()->assertJsonPath('data.status', 'published')->assertJsonPath('data.current_version', 1);
+        ->assertOk()->assertJsonPath('data.status', 'draft')->assertJsonPath('data.current_version', 0)->assertJsonPath('data.review.status', 'pending');
+    expect($this->approvePublication($id))->status->toBe(InvestigationStatus::Published)->current_version->toBe(1);
 
     $model = Investigation::query()->where('public_id', $id)->first();
     $confirmation = PublishConfirmation::query()->where('investigation_id', $model->id)->first();
@@ -102,7 +105,8 @@ it('keeps working-copy edits private until an update is published with a reason'
     $this->actingAs($owner)->postJson("/api/v1/me/investigations/{$published->public_id}/publish", ['confirmations' => $this->confirmations()])
         ->assertUnprocessable()->assertJsonPath('code', 'change_reason_required');
     $this->actingAs($owner)->postJson("/api/v1/me/investigations/{$published->public_id}/publish", ['confirmations' => $this->confirmations(), 'change_reason' => 'Corrected the headline'])
-        ->assertOk()->assertJsonPath('data.current_version', 2);
+        ->assertOk()->assertJsonPath('data.current_version', 1)->assertJsonPath('data.review.status', 'pending');
+    expect($this->approvePublication($published->public_id)->current_version)->toBe(2);
     auth()->forgetGuards();
 
     $this->getJson("/api/v1/investigations/{$published->public_id}")

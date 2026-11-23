@@ -37,8 +37,8 @@ it('publishes Bangla investigations with Unicode slugs and finds them by Bangla 
         'tags' => ['নদী দূষণ', 'ট্যানারি'],
     ])->assertCreated()->json('data.id');
 
-    $this->actingAs($inv->user)->postJson("/api/v1/me/investigations/{$id}/publish", ['confirmations' => $this->confirmations()])
-        ->assertOk()->assertJsonPath('data.slug', 'ধলেশ্বরী-নদীতে-ট্যানারির-বর্জ্য');
+    $this->actingAs($inv->user)->postJson("/api/v1/me/investigations/{$id}/publish", ['confirmations' => $this->confirmations()])->assertOk();
+    expect($this->approvePublication($id)->slug)->toBe('ধলেশ্বরী-নদীতে-ট্যানারির-বর্জ্য');
     auth()->forgetGuards();
     $this->getJson("/api/v1/investigations/{$id}")->assertOk()->assertJsonPath('data.tags.0.slug', 'নদী-দূষণ');
     $this->getJson('/api/v1/tags/'.rawurlencode('নদী-দূষণ'))->assertOk();

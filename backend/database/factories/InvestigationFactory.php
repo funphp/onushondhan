@@ -50,12 +50,17 @@ class InvestigationFactory extends Factory
             $inv->findings()->create(['title' => 'Key finding', 'body' => fake()->paragraph(), 'sort_order' => 0]);
             $inv->sources()->create(['title' => 'Public record', 'url' => 'https://example.org/record', 'is_public' => true, 'sort_order' => 0]);
             $inv->sources()->create(['title' => 'Confidential source notes', 'is_public' => false, 'sort_order' => 1]);
-            app(InvestigationService::class)->publish(
+            $service = app(InvestigationService::class);
+            $submitted = $service->publish(
                 $inv->fresh(),
                 $inv->investigator->user,
                 array_fill_keys(array_keys(InvestigationService::CONFIRMATION_STATEMENTS), true),
                 null,
             );
+            // Factory data skips the moderator queue (pre-publication review is on by default).
+            if ($submitted->review_status === InvestigationService::REVIEW_PENDING) {
+                $service->approvePublication($submitted, $inv->investigator->user);
+            }
         });
     }
 }
