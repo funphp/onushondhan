@@ -16,6 +16,7 @@ _Last verified: 2026-11-04 (UTC), against the repository and the automated suite
 | 10 Admin/CMS | COMPLETE | Filament panel: KPIs, moderation queue, engagement chart; resources for users, investigators, investigations, evidence, comments, tips, supporters, followers, complaints, moderation actions, CMS pages, agreement versions (publish → immutable), categories, roles/permissions, settings, audit/login/security logs; audited config changes | `AdminPanelTest`, E2E 06 |
 | 11 Hardening | COMPLETE | IDOR/BOLA, privacy-leak, header, mass-assignment, XSS, SQLi, upload, rate-limit, session tests; axe WCAG scans; fixes from E2E (session resurrection, sticky evidence visibility, partial relation) | `Feature/Security/*`, E2E 07 |
 | 13 Bangla interface | COMPLETE | Bangla default + English UI with switcher (cookie, saved per account), localized API messages/validation/emails/notifications, Bangla category names, Unicode slugs, Bengali fonts and numerals; user content never translated (ADR-024) | `LocalizationTest`, `TranslationCoverageTest`, `SlugTest`, `BanglaSearchTest`, `i18n.test.ts`, E2E 08 |
+| 14 Analytics & ads | COMPLETE (code; ids pending) | GA4 + AdSense behind env ids, consent banner (Consent Mode v2), manual labelled ad units, route exclusions (tips/account/auth), `/ads.txt`, conditional CSP, privacy-policy template section (ADR-028, `docs/ANALYTICS_ADS.md`) | `third-party.test.ts`; manual browser check of consent gating, tip-route exclusion, CSP and ads.txt against a production build |
 | 12 Release | COMPLETE (code/config) | Nginx, PHP-FPM, systemd (Next, queue, scheduler, backup), logrotate, deploy/rollback/backup/restore/health scripts, CI | see `docs/RELEASE_CHECKLIST.md` |
 
 ## Commands executed for this status
@@ -43,6 +44,7 @@ The Playwright suite was also run against it: 28/28 passed after fixing an empty
 - **CMS/legal pages** are shown in the language the admin wrote them in (currently English templates); add Bangla versions as separate pages or translate the templates after legal review.
 - **Admin panel CSP** allows inline scripts/styles (Livewire/Alpine requirement); the public site and API have strict CSPs.
 - Investigators moderate discussion on their reports by reporting comments; there is no investigator-side comment-hiding tool (staff moderate).
+- **GA4/AdSense:** need real ids at build time, GA "history-based page views" off, AdSense Auto ads off, and a Google-certified CMP if serving EEA/UK/CH visitors (`docs/ANALYTICS_ADS.md`). The updated Privacy Policy template must be published through the admin panel after legal review.
 - Backups/restores are scripted but must be rehearsed on the target infrastructure.
 
 ## External inputs required

@@ -93,6 +93,25 @@ export const en = {
     responsibility: "Investigator Responsibility Agreement",
     copyright: (year: string) => `© ${year} onusondhan.com. Reports are the responsibility of their investigators.`,
   },
+  consent: {
+    title: "Cookies, analytics and ads",
+    body: (analytics: boolean, ads: boolean) =>
+      [
+        analytics ? "With your permission we use Google Analytics to understand how the site is used." : "",
+        ads ? "We show ads through Google AdSense; if you accept, they may be personalised." : "",
+        "Declining keeps the site fully usable" + (ads ? " — ads may still appear but will not be personalised." : "."),
+        "Account, sign-in and tip pages are never tracked.",
+      ].filter(Boolean).join(" "),
+    policy: "Privacy Policy",
+    accept: "Accept",
+    decline: "Decline",
+    settings: "Cookie settings",
+    currentGranted: "Current choice: accepted.",
+    currentDenied: "Current choice: declined.",
+  },
+  ads: {
+    label: "Advertisement",
+  },
   home: {
     heroTitle: "Independent investigations, published in the open.",
     heroLead: "Read evidence-backed reports from independent investigators, discuss them, follow their work and send them tips securely.",

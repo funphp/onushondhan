@@ -255,3 +255,14 @@ ModerationService (permission `investigations.moderate`, audit log, notification
 The queue is visible in the admin panel (sidebar badge, dashboard stat, "Awaiting review" filter, and the
 submitted content on the record page). `PUBLICATION_REVIEW_REQUIRED=false` restores direct publishing.
 Review is not fact verification (see "Moderation is not verification").
+
+## ADR-028 — Google Analytics 4 and Google AdSense
+Status: Accepted (2026-11-24).
+
+Product owner requested GA4 and AdSense. Both are opt-in via build-time `NEXT_PUBLIC_*` ids (format-validated);
+unset means no script, no meta tag and no extra CSP hosts. Consent: first-party banner + Google Consent Mode v2
+(default denied); GA is not loaded until consent; AdSense runs with non-personalised ads until consent. Manual,
+labelled ad units only (home page, published reports) — Auto ads stay off. Account, sign-in, complaint and tip
+routes never send page views or show ads, so sources contacting investigators are not exposed to third parties.
+Page views carry the path only (no query strings). Ads are not endorsement and do not affect ranking. The
+first-party Analytics events (ViewBeacon) remain the source for in-product metrics. Details: `docs/ANALYTICS_ADS.md`.

@@ -1,12 +1,17 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Anek_Bangla, Noto_Sans_Bengali, Noto_Serif_Bengali } from "next/font/google";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { AccountBanners } from "@/components/site/AccountBanners";
 import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
+import { ConsentProvider } from "@/components/third-party/Consent";
+import { CONSENT_BOOTSTRAP } from "@/components/third-party/consent-script";
+import { GoogleAnalytics } from "@/components/third-party/GoogleAnalytics";
 import { I18nProvider } from "@/i18n/client";
 import { getI18n } from "@/i18n/server";
 import { SITE_URL } from "@/lib/site";
+import { ADSENSE_CLIENT, THIRD_PARTY_ENABLED } from "@/lib/third-party";
 import "./globals.css";
 
 // Self-hosted at build time (no runtime requests to Google). Covers Bangla and Latin text.
@@ -24,6 +29,8 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: { type: "website", siteName: t.brand.name, locale: locale === "bn" ? "bn_BD" : "en_GB" },
     twitter: { card: "summary_large_image" },
     alternates: { canonical: "/" },
+    // AdSense site-ownership verification (no script needed on every page).
+    ...(ADSENSE_CLIENT ? { other: { "google-adsense-account": ADSENSE_CLIENT } } : {}),
   };
 }
 
@@ -39,8 +46,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang={locale} className={`h-full antialiased ${sans.variable} ${serif.variable} ${display.variable}`}>
       <body className="flex min-h-full flex-col">
+        {THIRD_PARTY_ENABLED && <Script id="consent-default" strategy="beforeInteractive">{CONSENT_BOOTSTRAP}</Script>}
         <a href="#main" className="skip-link">{t.nav.skip}</a>
         <I18nProvider locale={locale}>
+          <ConsentProvider>
           <AuthProvider>
             <Header />
             <AccountBanners />
@@ -49,6 +58,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             </main>
             <Footer />
           </AuthProvider>
+          <GoogleAnalytics />
+          </ConsentProvider>
         </I18nProvider>
       </body>
     </html>

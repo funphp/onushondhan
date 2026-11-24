@@ -18,6 +18,7 @@ else is implemented, tested and documented.
 | 11 | **ClamAV on the server** | Server package/daemon | `sudo apt install clamav-daemon && sudo systemctl enable --now clamav-daemon clamav-freshclam`; set `MALWARE_SCANNER=clamav`, `EVIDENCE_REQUIRE_CLEAN_SCAN=true` |
 | 12 | **Branding assets** — logo done (magnifier with অ + pen-nib handle; `frontend/public/brand/`). Optional: professional refinement, Bangla wordmark artwork | Organisational decision | `frontend/src/components/site/LogoMark.tsx`, `frontend/src/app/{icon.svg,favicon.ico,apple-icon.png,opengraph-image.tsx}`, `frontend/public/brand/` |
 | 13 | **Recovery objectives** (RPO/RTO confirmation) | Business decision | `docs/OPERATIONS.md` (initial assumption: RPO 24 h, RTO 4 h) |
+| 14 | **Google Analytics 4 / AdSense accounts** (optional) | External accounts; AdSense site approval | GA4 measurement id and AdSense publisher + ad-unit ids as `NEXT_PUBLIC_*` build env; dashboard settings in `docs/ANALYTICS_ADS.md` |
 
 ## Exact commands once inputs 1–7 exist
 

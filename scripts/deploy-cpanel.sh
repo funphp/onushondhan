@@ -4,6 +4,10 @@
 #
 #   DEPLOY_SSH=user@host SITE_URL=https://example.com ADMIN_URL=https://admin.example.com scripts/deploy-cpanel.sh
 #
+# Optional Google Analytics / AdSense ids are baked into the local build when exported too:
+#   NEXT_PUBLIC_GA_MEASUREMENT_ID=G-… NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-… NEXT_PUBLIC_ADSENSE_SLOT_DISPLAY=… \
+#   NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE=… (see docs/ANALYTICS_ADS.md)
+#
 # Server layout (under $HOME/$DEPLOY_DIR):
 #   current/            live release (a real directory: LiteSpeed does not serve a symlinked docroot)
 #     backend/public    document root of the admin/API subdomain
@@ -47,7 +51,7 @@ SHA="$(git rev-parse --short HEAD)"
 TS="$(date -u +%Y%m%d%H%M%S)"
 REL="releases/$TS"
 
-log "Building frontend ($SHA) for $SITE_URL"
+log "Building frontend ($SHA) for $SITE_URL (analytics: ${NEXT_PUBLIC_GA_MEASUREMENT_ID:-off}, adsense: ${NEXT_PUBLIC_ADSENSE_CLIENT:-off})"
 (cd frontend && rm -rf .next && API_INTERNAL_URL="$ADMIN_URL" NEXT_PUBLIC_SITE_URL="$SITE_URL" NEXT_PUBLIC_ADMIN_URL="$ADMIN_URL/admin" npm run build)
 cp -r frontend/.next/static frontend/.next/standalone/.next/static
 cp -r frontend/public frontend/.next/standalone/public

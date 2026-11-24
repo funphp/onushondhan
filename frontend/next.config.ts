@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { thirdPartyCsp } from "./src/lib/third-party";
 
 /**
  * The browser only ever talks to this origin. /api/* and /sanctum/* are proxied to
@@ -8,17 +9,21 @@ import type { NextConfig } from "next";
 const apiOrigin = (process.env.API_INTERNAL_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "");
 const isDev = process.env.NODE_ENV !== "production";
 
+// Google Analytics / AdSense hosts are only allowed when their NEXT_PUBLIC_ ids are set at build.
+const google = thirdPartyCsp();
+const join = (hosts: string[]) => (hosts.length ? ` ${hosts.join(" ")}` : "");
+
 const csp = [
   "default-src 'self'",
-  // Next.js inline bootstrap scripts; no third-party scripts are loaded.
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  // Next.js inline bootstrap scripts, plus Google Analytics/AdSense when configured.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}${join(google.script)}`,
   "style-src 'self' 'unsafe-inline'",
   // YouTube thumbnails (i.ytimg.com) and the click-to-play player (privacy-enhanced domain only).
-  "img-src 'self' data: blob: https://i.ytimg.com",
-  "frame-src https://www.youtube-nocookie.com",
+  `img-src 'self' data: blob: https://i.ytimg.com${join(google.img)}`,
+  `frame-src https://www.youtube-nocookie.com${join(google.frame)}`,
   "media-src 'self' blob:",
   "font-src 'self'",
-  "connect-src 'self'",
+  `connect-src 'self'${join(google.connect)}`,
   "frame-ancestors 'none'",
   "form-action 'self'",
   "base-uri 'self'",

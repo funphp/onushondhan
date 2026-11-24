@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getI18n } from "@/i18n/server";
+import { CookieSettingsButton } from "@/components/third-party/Consent";
 import { LogoMark } from "./LogoMark";
 
 export async function Footer() {
@@ -28,6 +29,7 @@ export async function Footer() {
             <li><Link href="/pages/privacy-policy">{t.footer.privacy}</Link></li>
             <li><Link href="/pages/content-policy">{t.footer.contentPolicy}</Link></li>
             <li><Link href="/pages/investigator-responsibility">{t.footer.responsibility}</Link></li>
+            <li><CookieSettingsButton className="text-left hover:text-white hover:underline" /></li>
           </ul>
         </nav>
       </div>

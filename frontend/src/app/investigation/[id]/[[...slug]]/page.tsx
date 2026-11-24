@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 import { Comments } from "@/components/engagement/Comments";
+import { AdSlot } from "@/components/third-party/AdSlot";
 import { EngagementBar } from "@/components/engagement/EngagementBar";
 import { ShareButtons } from "@/components/engagement/ShareButtons";
 import { ViewBeacon } from "@/components/engagement/ViewBeacon";
@@ -111,6 +112,7 @@ export default async function InvestigationPage(props: PageProps<"/investigation
               <Link href={`/investigation/${inv.id}/${inv.slug}/history`} className="underline">{t.investigation.versionHistory}</Link>
             </p>
           )}
+          {inv.status === "published" && <AdSlot placement="article" />}
           {readable && <Comments investigationId={inv.id} />}
         </div>
 
@@ -128,6 +130,7 @@ export default async function InvestigationPage(props: PageProps<"/investigation
           <p className="text-sm">
             <Link href={`/report?investigation=${inv.id}`} className="text-muted underline">{t.investigation.reportProblem}</Link>
           </p>
+          {inv.status === "published" && <AdSlot placement="display" className="hidden lg:block" />}
           {related.data.length > 0 && (
             <section aria-labelledby="related-h" className="space-y-3">
               <h2 id="related-h" className="font-semibold">{t.investigation.related}</h2>

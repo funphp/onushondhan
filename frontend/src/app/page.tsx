@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { CoverStory, InvestigationGrid, NumberedList } from "@/components/investigation/InvestigationCard";
 import { InvestigatorCard } from "@/components/investigation/InvestigatorCard";
 import { JsonLd } from "@/components/site/JsonLd";
+import { AdSlot } from "@/components/third-party/AdSlot";
 import { ButtonLink } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/Card";
 import { getCategories, searchInvestigations } from "@/lib/search";
@@ -83,6 +84,8 @@ export default async function Home() {
           <InvestigationGrid items={rest} />
         </Section>
       )}
+
+      <AdSlot placement="display" />
 
       <section className="masthead -mx-4 bg-masthead px-6 py-10 text-masthead-ink sm:mx-0 sm:px-10" aria-labelledby="cta">
         <p className="file-stamp text-[#ff6b78]">{t.home.publish}</p>
